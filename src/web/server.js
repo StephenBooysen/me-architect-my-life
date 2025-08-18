@@ -1,7 +1,7 @@
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const sqlite3 = require('sqlite3').verbose();
+const express = require("express");
+const cors = require("cors");
+const path = require("path");
+const sqlite3 = require("sqlite3").verbose();
 
 class WebDatabase {
   constructor() {
@@ -10,15 +10,15 @@ class WebDatabase {
 
   async init() {
     // Use a web-specific database path in the project directory
-    const dbPath = path.join(__dirname, '../../web-database.db');
-    
+    const dbPath = path.join(__dirname, "../../web-database.db");
+
     return new Promise((resolve, reject) => {
       this.db = new sqlite3.Database(dbPath, (err) => {
         if (err) {
-          console.error('Error opening database:', err);
+          console.error("Error opening database:", err);
           reject(err);
         } else {
-          console.log('Connected to SQLite database (web mode)');
+          console.log("Connected to SQLite database (web mode)");
           this.createTables().then(resolve).catch(reject);
         }
       });
@@ -153,7 +153,7 @@ class WebDatabase {
         message TEXT NOT NULL,
         context TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )`
+      )`,
     ];
 
     for (const table of tables) {
@@ -166,63 +166,73 @@ class WebDatabase {
 
   async insertDefaultData() {
     const defaultFocusAreas = [
-      'Health & Fitness',
-      'Wealth & Career',
-      'Spiritual & Mindfulness',
-      'Family & Relationships',
-      'Friends & Social',
-      'Personal Development',
-      'Hobbies & Recreation'
+      "Health & Fitness",
+      "Wealth & Career",
+      "Spiritual & Mindfulness",
+      "Family & Relationships",
+      "Friends & Social",
+      "Personal Development",
+      "Hobbies & Recreation",
     ];
 
     for (const area of defaultFocusAreas) {
       await this.run(
-        'INSERT OR IGNORE INTO focus_areas (name, category) VALUES (?, ?)',
-        [area, area.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_')]
+        "INSERT OR IGNORE INTO focus_areas (name, category) VALUES (?, ?)",
+        [area, area.toLowerCase().replace(/ & /g, "_").replace(/ /g, "_")]
       );
     }
 
     // Insert default templates
     const defaultMorningTemplate = {
-      name: 'Default Morning Template',
-      type: 'morning',
+      name: "Default Morning Template",
+      type: "morning",
       questions: JSON.stringify([
-        'What are my top 3 priorities today?',
-        'How do I want to feel today?',
-        'What am I grateful for?',
-        'What challenges might I face?',
-        'My intention for today is...'
+        "What are my top 3 priorities today?",
+        "How do I want to feel today?",
+        "What am I grateful for?",
+        "What challenges might I face?",
+        "My intention for today is...",
       ]),
-      is_default: 1
+      is_default: 1,
     };
 
     const defaultEveningTemplate = {
-      name: 'Default Evening Template',
-      type: 'evening',
+      name: "Default Evening Template",
+      type: "evening",
       questions: JSON.stringify([
-        'What went well today?',
-        'What could have been better?',
-        'What did I learn?',
-        'Tomorrow\'s top priority is...',
-        'I\'m grateful for...'
+        "What went well today?",
+        "What could have been better?",
+        "What did I learn?",
+        "Tomorrow's top priority is...",
+        "I'm grateful for...",
       ]),
-      is_default: 1
+      is_default: 1,
     };
 
     await this.run(
-      'INSERT OR IGNORE INTO templates (name, type, questions, is_default) VALUES (?, ?, ?, ?)',
-      [defaultMorningTemplate.name, defaultMorningTemplate.type, defaultMorningTemplate.questions, defaultMorningTemplate.is_default]
+      "INSERT OR IGNORE INTO templates (name, type, questions, is_default) VALUES (?, ?, ?, ?)",
+      [
+        defaultMorningTemplate.name,
+        defaultMorningTemplate.type,
+        defaultMorningTemplate.questions,
+        defaultMorningTemplate.is_default,
+      ]
     );
 
     await this.run(
-      'INSERT OR IGNORE INTO templates (name, type, questions, is_default) VALUES (?, ?, ?, ?)',
-      [defaultEveningTemplate.name, defaultEveningTemplate.type, defaultEveningTemplate.questions, defaultEveningTemplate.is_default]
+      "INSERT OR IGNORE INTO templates (name, type, questions, is_default) VALUES (?, ?, ?, ?)",
+      [
+        defaultEveningTemplate.name,
+        defaultEveningTemplate.type,
+        defaultEveningTemplate.questions,
+        defaultEveningTemplate.is_default,
+      ]
     );
   }
 
   run(sql, params = []) {
     return new Promise((resolve, reject) => {
-      this.db.run(sql, params, function(err) {
+      this.db.run(sql, params, function (err) {
         if (err) {
           reject(err);
         } else {
@@ -265,44 +275,44 @@ app.use(cors());
 app.use(express.json());
 
 // Serve static files from React build
-app.use(express.static(path.join(__dirname, '../../dist-renderer')));
+app.use(express.static(path.join(__dirname, "../../dist-renderer")));
 
 // Database instance
 const database = new WebDatabase();
 
 // API Routes
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Web server running' });
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok", message: "Web server running" });
 });
 
 // Goals API
-app.get('/api/goals', async (req, res) => {
+app.get("/api/goals", async (req, res) => {
   try {
     const { type, parent_id } = req.query;
-    let sql = 'SELECT * FROM goals';
+    let sql = "SELECT * FROM goals";
     let params = [];
     let conditions = [];
-    
+
     if (type) {
-      conditions.push('type = ?');
+      conditions.push("type = ?");
       params.push(type);
     }
-    
+
     if (parent_id !== undefined) {
-      if (parent_id === 'null' || parent_id === '') {
-        conditions.push('parent_id IS NULL');
+      if (parent_id === "null" || parent_id === "") {
+        conditions.push("parent_id IS NULL");
       } else {
-        conditions.push('parent_id = ?');
+        conditions.push("parent_id = ?");
         params.push(parent_id);
       }
     }
-    
+
     if (conditions.length > 0) {
-      sql += ' WHERE ' + conditions.join(' AND ');
+      sql += " WHERE " + conditions.join(" AND ");
     }
-    
-    sql += ' ORDER BY created_at DESC';
-    
+
+    sql += " ORDER BY created_at DESC";
+
     const goals = await database.all(sql, params);
     res.json(goals);
   } catch (error) {
@@ -311,19 +321,22 @@ app.get('/api/goals', async (req, res) => {
 });
 
 // Get goal with its children
-app.get('/api/goals/:id/with-children', async (req, res) => {
+app.get("/api/goals/:id/with-children", async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     // Get the goal
-    const goal = await database.get('SELECT * FROM goals WHERE id = ?', [id]);
+    const goal = await database.get("SELECT * FROM goals WHERE id = ?", [id]);
     if (!goal) {
-      return res.status(404).json({ error: 'Goal not found' });
+      return res.status(404).json({ error: "Goal not found" });
     }
-    
+
     // Get children
-    const children = await database.all('SELECT * FROM goals WHERE parent_id = ? ORDER BY created_at DESC', [id]);
-    
+    const children = await database.all(
+      "SELECT * FROM goals WHERE parent_id = ? ORDER BY created_at DESC",
+      [id]
+    );
+
     res.json({ ...goal, children });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -331,20 +344,22 @@ app.get('/api/goals/:id/with-children', async (req, res) => {
 });
 
 // Get goal hierarchy (parent chain)
-app.get('/api/goals/:id/hierarchy', async (req, res) => {
+app.get("/api/goals/:id/hierarchy", async (req, res) => {
   try {
     const { id } = req.params;
     const hierarchy = [];
     let currentId = id;
-    
+
     while (currentId) {
-      const goal = await database.get('SELECT * FROM goals WHERE id = ?', [currentId]);
+      const goal = await database.get("SELECT * FROM goals WHERE id = ?", [
+        currentId,
+      ]);
       if (!goal) break;
-      
+
       hierarchy.unshift(goal);
       currentId = goal.parent_id;
     }
-    
+
     res.json(hierarchy);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -352,46 +367,87 @@ app.get('/api/goals/:id/hierarchy', async (req, res) => {
 });
 
 // Update goal progress (also updates parent progress automatically)
-app.put('/api/goals/:id/progress', async (req, res) => {
+app.put("/api/goals/:id/progress", async (req, res) => {
   try {
     const { id } = req.params;
     const { progress } = req.body;
-    
+
     // Update the goal's progress
-    await database.run('UPDATE goals SET progress = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [progress, id]);
-    
+    await database.run(
+      "UPDATE goals SET progress = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+      [progress, id]
+    );
+
     // Get the updated goal
-    const goal = await database.get('SELECT * FROM goals WHERE id = ?', [id]);
-    
+    const goal = await database.get("SELECT * FROM goals WHERE id = ?", [id]);
+
     // If this goal has a parent, update parent's progress based on children
     if (goal && goal.parent_id) {
-      const siblings = await database.all('SELECT progress FROM goals WHERE parent_id = ?', [goal.parent_id]);
-      const avgProgress = siblings.reduce((sum, sibling) => sum + (sibling.progress || 0), 0) / siblings.length;
-      
-      await database.run('UPDATE goals SET progress = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [Math.round(avgProgress), goal.parent_id]);
-      
+      const siblings = await database.all(
+        "SELECT progress FROM goals WHERE parent_id = ?",
+        [goal.parent_id]
+      );
+      const avgProgress =
+        siblings.reduce((sum, sibling) => sum + (sibling.progress || 0), 0) /
+        siblings.length;
+
+      await database.run(
+        "UPDATE goals SET progress = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+        [Math.round(avgProgress), goal.parent_id]
+      );
+
       // Continue up the chain
-      const parent = await database.get('SELECT * FROM goals WHERE id = ?', [goal.parent_id]);
+      const parent = await database.get("SELECT * FROM goals WHERE id = ?", [
+        goal.parent_id,
+      ]);
       if (parent && parent.parent_id) {
-        const parentSiblings = await database.all('SELECT progress FROM goals WHERE parent_id = ?', [parent.parent_id]);
-        const parentAvgProgress = parentSiblings.reduce((sum, sibling) => sum + (sibling.progress || 0), 0) / parentSiblings.length;
-        
-        await database.run('UPDATE goals SET progress = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [Math.round(parentAvgProgress), parent.parent_id]);
+        const parentSiblings = await database.all(
+          "SELECT progress FROM goals WHERE parent_id = ?",
+          [parent.parent_id]
+        );
+        const parentAvgProgress =
+          parentSiblings.reduce(
+            (sum, sibling) => sum + (sibling.progress || 0),
+            0
+          ) / parentSiblings.length;
+
+        await database.run(
+          "UPDATE goals SET progress = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+          [Math.round(parentAvgProgress), parent.parent_id]
+        );
       }
     }
-    
+
     res.json({ success: true, progress });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-app.post('/api/goals', async (req, res) => {
+app.post("/api/goals", async (req, res) => {
   try {
-    const { type, title, description, parent_id, priority, success_criteria, target_date, focus_area_id } = req.body;
+    const {
+      type,
+      title,
+      description,
+      parent_id,
+      priority,
+      success_criteria,
+      target_date,
+      focus_area_id,
+    } = req.body;
     const result = await database.run(
-      'INSERT INTO goals (type, title, description, parent_id, priority, success_criteria, target_date, focus_area_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [type, title, description, parent_id, priority, success_criteria, target_date, focus_area_id]
+      "INSERT INTO goals (type, title, description, parent_id, priority, success_criteria, target_date, focus_area_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [
+        type,
+        title,
+        description,
+        parent_id,
+        priority,
+        success_criteria,
+        target_date,
+        focus_area_id,
+      ]
     );
     res.json({ id: result.id, ...req.body });
   } catch (error) {
@@ -399,13 +455,30 @@ app.post('/api/goals', async (req, res) => {
   }
 });
 
-app.put('/api/goals/:id', async (req, res) => {
+app.put("/api/goals/:id", async (req, res) => {
   try {
     const id = req.params.id;
-    const { title, description, progress, priority, success_criteria, target_date, focus_area_id } = req.body;
+    const {
+      title,
+      description,
+      progress,
+      priority,
+      success_criteria,
+      target_date,
+      focus_area_id,
+    } = req.body;
     await database.run(
-      'UPDATE goals SET title = ?, description = ?, progress = ?, priority = ?, success_criteria = ?, target_date = ?, focus_area_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-      [title, description, progress, priority, success_criteria, target_date, focus_area_id, id]
+      "UPDATE goals SET title = ?, description = ?, progress = ?, priority = ?, success_criteria = ?, target_date = ?, focus_area_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+      [
+        title,
+        description,
+        progress,
+        priority,
+        success_criteria,
+        target_date,
+        focus_area_id,
+        id,
+      ]
     );
     res.json({ id, ...req.body });
   } catch (error) {
@@ -413,10 +486,10 @@ app.put('/api/goals/:id', async (req, res) => {
   }
 });
 
-app.delete('/api/goals/:id', async (req, res) => {
+app.delete("/api/goals/:id", async (req, res) => {
   try {
     const id = req.params.id;
-    await database.run('DELETE FROM goals WHERE id = ?', [id]);
+    await database.run("DELETE FROM goals WHERE id = ?", [id]);
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -424,9 +497,11 @@ app.delete('/api/goals/:id', async (req, res) => {
 });
 
 // Focus Areas API
-app.get('/api/focus-areas', async (req, res) => {
+app.get("/api/focus-areas", async (req, res) => {
   try {
-    const focusAreas = await database.all('SELECT * FROM focus_areas WHERE is_active = 1');
+    const focusAreas = await database.all(
+      "SELECT * FROM focus_areas WHERE is_active = 1"
+    );
     res.json(focusAreas);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -434,20 +509,29 @@ app.get('/api/focus-areas', async (req, res) => {
 });
 
 // Habits API
-app.get('/api/habits', async (req, res) => {
+app.get("/api/habits", async (req, res) => {
   try {
-    const habits = await database.all('SELECT * FROM habits WHERE is_active = 1');
+    const habits = await database.all(
+      "SELECT * FROM habits WHERE is_active = 1"
+    );
     res.json(habits);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-app.post('/api/habits', async (req, res) => {
+app.post("/api/habits", async (req, res) => {
   try {
-    const { name, description, category, frequency, custom_days, target_streak } = req.body;
+    const {
+      name,
+      description,
+      category,
+      frequency,
+      custom_days,
+      target_streak,
+    } = req.body;
     const result = await database.run(
-      'INSERT INTO habits (name, description, category, frequency, custom_days, target_streak) VALUES (?, ?, ?, ?, ?, ?)',
+      "INSERT INTO habits (name, description, category, frequency, custom_days, target_streak) VALUES (?, ?, ?, ?, ?, ?)",
       [name, description, category, frequency, custom_days, target_streak]
     );
     res.json({ id: result.id, ...req.body });
@@ -457,22 +541,24 @@ app.post('/api/habits', async (req, res) => {
 });
 
 // Habit logs API
-app.get('/api/habit-logs', async (req, res) => {
+app.get("/api/habit-logs", async (req, res) => {
   try {
     const { date, habit_id } = req.query;
-    let sql = 'SELECT hl.*, h.name as habit_name FROM habit_logs hl JOIN habits h ON hl.habit_id = h.id';
+    let sql =
+      "SELECT hl.*, h.name as habit_name FROM habit_logs hl JOIN habits h ON hl.habit_id = h.id";
     let params = [];
-    
+
     if (date) {
-      sql += ' WHERE hl.date = ?';
+      sql += " WHERE hl.date = ?";
       params.push(date);
     }
-    
+
     if (habit_id) {
-      sql += params.length > 0 ? ' AND hl.habit_id = ?' : ' WHERE hl.habit_id = ?';
+      sql +=
+        params.length > 0 ? " AND hl.habit_id = ?" : " WHERE hl.habit_id = ?";
       params.push(habit_id);
     }
-    
+
     const logs = await database.all(sql, params);
     res.json(logs);
   } catch (error) {
@@ -480,11 +566,11 @@ app.get('/api/habit-logs', async (req, res) => {
   }
 });
 
-app.post('/api/habit-logs', async (req, res) => {
+app.post("/api/habit-logs", async (req, res) => {
   try {
     const { habit_id, date, completed, notes } = req.body;
     const result = await database.run(
-      'INSERT OR REPLACE INTO habit_logs (habit_id, date, completed, notes) VALUES (?, ?, ?, ?)',
+      "INSERT OR REPLACE INTO habit_logs (habit_id, date, completed, notes) VALUES (?, ?, ?, ?)",
       [habit_id, date, completed ? 1 : 0, notes]
     );
     res.json({ id: result.id, habit_id, date, completed, notes });
@@ -494,9 +580,11 @@ app.post('/api/habit-logs', async (req, res) => {
 });
 
 // Wisdom API
-app.get('/api/wisdom', async (req, res) => {
+app.get("/api/wisdom", async (req, res) => {
   try {
-    const wisdom = await database.all('SELECT * FROM wisdom ORDER BY created_at DESC');
+    const wisdom = await database.all(
+      "SELECT * FROM wisdom ORDER BY created_at DESC"
+    );
     res.json(wisdom);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -504,32 +592,50 @@ app.get('/api/wisdom', async (req, res) => {
 });
 
 // Morning notes API
-app.get('/api/morning-notes', async (req, res) => {
+app.get("/api/morning-notes", async (req, res) => {
   try {
     const { date } = req.query;
-    let sql = 'SELECT * FROM morning_notes';
+    let sql = "SELECT * FROM morning_notes";
     let params = [];
-    
+
     if (date) {
-      sql += ' WHERE date = ?';
+      sql += " WHERE date = ?";
       params.push(date);
     } else {
-      sql += ' ORDER BY date DESC';
+      sql += " ORDER BY date DESC";
     }
-    
+
     const notes = await database.all(sql, params);
-    res.json(date ? (notes[0] || null) : notes);
+    res.json(date ? notes[0] || null : notes);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-app.post('/api/morning-notes', async (req, res) => {
+app.post("/api/morning-notes", async (req, res) => {
   try {
-    const { date, priorities, mood, energy, gratitude, challenges, intention, template_id } = req.body;
+    const {
+      date,
+      priorities,
+      mood,
+      energy,
+      gratitude,
+      challenges,
+      intention,
+      template_id,
+    } = req.body;
     const result = await database.run(
-      'INSERT OR REPLACE INTO morning_notes (date, priorities, mood, energy, gratitude, challenges, intention, template_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [date, priorities, mood, energy, gratitude, challenges, intention, template_id]
+      "INSERT OR REPLACE INTO morning_notes (date, priorities, mood, energy, gratitude, challenges, intention, template_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [
+        date,
+        priorities,
+        mood,
+        energy,
+        gratitude,
+        challenges,
+        intention,
+        template_id,
+      ]
     );
     res.json({ id: result.id, ...req.body });
   } catch (error) {
@@ -538,32 +644,52 @@ app.post('/api/morning-notes', async (req, res) => {
 });
 
 // Evening reflections API
-app.get('/api/evening-reflections', async (req, res) => {
+app.get("/api/evening-reflections", async (req, res) => {
   try {
     const { date } = req.query;
-    let sql = 'SELECT * FROM evening_reflections';
+    let sql = "SELECT * FROM evening_reflections";
     let params = [];
-    
+
     if (date) {
-      sql += ' WHERE date = ?';
+      sql += " WHERE date = ?";
       params.push(date);
     } else {
-      sql += ' ORDER BY date DESC';
+      sql += " ORDER BY date DESC";
     }
-    
+
     const reflections = await database.all(sql, params);
-    res.json(date ? (reflections[0] || null) : reflections);
+    res.json(date ? reflections[0] || null : reflections);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-app.post('/api/evening-reflections', async (req, res) => {
+app.post("/api/evening-reflections", async (req, res) => {
   try {
-    const { date, what_went_well, what_could_improve, lessons_learned, tomorrow_priority, gratitude, day_rating, accomplishments, template_id } = req.body;
+    const {
+      date,
+      what_went_well,
+      what_could_improve,
+      lessons_learned,
+      tomorrow_priority,
+      gratitude,
+      day_rating,
+      accomplishments,
+      template_id,
+    } = req.body;
     const result = await database.run(
-      'INSERT OR REPLACE INTO evening_reflections (date, what_went_well, what_could_improve, lessons_learned, tomorrow_priority, gratitude, day_rating, accomplishments, template_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [date, what_went_well, what_could_improve, lessons_learned, tomorrow_priority, gratitude, day_rating, accomplishments, template_id]
+      "INSERT OR REPLACE INTO evening_reflections (date, what_went_well, what_could_improve, lessons_learned, tomorrow_priority, gratitude, day_rating, accomplishments, template_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      [
+        date,
+        what_went_well,
+        what_could_improve,
+        lessons_learned,
+        tomorrow_priority,
+        gratitude,
+        day_rating,
+        accomplishments,
+        template_id,
+      ]
     );
     res.json({ id: result.id, ...req.body });
   } catch (error) {
@@ -572,8 +698,8 @@ app.post('/api/evening-reflections', async (req, res) => {
 });
 
 // Catch all handler: send back React's index.html file for any non-API routes
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../dist-renderer/index.html'));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../../dist-renderer/index.html"));
 });
 
 // Initialize database and start server
@@ -584,7 +710,7 @@ async function startServer() {
       console.log(`Web server running at http://localhost:${port}`);
     });
   } catch (error) {
-    console.error('Failed to start server:', error);
+    console.error("Failed to start server:", error);
     process.exit(1);
   }
 }

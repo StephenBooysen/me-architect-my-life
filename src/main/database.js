@@ -1,6 +1,6 @@
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
-const { app } = require('electron');
+const sqlite3 = require("sqlite3").verbose();
+const path = require("path");
+const { app } = require("electron");
 
 class Database {
   constructor() {
@@ -8,15 +8,15 @@ class Database {
   }
 
   async init() {
-    const dbPath = path.join(app.getPath('userData'), 'architect-my-life.db');
-    
+    const dbPath = path.join(app.getPath("userData"), "architect-my-life.db");
+
     return new Promise((resolve, reject) => {
       this.db = new sqlite3.Database(dbPath, (err) => {
         if (err) {
-          console.error('Error opening database:', err);
+          console.error("Error opening database:", err);
           reject(err);
         } else {
-          console.log('Connected to SQLite database');
+          console.log("Connected to SQLite database");
           this.createTables().then(resolve).catch(reject);
         }
       });
@@ -151,7 +151,7 @@ class Database {
         message TEXT NOT NULL,
         context TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )`
+      )`,
     ];
 
     for (const table of tables) {
@@ -164,63 +164,73 @@ class Database {
 
   async insertDefaultData() {
     const defaultFocusAreas = [
-      'Health & Fitness',
-      'Wealth & Career',
-      'Spiritual & Mindfulness',
-      'Family & Relationships',
-      'Friends & Social',
-      'Personal Development',
-      'Hobbies & Recreation'
+      "Health & Fitness",
+      "Wealth & Career",
+      "Spiritual & Mindfulness",
+      "Family & Relationships",
+      "Friends & Social",
+      "Personal Development",
+      "Hobbies & Recreation",
     ];
 
     for (const area of defaultFocusAreas) {
       await this.run(
-        'INSERT OR IGNORE INTO focus_areas (name, category) VALUES (?, ?)',
-        [area, area.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_')]
+        "INSERT OR IGNORE INTO focus_areas (name, category) VALUES (?, ?)",
+        [area, area.toLowerCase().replace(/ & /g, "_").replace(/ /g, "_")]
       );
     }
 
     // Insert default templates
     const defaultMorningTemplate = {
-      name: 'Default Morning Template',
-      type: 'morning',
+      name: "Default Morning Template",
+      type: "morning",
       questions: JSON.stringify([
-        'What are my top 3 priorities today?',
-        'How do I want to feel today?',
-        'What am I grateful for?',
-        'What challenges might I face?',
-        'My intention for today is...'
+        "What are my top 3 priorities today?",
+        "How do I want to feel today?",
+        "What am I grateful for?",
+        "What challenges might I face?",
+        "My intention for today is...",
       ]),
-      is_default: 1
+      is_default: 1,
     };
 
     const defaultEveningTemplate = {
-      name: 'Default Evening Template',
-      type: 'evening',
+      name: "Default Evening Template",
+      type: "evening",
       questions: JSON.stringify([
-        'What went well today?',
-        'What could have been better?',
-        'What did I learn?',
-        'Tomorrow\'s top priority is...',
-        'I\'m grateful for...'
+        "What went well today?",
+        "What could have been better?",
+        "What did I learn?",
+        "Tomorrow's top priority is...",
+        "I'm grateful for...",
       ]),
-      is_default: 1
+      is_default: 1,
     };
 
     await this.run(
-      'INSERT OR IGNORE INTO templates (name, type, questions, is_default) VALUES (?, ?, ?, ?)',
-      [defaultMorningTemplate.name, defaultMorningTemplate.type, defaultMorningTemplate.questions, defaultMorningTemplate.is_default]
+      "INSERT OR IGNORE INTO templates (name, type, questions, is_default) VALUES (?, ?, ?, ?)",
+      [
+        defaultMorningTemplate.name,
+        defaultMorningTemplate.type,
+        defaultMorningTemplate.questions,
+        defaultMorningTemplate.is_default,
+      ]
     );
 
     await this.run(
-      'INSERT OR IGNORE INTO templates (name, type, questions, is_default) VALUES (?, ?, ?, ?)',
-      [defaultEveningTemplate.name, defaultEveningTemplate.type, defaultEveningTemplate.questions, defaultEveningTemplate.is_default]
+      "INSERT OR IGNORE INTO templates (name, type, questions, is_default) VALUES (?, ?, ?, ?)",
+      [
+        defaultEveningTemplate.name,
+        defaultEveningTemplate.type,
+        defaultEveningTemplate.questions,
+        defaultEveningTemplate.is_default,
+      ]
     );
   }
 
   run(sql, params = []) {
     return new Promise((resolve, reject) => {
-      this.db.run(sql, params, function(err) {
+      this.db.run(sql, params, function (err) {
         if (err) {
           reject(err);
         } else {
@@ -258,7 +268,7 @@ class Database {
     return new Promise((resolve) => {
       this.db.close((err) => {
         if (err) {
-          console.error('Error closing database:', err);
+          console.error("Error closing database:", err);
         }
         resolve();
       });

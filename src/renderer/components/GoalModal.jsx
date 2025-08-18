@@ -1,16 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { X, Target, Calendar, Flag } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { X, Target, Calendar, Flag } from "lucide-react";
 
-function GoalModal({ goal, type, focusAreas, parentGoals = [], onSave, onClose }) {
+function GoalModal({
+  goal,
+  type,
+  focusAreas,
+  parentGoals = [],
+  onSave,
+  onClose,
+}) {
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
+    title: "",
+    description: "",
     parent_id: null,
-    priority: 'medium',
-    success_criteria: '',
-    target_date: '',
+    priority: "medium",
+    success_criteria: "",
+    target_date: "",
     focus_area_id: null,
-    progress: 0
+    progress: 0,
   });
 
   const [errors, setErrors] = useState({});
@@ -18,52 +25,52 @@ function GoalModal({ goal, type, focusAreas, parentGoals = [], onSave, onClose }
   useEffect(() => {
     if (goal) {
       setFormData({
-        title: goal.title || '',
-        description: goal.description || '',
+        title: goal.title || "",
+        description: goal.description || "",
         parent_id: goal.parent_id || null,
-        priority: goal.priority || 'medium',
-        success_criteria: goal.success_criteria || '',
-        target_date: goal.target_date ? goal.target_date.split('T')[0] : '',
+        priority: goal.priority || "medium",
+        success_criteria: goal.success_criteria || "",
+        target_date: goal.target_date ? goal.target_date.split("T")[0] : "",
         focus_area_id: goal.focus_area_id || null,
-        progress: goal.progress || 0
+        progress: goal.progress || 0,
       });
     }
   }, [goal]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
-    
+
     // Clear error for this field
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: null
+        [name]: null,
       }));
     }
   };
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.title.trim()) {
-      newErrors.title = 'Title is required';
+      newErrors.title = "Title is required";
     }
-    
+
     if (formData.progress < 0 || formData.progress > 100) {
-      newErrors.progress = 'Progress must be between 0 and 100';
+      newErrors.progress = "Progress must be between 0 and 100";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -71,8 +78,9 @@ function GoalModal({ goal, type, focusAreas, parentGoals = [], onSave, onClose }
     const goalData = {
       ...formData,
       progress: Number(formData.progress),
-      parent_id: formData.parent_id === '' ? null : Number(formData.parent_id),
-      focus_area_id: formData.focus_area_id === '' ? null : Number(formData.focus_area_id)
+      parent_id: formData.parent_id === "" ? null : Number(formData.parent_id),
+      focus_area_id:
+        formData.focus_area_id === "" ? null : Number(formData.focus_area_id),
     };
 
     onSave(goalData);
@@ -80,17 +88,24 @@ function GoalModal({ goal, type, focusAreas, parentGoals = [], onSave, onClose }
 
   const getTypeTitle = () => {
     switch (type) {
-      case 'annual': return 'Annual Goal';
-      case 'monthly': return 'Monthly Goal';
-      case 'weekly': return 'Weekly Goal';
-      default: return 'Goal';
+      case "annual":
+        return "Annual Goal";
+      case "monthly":
+        return "Monthly Goal";
+      case "weekly":
+        return "Weekly Goal";
+      default:
+        return "Goal";
     }
   };
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <div className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" onClick={onClose}></div>
+        <div
+          className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
+          onClick={onClose}
+        ></div>
 
         <div className="inline-block w-full max-w-lg p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-lg">
           <div className="flex items-center justify-between mb-4">
@@ -117,7 +132,7 @@ function GoalModal({ goal, type, focusAreas, parentGoals = [], onSave, onClose }
                 name="title"
                 value={formData.title}
                 onChange={handleInputChange}
-                className={`form-input ${errors.title ? 'border-red-500' : ''}`}
+                className={`form-input ${errors.title ? "border-red-500" : ""}`}
                 placeholder="Enter goal title..."
                 required
               />
@@ -140,12 +155,12 @@ function GoalModal({ goal, type, focusAreas, parentGoals = [], onSave, onClose }
             </div>
 
             {/* Parent Goal (for monthly and weekly goals) */}
-            {type !== 'annual' && parentGoals.length > 0 && (
+            {type !== "annual" && parentGoals.length > 0 && (
               <div className="form-group">
                 <label className="form-label">Parent Goal</label>
                 <select
                   name="parent_id"
-                  value={formData.parent_id || ''}
+                  value={formData.parent_id || ""}
                   onChange={handleInputChange}
                   className="form-input"
                 >
@@ -164,7 +179,7 @@ function GoalModal({ goal, type, focusAreas, parentGoals = [], onSave, onClose }
               <label className="form-label">Focus Area</label>
               <select
                 name="focus_area_id"
-                value={formData.focus_area_id || ''}
+                value={formData.focus_area_id || ""}
                 onChange={handleInputChange}
                 className="form-input"
               >
@@ -240,8 +255,8 @@ function GoalModal({ goal, type, focusAreas, parentGoals = [], onSave, onClose }
                 className="w-full"
               />
               <div className="progress-bar mt-2">
-                <div 
-                  className="progress-fill" 
+                <div
+                  className="progress-fill"
                   style={{ width: `${formData.progress}%` }}
                 ></div>
               </div>
@@ -259,11 +274,8 @@ function GoalModal({ goal, type, focusAreas, parentGoals = [], onSave, onClose }
               >
                 Cancel
               </button>
-              <button
-                type="submit"
-                className="btn btn-primary"
-              >
-                {goal ? 'Update Goal' : 'Create Goal'}
+              <button type="submit" className="btn btn-primary">
+                {goal ? "Update Goal" : "Create Goal"}
               </button>
             </div>
           </form>

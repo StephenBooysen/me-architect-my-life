@@ -1,73 +1,73 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { 
-  Home, 
-  Target, 
-  Focus, 
-  CheckSquare, 
-  BookOpen, 
-  Brain, 
+import React from "react";
+import { NavLink } from "react-router-dom";
+import {
+  Home,
+  Target,
+  Focus,
+  CheckSquare,
+  BookOpen,
+  Brain,
   MessageCircle,
   Settings,
-  TrendingUp
-} from 'lucide-react';
+  TrendingUp,
+} from "lucide-react";
 
 const navigation = [
   {
-    name: 'Dashboard',
-    href: '/dashboard',
+    name: "Dashboard",
+    href: "/dashboard",
     icon: Home,
   },
   {
-    name: 'Goals',
-    href: '/goals',
+    name: "Goals",
+    href: "/goals",
     icon: Target,
     children: [
-      { name: 'Annual Goals', href: '/goals/annual' },
-      { name: 'Monthly Goals', href: '/goals/monthly' },
-      { name: 'Weekly Goals', href: '/goals/weekly' },
-    ]
+      { name: "Annual Goals", href: "/goals/annual" },
+      { name: "Monthly Goals", href: "/goals/monthly" },
+      { name: "Weekly Goals", href: "/goals/weekly" },
+    ],
   },
   {
-    name: 'Focus Areas',
-    href: '/focus-areas',
+    name: "Focus Areas",
+    href: "/focus-areas",
     icon: Focus,
   },
   {
-    name: 'Habits',
-    href: '/habits',
+    name: "Habits",
+    href: "/habits",
     icon: CheckSquare,
   },
   {
-    name: 'Reflection',
-    href: '/reflection',
+    name: "Reflection",
+    href: "/reflection",
     icon: BookOpen,
     children: [
-      { name: 'Morning Notes', href: '/reflection/morning' },
-      { name: 'Evening Reflection', href: '/reflection/evening' },
-    ]
+      { name: "Morning Notes", href: "/reflection/morning" },
+      { name: "Evening Reflection", href: "/reflection/evening" },
+    ],
   },
   {
-    name: 'Wisdom Library',
-    href: '/wisdom',
+    name: "Wisdom Library",
+    href: "/wisdom",
     icon: Brain,
   },
   {
-    name: 'AI Guide',
-    href: '/ai-guide',
+    name: "AI Guide",
+    href: "/ai-guide",
     icon: MessageCircle,
   },
   {
-    name: 'Settings',
-    href: '/settings',
+    name: "Settings",
+    href: "/settings",
     icon: Settings,
     children: [
-      { name: 'Templates', href: '/settings/templates' },
-      { name: 'Preferences', href: '/settings/preferences' },
-      { name: 'Data Management', href: '/settings/data' },
-      { name: 'AI Settings', href: '/settings/ai' },
-    ]
-  }
+      { name: "Templates", href: "/settings/templates" },
+      { name: "Preferences", href: "/settings/preferences" },
+      { name: "Data Management", href: "/settings/data" },
+      { name: "AI Settings", href: "/settings/ai" },
+    ],
+  },
 ];
 
 function Sidebar() {
@@ -76,15 +76,21 @@ function Sidebar() {
       {/* Logo/Brand */}
       <div className="sidebar-header">
         <div className="flex items-center">
-          <div className="bg-primary-light rounded-lg" style={{
-            width: '48px',
-            height: '48px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginRight: '12px'
-          }}>
-            <TrendingUp className="w-6 h-6 text-primary" />
+          <div
+            style={{
+              background:
+                "linear-gradient(135deg, var(--primary), var(--primary-hover))",
+              width: "48px",
+              height: "48px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              marginRight: "12px",
+              borderRadius: "var(--radius-lg)",
+              boxShadow: "var(--shadow-md)",
+            }}
+          >
+            <TrendingUp className="w-6 h-6" style={{ color: "white" }} />
           </div>
           <div>
             <h1 className="text-lg font-bold text-text-primary">Architect</h1>
@@ -100,13 +106,13 @@ function Sidebar() {
             <NavLink
               to={item.href}
               className={({ isActive }) =>
-                `nav-item ${isActive ? 'active' : ''}`
+                `nav-item ${isActive ? "active" : ""}`
               }
             >
               <item.icon />
               {item.name}
             </NavLink>
-            
+
             {/* Sub-navigation */}
             {item.children && (
               <div className="space-y-1">
@@ -115,7 +121,7 @@ function Sidebar() {
                     key={child.name}
                     to={child.href}
                     className={({ isActive }) =>
-                      `nav-subitem ${isActive ? 'active' : ''}`
+                      `nav-subitem ${isActive ? "active" : ""}`
                     }
                   >
                     {child.name}

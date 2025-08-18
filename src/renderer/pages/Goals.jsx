@@ -1,8 +1,8 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import AnnualGoals from './goals/AnnualGoals';
-import MonthlyGoals from './goals/MonthlyGoals';
-import WeeklyGoals from './goals/WeeklyGoals';
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import AnnualGoals from "./goals/AnnualGoals";
+import MonthlyGoals from "./goals/MonthlyGoals";
+import WeeklyGoals from "./goals/WeeklyGoals";
 
 function Goals() {
   return (
