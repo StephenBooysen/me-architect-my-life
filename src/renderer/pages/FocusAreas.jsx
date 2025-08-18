@@ -65,27 +65,18 @@ function FocusAreas() {
       // Load saved monthly focus selections and goal assignments
       const selections = {};
       
-      for (const month of months) {
-        const monthKey = `${selectedYear}-${month.number.toString().padStart(2, '0')}`;
+      // Get all monthly focus assignments for the year
+      const monthlyAssignments = await db.getMonthlyFocusAreas(selectedYear);
+      
+      // Process each assignment
+      for (const assignment of monthlyAssignments) {
+        // Get monthly goals assigned to this focus area and month
+        const assignedGoals = await db.getMonthlyGoals(selectedYear, assignment.month);
         
-        // Get focus area selection for this month
-        const monthlyFocus = await db.getRecord(
-          "SELECT * FROM focus_areas WHERE month = ?",
-          [monthKey]
-        );
-        
-        if (monthlyFocus) {
-          // Get assigned goals for this month and focus area
-          const assignedGoals = await db.getAllRecords(
-            "SELECT * FROM goals WHERE focus_area_id = ? AND target_date LIKE ?",
-            [monthlyFocus.id, `${monthKey}%`]
-          );
-          
-          selections[month.number] = {
-            focusAreaId: monthlyFocus.id,
-            assignedGoals: assignedGoals.map(g => g.id)
-          };
-        }
+        selections[assignment.month] = {
+          focusAreaId: assignment.focus_area_id,
+          assignedGoals: assignedGoals.map(g => g.id)
+        };
       }
       
       setMonthlySelections(selections);
@@ -97,21 +88,8 @@ function FocusAreas() {
 
   const handleFocusAreaChange = async (monthNumber, focusAreaId) => {
     try {
-      const monthKey = `${selectedYear}-${monthNumber.toString().padStart(2, '0')}`;
-      
-      if (focusAreaId) {
-        // Update or create focus area selection for this month
-        await db.runQuery(
-          "INSERT OR REPLACE INTO focus_areas (id, name, category, month, theme, is_active) SELECT id, name, category, ?, theme, is_active FROM focus_areas WHERE id = ?",
-          [monthKey, focusAreaId]
-        );
-      } else {
-        // Remove focus area selection for this month
-        await db.runQuery(
-          "DELETE FROM focus_areas WHERE month = ?",
-          [monthKey]
-        );
-      }
+      // Use the convenience method from the database context
+      await db.setMonthlyFocusArea(selectedYear, monthNumber, focusAreaId);
 
       // Update local state
       setMonthlySelections(prev => ({
@@ -128,19 +106,20 @@ function FocusAreas() {
 
   const handleGoalToggle = async (monthNumber, goalId, isSelected) => {
     try {
-      const monthKey = `${selectedYear}-${monthNumber.toString().padStart(2, '0')}`;
       const selection = monthlySelections[monthNumber];
       
       if (isSelected) {
-        // Assign goal to this month
+        // Assign goal to this month and focus area
         await db.updateGoal(goalId, {
-          target_date: `${monthKey}-01`,
+          target_year: selectedYear,
+          target_month: monthNumber,
           focus_area_id: selection.focusAreaId
         });
       } else {
         // Remove goal assignment
         await db.updateGoal(goalId, {
-          target_date: null,
+          target_year: null,
+          target_month: null,
           focus_area_id: null
         });
       }
@@ -161,7 +140,10 @@ function FocusAreas() {
   };
 
   const getGoalsForFocusArea = (focusAreaId) => {
-    return goals.filter(goal => goal.focus_area_id === focusAreaId || !goal.focus_area_id);
+    return goals.filter(goal => 
+      goal.type === 'monthly' && 
+      (goal.focus_area_id === focusAreaId || !goal.focus_area_id)
+    );
   };
 
   const getFocusAreaName = (focusAreaId) => {

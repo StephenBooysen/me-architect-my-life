@@ -38,6 +38,9 @@ class WebDatabase {
         priority TEXT DEFAULT 'medium' CHECK(priority IN ('high', 'medium', 'low')),
         success_criteria TEXT,
         target_date TEXT,
+        target_year INTEGER,
+        target_month INTEGER,
+        target_week INTEGER,
         focus_area_id INTEGER,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -64,6 +67,17 @@ class WebDatabase {
         theme TEXT,
         is_active BOOLEAN DEFAULT 1,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )`,
+
+      // Monthly focus assignments table
+      `CREATE TABLE IF NOT EXISTS monthly_focus_assignments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        year INTEGER NOT NULL,
+        month INTEGER NOT NULL,
+        focus_area_id INTEGER NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (focus_area_id) REFERENCES focus_areas (id),
+        UNIQUE(year, month)
       )`,
 
       // Habits table
@@ -288,7 +302,7 @@ app.get("/api/health", (req, res) => {
 // Goals API
 app.get("/api/goals", async (req, res) => {
   try {
-    const { type, parent_id } = req.query;
+    const { type, parent_id, target_year, target_month } = req.query;
     let sql = "SELECT * FROM goals";
     let params = [];
     let conditions = [];
@@ -305,6 +319,16 @@ app.get("/api/goals", async (req, res) => {
         conditions.push("parent_id = ?");
         params.push(parent_id);
       }
+    }
+
+    if (target_year) {
+      conditions.push("target_year = ?");
+      params.push(target_year);
+    }
+
+    if (target_month) {
+      conditions.push("target_month = ?");
+      params.push(target_month);
     }
 
     if (conditions.length > 0) {
@@ -465,21 +489,33 @@ app.put("/api/goals/:id", async (req, res) => {
       priority,
       success_criteria,
       target_date,
+      target_year,
+      target_month,
+      target_week,
       focus_area_id,
     } = req.body;
-    await database.run(
-      "UPDATE goals SET title = ?, description = ?, progress = ?, priority = ?, success_criteria = ?, target_date = ?, focus_area_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
-      [
-        title,
-        description,
-        progress,
-        priority,
-        success_criteria,
-        target_date,
-        focus_area_id,
-        id,
-      ]
-    );
+    
+    // Build dynamic update query
+    const fields = [];
+    const values = [];
+    
+    if (title !== undefined) { fields.push('title = ?'); values.push(title); }
+    if (description !== undefined) { fields.push('description = ?'); values.push(description); }
+    if (progress !== undefined) { fields.push('progress = ?'); values.push(progress); }
+    if (priority !== undefined) { fields.push('priority = ?'); values.push(priority); }
+    if (success_criteria !== undefined) { fields.push('success_criteria = ?'); values.push(success_criteria); }
+    if (target_date !== undefined) { fields.push('target_date = ?'); values.push(target_date); }
+    if (target_year !== undefined) { fields.push('target_year = ?'); values.push(target_year); }
+    if (target_month !== undefined) { fields.push('target_month = ?'); values.push(target_month); }
+    if (target_week !== undefined) { fields.push('target_week = ?'); values.push(target_week); }
+    if (focus_area_id !== undefined) { fields.push('focus_area_id = ?'); values.push(focus_area_id); }
+    
+    fields.push('updated_at = CURRENT_TIMESTAMP');
+    values.push(id);
+    
+    const sql = `UPDATE goals SET ${fields.join(', ')} WHERE id = ?`;
+    
+    await database.run(sql, values);
     res.json({ id, ...req.body });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -500,9 +536,59 @@ app.delete("/api/goals/:id", async (req, res) => {
 app.get("/api/focus-areas", async (req, res) => {
   try {
     const focusAreas = await database.all(
-      "SELECT * FROM focus_areas WHERE is_active = 1"
+      "SELECT * FROM focus_areas WHERE is_active = 1 ORDER BY name"
     );
     res.json(focusAreas);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Monthly Focus Assignments API
+app.get("/api/monthly-focus", async (req, res) => {
+  try {
+    const { year } = req.query;
+    if (!year) {
+      return res.status(400).json({ error: "Year parameter is required" });
+    }
+    
+    const assignments = await database.all(
+      `SELECT mfa.year, mfa.month, mfa.focus_area_id, fa.name as focus_area_name
+       FROM monthly_focus_assignments mfa
+       JOIN focus_areas fa ON mfa.focus_area_id = fa.id
+       WHERE mfa.year = ?
+       ORDER BY mfa.month`,
+      [year]
+    );
+    res.json(assignments);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/api/monthly-focus", async (req, res) => {
+  try {
+    const { year, month, focus_area_id } = req.body;
+    
+    if (!year || !month) {
+      return res.status(400).json({ error: "Year and month are required" });
+    }
+    
+    if (focus_area_id) {
+      // Create or update assignment
+      const result = await database.run(
+        "INSERT OR REPLACE INTO monthly_focus_assignments (year, month, focus_area_id) VALUES (?, ?, ?)",
+        [year, month, focus_area_id]
+      );
+      res.json({ id: result.id, year, month, focus_area_id });
+    } else {
+      // Delete assignment
+      await database.run(
+        "DELETE FROM monthly_focus_assignments WHERE year = ? AND month = ?",
+        [year, month]
+      );
+      res.json({ success: true, message: "Assignment removed" });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -543,21 +629,27 @@ app.post("/api/habits", async (req, res) => {
 // Habit logs API
 app.get("/api/habit-logs", async (req, res) => {
   try {
-    const { date, habit_id } = req.query;
+    const { habit_id, start_date, end_date } = req.query;
     let sql =
       "SELECT hl.*, h.name as habit_name FROM habit_logs hl JOIN habits h ON hl.habit_id = h.id";
     let params = [];
-
-    if (date) {
-      sql += " WHERE hl.date = ?";
-      params.push(date);
-    }
+    let conditions = [];
 
     if (habit_id) {
-      sql +=
-        params.length > 0 ? " AND hl.habit_id = ?" : " WHERE hl.habit_id = ?";
+      conditions.push("hl.habit_id = ?");
       params.push(habit_id);
     }
+
+    if (start_date && end_date) {
+      conditions.push("hl.date BETWEEN ? AND ?");
+      params.push(start_date, end_date);
+    }
+
+    if (conditions.length > 0) {
+      sql += " WHERE " + conditions.join(" AND ");
+    }
+
+    sql += " ORDER BY hl.date DESC";
 
     const logs = await database.all(sql, params);
     res.json(logs);

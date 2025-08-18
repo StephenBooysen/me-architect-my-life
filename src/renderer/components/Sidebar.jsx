@@ -39,13 +39,9 @@ const navigation = [
     icon: CheckSquare,
   },
   {
-    name: "Reflection",
+    name: "Notes",
     href: "/reflection",
     icon: BookOpen,
-    children: [
-      { name: "Morning Notes", href: "/reflection/morning" },
-      { name: "Evening Reflection", href: "/reflection/evening" },
-    ],
   },
   {
     name: "Wisdom Library",

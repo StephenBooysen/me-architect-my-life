@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useDatabase } from "../contexts/DatabaseContext";
+import { useDatabase } from "../contexts/UnifiedDatabaseContext";
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, subWeeks } from "date-fns";
 
 function Habits() {
