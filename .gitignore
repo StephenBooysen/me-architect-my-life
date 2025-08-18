@@ -1,3 +1,5 @@
+timestamp
+
 # Logs
 logs
 *.log
@@ -137,3 +139,10 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Electron build directories
+dist-renderer/
+dist/
+
+# Database files
+web-database.db

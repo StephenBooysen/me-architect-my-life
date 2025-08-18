@@ -9,7 +9,7 @@ import Reflection from './pages/Reflection';
 import Wisdom from './pages/Wisdom';
 import AIGuide from './pages/AIGuide';
 import Settings from './pages/Settings';
-import { DatabaseProvider } from './contexts/DatabaseContext';
+import { DatabaseProvider } from './contexts/UnifiedDatabaseContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 
 function App() {

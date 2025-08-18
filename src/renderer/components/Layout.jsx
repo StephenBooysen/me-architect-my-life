@@ -4,11 +4,11 @@ import Header from './Header';
 
 function Layout({ children }) {
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-full">
       <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex flex-col flex-1">
         <Header />
-        <main className="flex-1 overflow-auto p-6">
+        <main className="main-content">
           {children}
         </main>
       </div>

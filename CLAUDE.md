@@ -23,8 +23,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Development (starts both Vite dev server and Electron in dev mode)
 npm run dev
 
+# Web development (starts Vite dev server and Express API server - ideal for Codespaces)
+npm run dev:web
+
 # Start Electron in production mode
 npm start
+
+# Start web application in production mode
+npm run start:web
 
 # Build React renderer only
 npm run build:renderer
@@ -51,9 +57,14 @@ src/
 │   ├── main.js        # Main Electron entry point
 │   ├── preload.js     # Preload script for security
 │   └── database.js    # SQLite database management
-└── renderer/          # React frontend
+├── web/               # Web server (for Codespaces/web deployment)
+│   └── server.js      # Express server with REST API
+└── renderer/          # React frontend (shared between Electron and web)
     ├── components/    # Reusable React components
     ├── contexts/      # React Context providers
+    │   ├── UnifiedDatabaseContext.jsx  # Auto-detects Electron vs web mode
+    │   ├── DatabaseContext.jsx         # Electron-specific context
+    │   └── WebDatabaseContext.jsx      # Web-specific context
     ├── pages/         # Main application pages
     ├── styles/        # Global CSS styles
     ├── App.jsx        # Main React component
@@ -84,8 +95,22 @@ The SQLite database includes tables for:
 
 ## Development Notes
 
-- All database operations go through the DatabaseContext provider
+### Universal Frontend
+- The React frontend works in both Electron and web modes
+- UnifiedDatabaseContext automatically detects the environment and routes database operations accordingly
+- All database operations go through the same interface regardless of mode
+
+### Electron Mode
 - The preload.js file exposes secure IPC handlers to the renderer process
+- Database operations use SQLite via Electron's main process
+- Full desktop integration and file system access
+
+### Web Mode (Codespaces/Browser)
+- Express server provides REST API endpoints for all database operations
+- Uses separate `web-database.db` file for web-specific data
+- Perfect for development in GitHub Codespaces or browser-based environments
+
+### Common Features
 - Theme persistence is handled via localStorage
 - Error boundaries and loading states are implemented throughout
 - All forms include validation and error handling

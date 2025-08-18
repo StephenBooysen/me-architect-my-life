@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useDatabase } from '../../contexts/DatabaseContext';
+import { useDatabase } from '../../contexts/UnifiedDatabaseContext';
 import { Plus, Target, Calendar, Flag, Edit3, Trash2, TrendingUp } from 'lucide-react';
 import { format } from 'date-fns';
 import GoalModal from '../../components/GoalModal';
@@ -75,10 +75,10 @@ function AnnualGoals() {
 
   const getPriorityColor = (priority) => {
     switch (priority) {
-      case 'high': return 'text-red-600 bg-red-100';
-      case 'medium': return 'text-yellow-600 bg-yellow-100';
-      case 'low': return 'text-green-600 bg-green-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case 'high': return 'text-red-700 bg-red-100 border border-red-200';
+      case 'medium': return 'text-orange-700 bg-orange-100 border border-orange-200';
+      case 'low': return 'text-green-700 bg-green-100 border border-green-200';
+      default: return 'text-gray-700 bg-gray-100 border border-gray-200';
     }
   };
 
@@ -96,20 +96,22 @@ function AnnualGoals() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Annual Goals</h1>
-          <p className="text-gray-600">Set and track your yearly objectives</p>
+      <div className="welcome-card">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="welcome-title">Annual Goals 🎯</h1>
+            <p className="welcome-subtitle">Set and track your yearly objectives</p>
+          </div>
+          <button
+            onClick={handleCreateGoal}
+            className="green-button"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            New Annual Goal
+          </button>
         </div>
-        <button
-          onClick={handleCreateGoal}
-          className="btn btn-primary"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          New Annual Goal
-        </button>
       </div>
 
       {/* Stats Cards */}

@@ -9,7 +9,6 @@ import {
   Brain, 
   MessageCircle,
   Settings,
-  Calendar,
   TrendingUp
 } from 'lucide-react';
 
@@ -73,49 +72,50 @@ const navigation = [
 
 function Sidebar() {
   return (
-    <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
+    <div className="sidebar">
       {/* Logo/Brand */}
-      <div className="p-6 border-b border-gray-200">
+      <div className="sidebar-header">
         <div className="flex items-center">
-          <TrendingUp className="w-8 h-8 text-blue-600" />
-          <div className="ml-3">
-            <h1 className="text-lg font-bold text-gray-900">Architect My Life</h1>
-            <p className="text-xs text-gray-500">Goal & Habit Tracker</p>
+          <div className="bg-primary-light rounded-lg" style={{
+            width: '48px',
+            height: '48px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: '12px'
+          }}>
+            <TrendingUp className="w-6 h-6 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-lg font-bold text-text-primary">Architect</h1>
+            <p className="text-sm text-text-secondary">My Life</p>
           </div>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-1">
+      <nav className="sidebar-nav">
         {navigation.map((item) => (
           <div key={item.name}>
             <NavLink
               to={item.href}
               className={({ isActive }) =>
-                `group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${
-                  isActive
-                    ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
-                    : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
-                }`
+                `nav-item ${isActive ? 'active' : ''}`
               }
             >
-              <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
+              <item.icon />
               {item.name}
             </NavLink>
             
             {/* Sub-navigation */}
             {item.children && (
-              <div className="ml-8 mt-1 space-y-1">
+              <div className="space-y-1">
                 {item.children.map((child) => (
                   <NavLink
                     key={child.name}
                     to={child.href}
                     className={({ isActive }) =>
-                      `block px-3 py-1 text-xs font-medium rounded-md transition-colors duration-200 ${
-                        isActive
-                          ? 'text-blue-700 bg-blue-50'
-                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                      }`
+                      `nav-subitem ${isActive ? 'active' : ''}`
                     }
                   >
                     {child.name}
@@ -128,10 +128,14 @@ function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-gray-200">
-        <div className="text-xs text-gray-500">
-          <p>Version 1.0.0</p>
-          <p>Made with ❤️ for personal growth</p>
+      <div className="sidebar-footer">
+        <div className="text-sm text-text-secondary">
+          <p className="font-medium mb-1">Version 1.0.0</p>
+          <p className="flex items-center text-xs">
+            <span>Made with</span>
+            <span className="text-red-500 mx-1">♥</span>
+            <span>for personal growth</span>
+          </p>
         </div>
       </div>
     </div>
