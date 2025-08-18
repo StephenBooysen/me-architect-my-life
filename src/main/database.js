@@ -36,6 +36,9 @@ class Database {
         priority TEXT DEFAULT 'medium' CHECK(priority IN ('high', 'medium', 'low')),
         success_criteria TEXT,
         target_date TEXT,
+        target_year INTEGER,
+        target_month INTEGER,
+        target_week INTEGER,
         focus_area_id INTEGER,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -62,6 +65,17 @@ class Database {
         theme TEXT,
         is_active BOOLEAN DEFAULT 1,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )`,
+
+      // Monthly focus assignments table
+      `CREATE TABLE IF NOT EXISTS monthly_focus_assignments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        year INTEGER NOT NULL,
+        month INTEGER NOT NULL,
+        focus_area_id INTEGER NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (focus_area_id) REFERENCES focus_areas (id),
+        UNIQUE(year, month)
       )`,
 
       // Habits table

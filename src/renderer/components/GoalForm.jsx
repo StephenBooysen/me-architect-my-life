@@ -16,6 +16,9 @@ function GoalForm({
     priority: "medium",
     success_criteria: "",
     target_date: "",
+    target_year: new Date().getFullYear(),
+    target_month: null,
+    target_week: null,
     focus_area_id: null,
     progress: 0,
   });
@@ -31,6 +34,9 @@ function GoalForm({
         priority: goal.priority || "medium",
         success_criteria: goal.success_criteria || "",
         target_date: goal.target_date ? goal.target_date.split("T")[0] : "",
+        target_year: goal.target_year || new Date().getFullYear(),
+        target_month: goal.target_month || null,
+        target_week: goal.target_week || null,
         focus_area_id: goal.focus_area_id || null,
         progress: goal.progress || 0,
       });
@@ -81,6 +87,9 @@ function GoalForm({
       parent_id: formData.parent_id === "" ? null : Number(formData.parent_id),
       focus_area_id:
         formData.focus_area_id === "" ? null : Number(formData.focus_area_id),
+      target_year: Number(formData.target_year),
+      target_month: formData.target_month ? Number(formData.target_month) : null,
+      target_week: formData.target_week ? Number(formData.target_week) : null,
     };
 
     onSave(goalData);
@@ -234,11 +243,124 @@ function GoalForm({
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Target Date */}
+              {/* Target Year (for Annual Goals) */}
+              {type === "annual" && (
+                <div className="form-group">
+                  <label className="form-label">
+                    <Calendar className="w-4 h-4 inline mr-2" />
+                    Target Year
+                  </label>
+                  <select
+                    name="target_year"
+                    value={formData.target_year}
+                    onChange={handleInputChange}
+                    className="form-input"
+                  >
+                    {[2024, 2025, 2026, 2027, 2028].map(year => (
+                      <option key={year} value={year}>{year}</option>
+                    ))}
+                  </select>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Choose the year you want to achieve this annual goal
+                  </p>
+                </div>
+              )}
+
+              {/* Target Month (for Monthly Goals) */}
+              {type === "monthly" && (
+                <div className="form-group">
+                  <label className="form-label">
+                    <Calendar className="w-4 h-4 inline mr-2" />
+                    Target Month & Year
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <select
+                      name="target_month"
+                      value={formData.target_month || ""}
+                      onChange={handleInputChange}
+                      className="form-input"
+                    >
+                      <option value="">Select Month</option>
+                      {[
+                        "January", "February", "March", "April",
+                        "May", "June", "July", "August",
+                        "September", "October", "November", "December"
+                      ].map((month, index) => (
+                        <option key={index + 1} value={index + 1}>{month}</option>
+                      ))}
+                    </select>
+                    <select
+                      name="target_year"
+                      value={formData.target_year}
+                      onChange={handleInputChange}
+                      className="form-input"
+                    >
+                      {[2024, 2025, 2026, 2027, 2028].map(year => (
+                        <option key={year} value={year}>{year}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Choose the specific month and year for this goal
+                  </p>
+                </div>
+              )}
+
+              {/* Target Week (for Weekly Goals) */}
+              {type === "weekly" && (
+                <div className="form-group">
+                  <label className="form-label">
+                    <Calendar className="w-4 h-4 inline mr-2" />
+                    Target Week
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <select
+                      name="target_week"
+                      value={formData.target_week || ""}
+                      onChange={handleInputChange}
+                      className="form-input"
+                    >
+                      <option value="">Week</option>
+                      {Array.from({ length: 5 }, (_, i) => (
+                        <option key={i + 1} value={i + 1}>Week {i + 1}</option>
+                      ))}
+                    </select>
+                    <select
+                      name="target_month"
+                      value={formData.target_month || ""}
+                      onChange={handleInputChange}
+                      className="form-input"
+                    >
+                      <option value="">Month</option>
+                      {[
+                        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+                      ].map((month, index) => (
+                        <option key={index + 1} value={index + 1}>{month}</option>
+                      ))}
+                    </select>
+                    <select
+                      name="target_year"
+                      value={formData.target_year}
+                      onChange={handleInputChange}
+                      className="form-input"
+                    >
+                      {[2024, 2025, 2026, 2027].map(year => (
+                        <option key={year} value={year}>{year}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Choose the specific week, month, and year for this goal
+                  </p>
+                </div>
+              )}
+
+              {/* Traditional Target Date (fallback) */}
               <div className="form-group">
                 <label className="form-label">
                   <Calendar className="w-4 h-4 inline mr-2" />
-                  Target Date
+                  Target Date (Optional)
                 </label>
                 <input
                   type="date"
@@ -248,11 +370,7 @@ function GoalForm({
                   className="form-input"
                 />
                 <p className="text-sm text-gray-500 mt-1">
-                  {type === "monthly" 
-                    ? "Set a target month for completion" 
-                    : type === "weekly" 
-                    ? "Set a target week for completion"
-                    : "Set a target completion date to help track your progress"}
+                  Optional specific completion date
                 </p>
               </div>
 

@@ -356,6 +356,64 @@ export function DatabaseProvider({ children }) {
     }
   }, [isElectron, getAllRecords]);
 
+  // Monthly focus assignments
+  const setMonthlyFocusArea = useCallback(
+    async (year, month, focusAreaId) => {
+      if (isElectron) {
+        if (focusAreaId) {
+          return await runQuery(
+            "INSERT OR REPLACE INTO monthly_focus_assignments (year, month, focus_area_id) VALUES (?, ?, ?)",
+            [year, month, focusAreaId]
+          );
+        } else {
+          return await runQuery(
+            "DELETE FROM monthly_focus_assignments WHERE year = ? AND month = ?",
+            [year, month]
+          );
+        }
+      } else {
+        return await apiCall("/monthly-focus", "POST", {
+          year,
+          month,
+          focus_area_id: focusAreaId
+        });
+      }
+    },
+    [isElectron, runQuery]
+  );
+
+  const getMonthlyFocusAreas = useCallback(
+    async (year) => {
+      if (isElectron) {
+        return await getAllRecords(
+          `SELECT mfa.year, mfa.month, mfa.focus_area_id, fa.name as focus_area_name
+           FROM monthly_focus_assignments mfa
+           JOIN focus_areas fa ON mfa.focus_area_id = fa.id
+           WHERE mfa.year = ?
+           ORDER BY mfa.month`,
+          [year]
+        );
+      } else {
+        return await apiCall(`/monthly-focus?year=${year}`);
+      }
+    },
+    [isElectron, getAllRecords]
+  );
+
+  const getMonthlyGoals = useCallback(
+    async (year, month) => {
+      if (isElectron) {
+        return await getAllRecords(
+          "SELECT * FROM goals WHERE target_year = ? AND target_month = ? ORDER BY created_at DESC",
+          [year, month]
+        );
+      } else {
+        return await apiCall(`/goals?target_year=${year}&target_month=${month}`);
+      }
+    },
+    [isElectron, getAllRecords]
+  );
+
   const createFocusArea = useCallback(
     async (name, category, month, theme) => {
       if (isElectron) {
@@ -697,11 +755,14 @@ export function DatabaseProvider({ children }) {
     getGoalWithChildren,
     getGoalHierarchy,
     updateGoalProgress,
+    getMonthlyGoals,
 
     // Focus Areas
     getFocusAreas,
     createFocusArea,
     updateFocusArea,
+    setMonthlyFocusArea,
+    getMonthlyFocusAreas,
 
     // Habits
     createHabit,
