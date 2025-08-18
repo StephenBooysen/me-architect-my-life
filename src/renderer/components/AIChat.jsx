@@ -370,20 +370,20 @@ Focus on:
             className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-[85%] rounded-lg p-3 ${
+              className={`max-w-[85%] p-3 ${
                 message.role === 'user'
                   ? 'bg-primary text-white'
                   : message.isError
                   ? 'bg-red-100 text-red-800'
                   : message.isAnalysis
-                  ? 'bg-blue-50 text-blue-900 border border-blue-200'
+                  ? 'bg-primary-light text-gray-900 border border-primary'
                   : 'bg-white text-gray-900 border border-gray-200'
               }`}
             >
               <div className="flex items-start space-x-2">
                 {message.role === 'assistant' && (
                   <Bot className={`w-4 h-4 mt-0.5 flex-shrink-0 ${
-                    message.isAnalysis ? 'text-blue-600' : 'text-gray-600'
+                    message.isAnalysis ? 'text-primary' : 'text-gray-600'
                   }`} />
                 )}
                 {message.role === 'user' && (
@@ -416,13 +416,13 @@ Focus on:
             onKeyPress={handleKeyPress}
             placeholder={apiKey ? "Ask me anything about your goals, habits, or progress..." : "Please configure API key first..."}
             disabled={!apiKey || isLoading}
-            className="flex-1 resize-none p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+            className="flex-1 resize-none p-2 border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
             rows="2"
           />
           <button
             onClick={sendMessage}
             disabled={!apiKey || !inputMessage.trim() || isLoading}
-            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2 bg-primary text-white hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isLoading ? (
               <Loader className="w-4 h-4 animate-spin" />
