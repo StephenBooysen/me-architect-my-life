@@ -282,7 +282,7 @@ class WebDatabase {
 }
 
 const app = express();
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 4001;
 
 // Middleware
 app.use(cors());
@@ -901,6 +901,95 @@ app.delete("/api/ai-chats", async (req, res) => {
       res.json({ success: true, message: "All chat history cleared" });
     }
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Claude API Proxy
+app.post("/api/claude", async (req, res) => {
+  try {
+    const { messages, system, apiKey } = req.body;
+    
+    if (!apiKey) {
+      return res.status(400).json({ error: "API key is required" });
+    }
+    
+    if (!messages || !Array.isArray(messages)) {
+      return res.status(400).json({ error: "Messages array is required" });
+    }
+    
+    // Make request to Claude API
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 1000,
+        system: system || "You are a helpful AI assistant specializing in personal development, goal setting, and productivity.",
+        messages: messages
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Claude API error:', response.status, errorText);
+      return res.status(response.status).json({ 
+        error: `Claude API error: ${response.status}`,
+        details: errorText
+      });
+    }
+
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    console.error('Claude API proxy error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Claude API Test Connection
+app.post("/api/claude/test", async (req, res) => {
+  try {
+    const { apiKey } = req.body;
+    
+    if (!apiKey) {
+      return res.status(400).json({ error: "API key is required" });
+    }
+    
+    // Test with a simple message
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 10,
+        messages: [{
+          role: 'user',
+          content: 'Test'
+        }]
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      return res.status(response.status).json({ 
+        error: `API test failed: ${response.status}`,
+        details: errorText
+      });
+    }
+
+    const data = await response.json();
+    res.json({ success: true, message: "API key is valid", data });
+  } catch (error) {
+    console.error('Claude API test error:', error);
     res.status(500).json({ error: error.message });
   }
 });

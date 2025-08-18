@@ -3,7 +3,7 @@ import { useDatabase } from '../contexts/UnifiedDatabaseContext';
 import { MessageCircle, Send, Bot, User, Settings, ChevronRight, ChevronLeft, Loader } from 'lucide-react';
 import { format } from 'date-fns';
 
-function AIChat({ currentPage, pageData, isVisible, onToggle }) {
+function AIChat({ currentPage, pageData }) {
   const db = useDatabase();
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -106,16 +106,14 @@ function AIChat({ currentPage, pageData, isVisible, onToggle }) {
       throw new Error('Claude API key not configured. Please add your API key in settings.');
     }
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    // Use the proxy endpoint to avoid CORS issues
+    const response = await fetch('/api/claude', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'claude-3-sonnet-20240229',
-        max_tokens: 1000,
+        apiKey: apiKey,
         system: systemPrompt || "You are a helpful AI assistant specializing in personal development, goal setting, and productivity. You help users analyze their progress and provide actionable insights.",
         messages: messages.map(msg => ({
           role: msg.role === 'user' ? 'user' : 'assistant',
@@ -125,8 +123,8 @@ function AIChat({ currentPage, pageData, isVisible, onToggle }) {
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Claude API error: ${response.status} - ${error}`);
+      const errorData = await response.json();
+      throw new Error(errorData.error || `Server error: ${response.status}`);
     }
 
     const data = await response.json();
@@ -332,36 +330,18 @@ Focus on:
     }
   };
 
-  if (!isVisible) {
-    return (
-      <div className="fixed right-4 top-1/2 transform -translate-y-1/2 z-50">
-        <button
-          onClick={onToggle}
-          className="bg-primary text-white p-3 rounded-l-lg shadow-lg hover:bg-primary-hover transition-all"
-          title="Open AI Assistant"
-        >
-          <MessageCircle className="w-6 h-6" />
-        </button>
-      </div>
-    );
-  }
-
   return (
-    <div className="fixed right-0 top-0 h-full w-96 bg-white border-l border-gray-200 shadow-xl z-40 flex flex-col">
+    <div className="ai-chat-sidebar h-full flex flex-col bg-white border-l border-gray-200">
       {/* Header */}
-      <div className="bg-primary text-white p-4 flex items-center justify-between">
+      <div className="ai-chat-header bg-primary text-white p-4 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Bot className="w-5 h-5" />
           <h3 className="font-semibold">AI Life Coach</h3>
           {isAnalyzing && <Loader className="w-4 h-4 animate-spin" />}
         </div>
-        <button
-          onClick={onToggle}
-          className="p-1 hover:bg-primary-hover rounded"
-          title="Close AI Assistant"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
+        <div className="flex items-center space-x-2">
+          <span className="text-xs opacity-75">Claude</span>
+        </div>
       </div>
 
       {/* API Key Warning */}

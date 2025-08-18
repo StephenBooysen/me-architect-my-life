@@ -6,7 +6,6 @@ import AIChat from "./AIChat";
 import { useDatabase } from "../contexts/UnifiedDatabaseContext";
 
 function Layout({ children }) {
-  const [chatVisible, setChatVisible] = useState(false);
   const [currentPage, setCurrentPage] = useState('');
   const [pageData, setPageData] = useState(null);
   const location = useLocation();
@@ -168,14 +167,11 @@ function Layout({ children }) {
     return Math.round(totalProgress / goals.length);
   };
 
-  const toggleChat = () => {
-    setChatVisible(!chatVisible);
-  };
 
   return (
     <div className="app-layout">
       <Sidebar />
-      <div className={`main-container ${chatVisible ? 'chat-open' : ''}`}>
+      <div className="main-container">
         <Header />
         <main className="main-content">{children}</main>
       </div>
@@ -183,8 +179,6 @@ function Layout({ children }) {
       <AIChat 
         currentPage={currentPage}
         pageData={pageData}
-        isVisible={chatVisible}
-        onToggle={toggleChat}
       />
     </div>
   );

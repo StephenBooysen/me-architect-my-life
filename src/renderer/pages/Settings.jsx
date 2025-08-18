@@ -44,30 +44,24 @@ function Settings() {
     setConnectionStatus(null);
 
     try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
+      // Use the proxy endpoint to test the connection
+      const response = await fetch('/api/claude/test', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey.trim(),
-          'anthropic-version': '2023-06-01'
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'claude-3-sonnet-20240229',
-          max_tokens: 10,
-          messages: [{
-            role: 'user',
-            content: 'Test connection'
-          }]
+          apiKey: apiKey.trim()
         })
       });
 
       if (response.ok) {
         setConnectionStatus({ type: 'success', message: 'Connection successful! Your API key is working.' });
       } else {
-        const errorText = await response.text();
+        const errorData = await response.json();
         setConnectionStatus({ 
           type: 'error', 
-          message: `Connection failed: ${response.status} - ${errorText}` 
+          message: errorData.error || `Connection failed: ${response.status}` 
         });
       }
     } catch (error) {
