@@ -127,19 +127,19 @@ function Wisdom() {
           <div className="flex space-x-3">
             <button
               onClick={cancelEditing}
-              className="flex items-center space-x-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              className="btn btn-secondary flex items-center"
             >
-              <X className="w-4 h-4" />
-              <span>Cancel</span>
+              <X className="w-4 h-4 mr-2" />
+              Cancel
             </button>
             
             <button
               onClick={saveWisdom}
               disabled={saving}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+              className="green-button flex items-center"
             >
-              <Save className="w-4 h-4" />
-              <span>{saving ? 'Saving...' : 'Save'}</span>
+              <Save className="w-4 h-4 mr-2" />
+              {saving ? 'Saving...' : 'Save'}
             </button>
           </div>
         </div>
@@ -257,10 +257,10 @@ function Wisdom() {
         
         <button
           onClick={() => startEditing()}
-          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="green-button"
         >
-          <Plus className="w-4 h-4" />
-          <span>Add Wisdom</span>
+          <Plus className="w-4 h-4 mr-2" />
+          Add Wisdom
         </button>
       </div>
 
@@ -284,10 +284,10 @@ function Wisdom() {
             </p>
             <button
               onClick={() => startEditing()}
-              className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="btn btn-primary flex items-center"
             >
-              <Plus className="w-4 h-4" />
-              <span>Add Your First Wisdom</span>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Your First Wisdom
             </button>
           </div>
         </div>
@@ -347,8 +347,10 @@ function Wisdom() {
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() => toggleFavorite(item)}
-                      className={`p-1 rounded transition-colors ${
-                        item.is_favorite ? 'text-red-500 hover:text-red-600' : 'text-gray-400 hover:text-red-500'
+                      className={`p-2 rounded-lg transition-colors ${
+                        item.is_favorite 
+                          ? 'text-red-500 hover:text-red-600 hover:bg-red-50' 
+                          : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
                       }`}
                       title={item.is_favorite ? 'Remove from favorites' : 'Add to favorites'}
                     >
@@ -357,7 +359,7 @@ function Wisdom() {
                     
                     <button
                       onClick={() => startEditing(item)}
-                      className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
+                      className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
                       title="Edit wisdom"
                     >
                       <Edit3 className="w-4 h-4" />

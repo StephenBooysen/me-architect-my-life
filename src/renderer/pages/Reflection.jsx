@@ -135,7 +135,7 @@ ${reflection.what_went_well || "No reflection yet..."}`;
         <div className="flex items-center space-x-4">
           <button
             onClick={() => navigateDate("prev")}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="btn"
             title="Previous day"
           >
             <ChevronLeft className="w-5 h-5" />
@@ -147,7 +147,7 @@ ${reflection.what_went_well || "No reflection yet..."}`;
           
           <button
             onClick={() => navigateDate("next")}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="btn"
             title="Next day"
             disabled={isSameDay(currentDate, new Date())}
           >
@@ -157,28 +157,28 @@ ${reflection.what_went_well || "No reflection yet..."}`;
       </div>
 
       {/* Tab Selector */}
-      <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg w-64">
+      <div className="flex space-x-2 w-64">
         <button
           onClick={() => setActiveTab("morning")}
-          className={`flex-1 flex items-center justify-center space-x-2 py-2 px-4 rounded-md transition-colors ${
+          className={`flex-1 flex items-center justify-center ${
             activeTab === "morning"
-              ? "bg-white text-blue-600 shadow-sm"
-              : "text-gray-600 hover:text-gray-900"
+              ? "btn btn-primary"
+              : "btn"
           }`}
         >
-          <Sun className="w-4 h-4" />
-          <span>Morning</span>
+          <Sun className="w-4 h-4 mr-2" />
+          Morning
         </button>
         <button
           onClick={() => setActiveTab("evening")}
-          className={`flex-1 flex items-center justify-center space-x-2 py-2 px-4 rounded-md transition-colors ${
+          className={`flex-1 flex items-center justify-center ${
             activeTab === "evening"
-              ? "bg-white text-purple-600 shadow-sm"
-              : "text-gray-600 hover:text-gray-900"
+              ? "btn btn-primary"
+              : "btn"
           }`}
         >
-          <Moon className="w-4 h-4" />
-          <span>Evening</span>
+          <Moon className="w-4 h-4 mr-2" />
+          Evening
         </button>
       </div>
 
@@ -245,10 +245,10 @@ ${reflection.what_went_well || "No reflection yet..."}`;
                 <button
                   onClick={saveReflection}
                   disabled={saving}
-                  className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                  className="green-button flex items-center"
                 >
-                  <Save className="w-4 h-4" />
-                  <span>{saving ? "Saving..." : "Save"}</span>
+                  <Save className="w-4 h-4 mr-2" />
+                  {saving ? "Saving..." : "Save"}
                 </button>
               </div>
               

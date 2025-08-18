@@ -674,10 +674,64 @@ app.post("/api/habit-logs", async (req, res) => {
 // Wisdom API
 app.get("/api/wisdom", async (req, res) => {
   try {
-    const wisdom = await database.all(
-      "SELECT * FROM wisdom ORDER BY created_at DESC"
-    );
+    const { category, limit } = req.query;
+    let sql = "SELECT * FROM wisdom ORDER BY created_at DESC";
+    let params = [];
+
+    if (category) {
+      sql = "SELECT * FROM wisdom WHERE category = ? ORDER BY created_at DESC";
+      params = [category];
+    }
+
+    if (limit) {
+      sql += " LIMIT ?";
+      params.push(parseInt(limit));
+    }
+
+    const wisdom = await database.all(sql, params);
     res.json(wisdom);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/api/wisdom", async (req, res) => {
+  try {
+    const {
+      content,
+      author,
+      source,
+      tags,
+      category,
+      personal_notes
+    } = req.body;
+    
+    if (!content || !content.trim()) {
+      return res.status(400).json({ error: "Content is required" });
+    }
+    
+    const result = await database.run(
+      "INSERT INTO wisdom (content, author, source, tags, category, personal_notes) VALUES (?, ?, ?, ?, ?, ?)",
+      [content, author || null, source || null, tags || null, category || null, personal_notes || null]
+    );
+    
+    res.json({ id: result.id, ...req.body });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put("/api/wisdom/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { is_favorite } = req.body;
+    
+    await database.run(
+      "UPDATE wisdom SET is_favorite = ? WHERE id = ?",
+      [is_favorite ? 1 : 0, id]
+    );
+    
+    res.json({ success: true, id, is_favorite });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -784,6 +838,68 @@ app.post("/api/evening-reflections", async (req, res) => {
       ]
     );
     res.json({ id: result.id, ...req.body });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// AI Chat API
+app.get("/api/ai-chats", async (req, res) => {
+  try {
+    const { session_id, limit = 50 } = req.query;
+    let sql = "SELECT * FROM ai_chats";
+    let params = [];
+    
+    if (session_id) {
+      sql += " WHERE session_id = ?";
+      params.push(session_id);
+    }
+    
+    sql += " ORDER BY created_at ASC LIMIT ?";
+    params.push(parseInt(limit));
+    
+    const chats = await database.all(sql, params);
+    res.json(chats);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/api/ai-chats", async (req, res) => {
+  try {
+    const {
+      session_id,
+      role,
+      message,
+      context
+    } = req.body;
+    
+    if (!session_id || !role || !message) {
+      return res.status(400).json({ error: "session_id, role, and message are required" });
+    }
+    
+    const result = await database.run(
+      "INSERT INTO ai_chats (session_id, role, message, context) VALUES (?, ?, ?, ?)",
+      [session_id, role, message, context || null]
+    );
+    
+    res.json({ id: result.id, ...req.body });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete("/api/ai-chats", async (req, res) => {
+  try {
+    const { session_id } = req.query;
+    
+    if (session_id) {
+      await database.run("DELETE FROM ai_chats WHERE session_id = ?", [session_id]);
+      res.json({ success: true, message: "Session chat history cleared" });
+    } else {
+      await database.run("DELETE FROM ai_chats");
+      res.json({ success: true, message: "All chat history cleared" });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -1048,6 +1048,56 @@ body {
   position: fixed;
 }
 
+/* AI Chat Layout Styles */
+.main-container.chat-open {
+  margin-right: 24rem; /* 384px - width of chat sidebar */
+  transition: margin-right 0.3s ease-in-out;
+}
+
+.main-container {
+  transition: margin-right 0.3s ease-in-out;
+}
+
+/* Chat specific styles */
+.chat-message {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.chat-analysis {
+  background: linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%);
+  border-left: 4px solid #3b82f6;
+}
+
+.chat-error {
+  background: linear-gradient(135deg, #fef2f2 0%, #fdf2f2 100%);
+  border-left: 4px solid #ef4444;
+}
+
+/* Responsive chat */
+@media (max-width: 1200px) {
+  .main-container.chat-open {
+    margin-right: 20rem; /* Smaller on medium screens */
+  }
+}
+
+@media (max-width: 1024px) {
+  .main-container.chat-open {
+    margin-right: 0; /* On tablets/mobile, chat overlays */
+  }
+  
+  /* Chat becomes overlay on smaller screens */
+  .ai-chat-overlay {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 50;
+  }
+}
+
 .inset-0 {
   top: 0;
   right: 0;
