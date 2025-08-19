@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { Sun, Moon, Bell, User } from "lucide-react";
 import { useSearch } from "../hooks/useSearch";
 import SearchDropdown from "./SearchDropdown";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { cn } from "../lib/utils";
 
 function Header() {
   const { isDark, toggleTheme } = useTheme();
@@ -38,14 +41,14 @@ function Header() {
     <header className="main-header">
       <div className="flex items-center justify-between w-full">
         {/* Left side - Date and search */}
-        <div className="flex items-center space-x-6 flex-1" style={{ marginRight: "10px" }}>
+        <div className="flex items-center space-x-6 flex-1 mr-4">
           <div>
-            <h2 className="text-lg font-semibold text-text-primary">Today</h2>
-            <p className="text-sm text-text-secondary">{currentDate}</p>
+            <h2 className="text-lg font-semibold text-foreground">Today</h2>
+            <p className="text-sm text-muted-foreground">{currentDate}</p>
           </div>
 
-          <div className="relative flex-1" ref={searchRef}>
-            <input
+          <div className="relative flex-1 max-w-md" ref={searchRef}>
+            <Input
               type="text"
               value={searchQuery}
               onChange={(e) => {
@@ -66,8 +69,7 @@ function Header() {
                 }
               }}
               placeholder="Search anything..."
-              className="input"
-              style={{ width: "100%", height: "40px" }}
+              className="h-10"
             />
             {showDropdown && (searchQuery.length >= 2 || isSearching) && (
               <div ref={dropdownRef}>
@@ -88,30 +90,17 @@ function Header() {
         {/* Right side - Actions and theme toggle */}
         <div className="flex items-center space-x-3">
           {/* Notifications */}
-          <button className="btn" style={{ padding: "10px" }}>
+          <Button variant="ghost" size="icon">
             <Bell className="w-5 h-5" />
-          </button>
+          </Button>
 
           {/* Theme toggle */}
-          <button
-            onClick={toggleTheme}
-            className="btn"
-            style={{ padding: "10px" }}
-          >
+          <Button variant="ghost" size="icon" onClick={toggleTheme}>
             {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-          </button>
+          </Button>
 
           {/* Profile/Avatar */}
-          <div
-            className="bg-primary-light rounded-full"
-            style={{
-              width: "40px",
-              height: "40px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
+          <div className="bg-primary/20 rounded-full w-10 h-10 flex items-center justify-center">
             <User className="w-5 h-5 text-primary" />
           </div>
         </div>

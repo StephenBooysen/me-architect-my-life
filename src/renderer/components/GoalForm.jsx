@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, Target, Calendar, Flag, Save, X } from "lucide-react";
+import { ArrowLeft, Target, Calendar, Flag, Save, X, ChevronDown } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
+import { Label } from "./ui/label";
+import { Progress } from "./ui/progress";
+import { cn } from "../lib/utils";
 
 function GoalForm({
   goal,
@@ -109,158 +116,164 @@ function GoalForm({
   };
 
   return (
-    <div className="w-full">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="welcome-card">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <button
-              onClick={onCancel}
-              className="mr-4 p-2 text-primary-dark hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <div>
-              <h1 className="welcome-title">
-                {goal ? `Edit ${getTypeTitle()}` : `Create ${getTypeTitle()}`}
-              </h1>
-              <p className="welcome-subtitle">
-                {goal 
-                  ? "Update your goal details" 
-                  : type === "monthly"
-                  ? "Break down your annual goals into monthly milestones"
-                  : type === "weekly"
-                  ? "Plan your week with actionable goals"
-                  : "Set up a new goal to track your progress"}
-              </p>
+      <Card className="welcome-card">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onCancel}
+                className="mr-4"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+              <div>
+                <h1 className="welcome-title">
+                  {goal ? `Edit ${getTypeTitle()}` : `Create ${getTypeTitle()}`}
+                </h1>
+                <p className="welcome-subtitle">
+                  {goal 
+                    ? "Update your goal details" 
+                    : type === "monthly"
+                    ? "Break down your annual goals into monthly milestones"
+                    : type === "weekly"
+                    ? "Plan your week with actionable goals"
+                    : "Set up a new goal to track your progress"}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Form */}
-      <div className="card">
-        <div className="card-body">
+      <Card>
+        <CardContent className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Title */}
-            <div className="form-group">
-              <label className="form-label">
-                <Target className="w-4 h-4 inline mr-2" />
+            <div className="space-y-2">
+              <Label className="flex items-center">
+                <Target className="w-4 h-4 mr-2" />
                 Goal Title *
-              </label>
-              <input
-                type="text"
+              </Label>
+              <Input
                 name="title"
                 value={formData.title}
                 onChange={handleInputChange}
-                className={`form-input ${errors.title ? "border-red-500" : ""}`}
+                className={cn(errors.title && "border-destructive")}
                 placeholder="Enter a clear, specific goal title..."
                 required
               />
               {errors.title && (
-                <p className="text-red-500 text-sm mt-1">{errors.title}</p>
+                <p className="text-sm text-destructive">{errors.title}</p>
               )}
             </div>
 
             {/* Description */}
-            <div className="form-group">
-              <label className="form-label">Description</label>
-              <textarea
+            <div className="space-y-2">
+              <Label>Description</Label>
+              <Textarea
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
-                className="form-input form-textarea"
                 placeholder="Describe your goal in detail. What do you want to achieve and why is it important?"
-                rows="4"
+                rows={4}
               />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Focus Area */}
-              <div className="form-group">
-                <label className="form-label">Focus Area</label>
-                <select
-                  name="focus_area_id"
-                  value={formData.focus_area_id || ""}
-                  onChange={handleInputChange}
-                  className="form-input"
-                >
-                  <option value="">Select a focus area</option>
-                  {focusAreas.map((area) => (
-                    <option key={area.id} value={area.id}>
-                      {area.name}
-                    </option>
-                  ))}
-                </select>
-                <p className="text-sm text-gray-500 mt-1">
+              <div className="space-y-2">
+                <Label>Focus Area</Label>
+                <div className="relative">
+                  <select
+                    name="focus_area_id"
+                    value={formData.focus_area_id || ""}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 text-sm rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent appearance-none pr-8"
+                  >
+                    <option value="">Select a focus area</option>
+                    {focusAreas.map((area) => (
+                      <option key={area.id} value={area.id}>
+                        {area.name}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-2 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                </div>
+                <p className="text-sm text-muted-foreground">
                   Choose the life area this goal belongs to
                 </p>
               </div>
 
               {/* Priority */}
-              <div className="form-group">
-                <label className="form-label">
-                  <Flag className="w-4 h-4 inline mr-2" />
+              <div className="space-y-2">
+                <Label className="flex items-center">
+                  <Flag className="w-4 h-4 mr-2" />
                   Priority
-                </label>
-                <select
-                  name="priority"
-                  value={formData.priority}
-                  onChange={handleInputChange}
-                  className="form-input"
-                >
-                  <option value="low">Low Priority</option>
-                  <option value="medium">Medium Priority</option>
-                  <option value="high">High Priority</option>
-                </select>
-                <p className="text-sm text-gray-500 mt-1">
+                </Label>
+                <div className="relative">
+                  <select
+                    name="priority"
+                    value={formData.priority}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 text-sm rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent appearance-none pr-8"
+                  >
+                    <option value="low">Low Priority</option>
+                    <option value="medium">Medium Priority</option>
+                    <option value="high">High Priority</option>
+                  </select>
+                  <ChevronDown className="absolute right-2 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                </div>
+                <p className="text-sm text-muted-foreground">
                   Set the importance level for this goal
                 </p>
               </div>
 
               {/* Current Progress Display */}
-              <div className="form-group">
-                <label className="form-label">
+              <div className="space-y-2">
+                <Label>
                   Current Status
-                </label>
-                <div className="p-4 bg-gray-50 rounded-lg border">
+                </Label>
+                <Card className="p-4 bg-muted/50">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-primary mb-2">
+                    <div className="text-2xl font-bold text-foreground mb-2">
                       {formData.progress}%
                     </div>
-                    <div className="progress-bar">
-                      <div
-                        className="progress-fill"
-                        style={{ width: `${formData.progress}%` }}
-                      ></div>
-                    </div>
-                    <p className="text-sm text-gray-600 mt-2">
+                    <Progress value={formData.progress} className="h-2 mb-2" />
+                    <p className="text-sm text-muted-foreground">
                       Current completion status
                     </p>
                   </div>
-                </div>
+                </Card>
               </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Target Year (for Annual Goals) */}
               {type === "annual" && (
-                <div className="form-group">
-                  <label className="form-label">
-                    <Calendar className="w-4 h-4 inline mr-2" />
+                <div className="space-y-2">
+                  <Label className="flex items-center">
+                    <Calendar className="w-4 h-4 mr-2" />
                     Target Year
-                  </label>
-                  <select
-                    name="target_year"
-                    value={formData.target_year}
-                    onChange={handleInputChange}
-                    className="form-input"
-                  >
-                    {[2024, 2025, 2026, 2027, 2028].map(year => (
-                      <option key={year} value={year}>{year}</option>
-                    ))}
-                  </select>
-                  <p className="text-sm text-gray-500 mt-1">
+                  </Label>
+                  <div className="relative">
+                    <select
+                      name="target_year"
+                      value={formData.target_year}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 text-sm rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent appearance-none pr-8"
+                    >
+                      {[2024, 2025, 2026, 2027, 2028].map(year => (
+                        <option key={year} value={year}>{year}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-2 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">
                     Choose the year you want to achieve this annual goal
                   </p>
                 </div>
@@ -268,39 +281,45 @@ function GoalForm({
 
               {/* Target Month (for Monthly Goals) */}
               {type === "monthly" && (
-                <div className="form-group">
-                  <label className="form-label">
-                    <Calendar className="w-4 h-4 inline mr-2" />
+                <div className="space-y-2">
+                  <Label className="flex items-center">
+                    <Calendar className="w-4 h-4 mr-2" />
                     Target Month & Year
-                  </label>
+                  </Label>
                   <div className="grid grid-cols-2 gap-2">
-                    <select
-                      name="target_month"
-                      value={formData.target_month || ""}
-                      onChange={handleInputChange}
-                      className="form-input"
-                    >
-                      <option value="">Select Month</option>
-                      {[
-                        "January", "February", "March", "April",
-                        "May", "June", "July", "August",
-                        "September", "October", "November", "December"
-                      ].map((month, index) => (
-                        <option key={index + 1} value={index + 1}>{month}</option>
-                      ))}
-                    </select>
-                    <select
-                      name="target_year"
-                      value={formData.target_year}
-                      onChange={handleInputChange}
-                      className="form-input"
-                    >
-                      {[2024, 2025, 2026, 2027, 2028].map(year => (
-                        <option key={year} value={year}>{year}</option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        name="target_month"
+                        value={formData.target_month || ""}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 text-sm rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent appearance-none pr-8"
+                      >
+                        <option value="">Select Month</option>
+                        {[
+                          "January", "February", "March", "April",
+                          "May", "June", "July", "August",
+                          "September", "October", "November", "December"
+                        ].map((month, index) => (
+                          <option key={index + 1} value={index + 1}>{month}</option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-2 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    </div>
+                    <div className="relative">
+                      <select
+                        name="target_year"
+                        value={formData.target_year}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 text-sm rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent appearance-none pr-8"
+                      >
+                        {[2024, 2025, 2026, 2027, 2028].map(year => (
+                          <option key={year} value={year}>{year}</option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-2 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    </div>
                   </div>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-sm text-muted-foreground">
                     Choose the specific month and year for this goal
                   </p>
                 </div>
@@ -308,96 +327,107 @@ function GoalForm({
 
               {/* Target Week (for Weekly Goals) */}
               {type === "weekly" && (
-                <div className="form-group">
-                  <label className="form-label">
-                    <Calendar className="w-4 h-4 inline mr-2" />
+                <div className="space-y-2">
+                  <Label className="flex items-center">
+                    <Calendar className="w-4 h-4 mr-2" />
                     Target Week
-                  </label>
+                  </Label>
                   <div className="grid grid-cols-3 gap-2">
-                    <select
-                      name="target_week"
-                      value={formData.target_week || ""}
-                      onChange={handleInputChange}
-                      className="form-input"
-                    >
-                      <option value="">Week</option>
-                      {Array.from({ length: 5 }, (_, i) => (
-                        <option key={i + 1} value={i + 1}>Week {i + 1}</option>
-                      ))}
-                    </select>
-                    <select
-                      name="target_month"
-                      value={formData.target_month || ""}
-                      onChange={handleInputChange}
-                      className="form-input"
-                    >
-                      <option value="">Month</option>
-                      {[
-                        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-                      ].map((month, index) => (
-                        <option key={index + 1} value={index + 1}>{month}</option>
-                      ))}
-                    </select>
-                    <select
-                      name="target_year"
-                      value={formData.target_year}
-                      onChange={handleInputChange}
-                      className="form-input"
-                    >
-                      {[2024, 2025, 2026, 2027].map(year => (
-                        <option key={year} value={year}>{year}</option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        name="target_week"
+                        value={formData.target_week || ""}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 text-sm rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent appearance-none pr-8"
+                      >
+                        <option value="">Week</option>
+                        {Array.from({ length: 5 }, (_, i) => (
+                          <option key={i + 1} value={i + 1}>Week {i + 1}</option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-2 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    </div>
+                    <div className="relative">
+                      <select
+                        name="target_month"
+                        value={formData.target_month || ""}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 text-sm rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent appearance-none pr-8"
+                      >
+                        <option value="">Month</option>
+                        {[
+                          "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                          "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+                        ].map((month, index) => (
+                          <option key={index + 1} value={index + 1}>{month}</option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-2 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    </div>
+                    <div className="relative">
+                      <select
+                        name="target_year"
+                        value={formData.target_year}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 text-sm rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent appearance-none pr-8"
+                      >
+                        {[2024, 2025, 2026, 2027].map(year => (
+                          <option key={year} value={year}>{year}</option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-2 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    </div>
                   </div>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-sm text-muted-foreground">
                     Choose the specific week, month, and year for this goal
                   </p>
                 </div>
               )}
 
               {/* Traditional Target Date (fallback) */}
-              <div className="form-group">
-                <label className="form-label">
-                  <Calendar className="w-4 h-4 inline mr-2" />
+              <div className="space-y-2">
+                <Label className="flex items-center">
+                  <Calendar className="w-4 h-4 mr-2" />
                   Target Date (Optional)
-                </label>
-                <input
+                </Label>
+                <Input
                   type="date"
                   name="target_date"
                   value={formData.target_date}
                   onChange={handleInputChange}
-                  className="form-input"
                 />
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-muted-foreground">
                   Optional specific completion date
                 </p>
               </div>
 
               {/* Parent Goal (for monthly and weekly goals) */}
               {type !== "annual" && (
-                <div className="form-group">
-                  <label className="form-label">
+                <div className="space-y-2">
+                  <Label>
                     {type === "monthly" ? "Link to Annual Goal (Optional)" : "Link to Monthly Goal (Optional)"}
-                  </label>
-                  <select
-                    name="parent_id"
-                    value={formData.parent_id || ""}
-                    onChange={handleInputChange}
-                    className="form-input"
-                  >
-                    <option value="">
-                      {parentGoals.length > 0 
-                        ? `Select a ${type === "monthly" ? "annual" : "monthly"} goal` 
-                        : `No ${type === "monthly" ? "annual" : "monthly"} goals available`}
-                    </option>
-                    {parentGoals.map((parentGoal) => (
-                      <option key={parentGoal.id} value={parentGoal.id}>
-                        {parentGoal.title}
+                  </Label>
+                  <div className="relative">
+                    <select
+                      name="parent_id"
+                      value={formData.parent_id || ""}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 text-sm rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent appearance-none pr-8"
+                    >
+                      <option value="">
+                        {parentGoals.length > 0 
+                          ? `Select a ${type === "monthly" ? "annual" : "monthly"} goal` 
+                          : `No ${type === "monthly" ? "annual" : "monthly"} goals available`}
                       </option>
-                    ))}
-                  </select>
-                  <p className="text-sm text-gray-500 mt-1">
+                      {parentGoals.map((parentGoal) => (
+                        <option key={parentGoal.id} value={parentGoal.id}>
+                          {parentGoal.title}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-2 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">
                     {type === "monthly" 
                       ? "Link this monthly goal to an annual goal to track progress toward your yearly objectives"
                       : "Link this weekly goal to a monthly goal to break down larger objectives into actionable steps"}
@@ -409,23 +439,22 @@ function GoalForm({
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Success Criteria */}
-              <div className="form-group">
-                <label className="form-label">Success Criteria</label>
-                <textarea
+              <div className="space-y-2">
+                <Label>Success Criteria</Label>
+                <Textarea
                   name="success_criteria"
                   value={formData.success_criteria}
                   onChange={handleInputChange}
-                  className="form-input form-textarea"
                   placeholder="How will you know when this goal is achieved? Be specific about measurable outcomes."
-                  rows="4"
+                  rows={4}
                 />
               </div>
 
               {/* Progress */}
-              <div className="form-group">
-                <label className="form-label">
+              <div className="space-y-2">
+                <Label>
                   Current Progress ({formData.progress}%)
-                </label>
+                </Label>
                 <input
                   type="range"
                   name="progress"
@@ -433,41 +462,36 @@ function GoalForm({
                   max="100"
                   value={formData.progress}
                   onChange={handleInputChange}
-                  className="w-full"
+                  className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer slider-thumb"
                 />
-                <div className="progress-bar mt-2">
-                  <div
-                    className="progress-fill"
-                    style={{ width: `${formData.progress}%` }}
-                  ></div>
-                </div>
+                <Progress value={formData.progress} className="h-2 mt-2" />
                 {errors.progress && (
-                  <p className="text-red-500 text-sm mt-1">{errors.progress}</p>
+                  <p className="text-sm text-destructive">{errors.progress}</p>
                 )}
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-muted-foreground">
                   Set your current progress towards achieving this goal
                 </p>
               </div>
             </div>
 
             {/* Buttons */}
-            <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
-              <button
+            <div className="flex items-center justify-end space-x-4 pt-6 border-t">
+              <Button
                 type="button"
+                variant="outline"
                 onClick={onCancel}
-                className="btn btn-secondary flex items-center"
               >
                 <X className="w-4 h-4 mr-2" />
                 Cancel
-              </button>
-              <button type="submit" className="green-button flex items-center">
+              </Button>
+              <Button type="submit">
                 <Save className="w-4 h-4 mr-2" />
                 {goal ? "Update Goal" : "Create Goal"}
-              </button>
+              </Button>
             </div>
           </form>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

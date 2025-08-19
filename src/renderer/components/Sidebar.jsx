@@ -10,6 +10,7 @@ import {
   Settings,
   TrendingUp,
 } from "lucide-react";
+import { cn } from "../lib/utils";
 
 const navigation = [
   {
@@ -61,54 +62,47 @@ function Sidebar() {
   return (
     <div className="sidebar">
       {/* Logo/Brand */}
-      <div className="sidebar-header">
+      <div className="flex flex-col space-y-1.5 p-6">
         <div className="flex items-center">
-          <div
-            style={{
-              background:
-                "linear-gradient(135deg, var(--primary), var(--primary-hover))",
-              width: "48px",
-              height: "48px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              marginRight: "12px",
-              borderRadius: "var(--radius-lg)",
-              boxShadow: "var(--shadow-md)",
-            }}
-          >
-            <TrendingUp className="w-6 h-6" style={{ color: "white" }} />
+          <div className="bg-gradient-to-br from-primary to-primary/80 w-12 h-12 flex items-center justify-center mr-3 rounded-lg shadow-md">
+            <TrendingUp className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-text-primary">Architect</h1>
-            <p className="text-sm text-text-secondary">My Life</p>
+            <h1 className="text-lg font-bold text-foreground">Architect</h1>
+            <p className="text-sm text-muted-foreground">My Life</p>
           </div>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="sidebar-nav">
+      <nav className="flex-1 overflow-y-auto px-3">
         {navigation.map((item) => (
           <div key={item.name}>
             <NavLink
               to={item.href}
               className={({ isActive }) =>
-                `nav-item ${isActive ? "active" : ""}`
+                cn(
+                  "nav-item",
+                  isActive && "active"
+                )
               }
             >
-              <item.icon />
+              <item.icon className="w-5 h-5 mr-3" />
               {item.name}
             </NavLink>
 
             {/* Sub-navigation */}
             {item.children && (
-              <div className="space-y-1">
+              <div className="space-y-1 ml-8">
                 {item.children.map((child) => (
                   <NavLink
                     key={child.name}
                     to={child.href}
                     className={({ isActive }) =>
-                      `nav-subitem ${isActive ? "active" : ""}`
+                      cn(
+                        "nav-subitem",
+                        isActive && "active"
+                      )
                     }
                   >
                     {child.name}
@@ -121,8 +115,8 @@ function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="sidebar-footer">
-        <div className="text-sm text-text-secondary">
+      <div className="p-4 border-t">
+        <div className="text-sm text-muted-foreground">
           <p className="font-medium mb-1">Version 1.0.0</p>
           <p className="flex items-center text-xs">
             <span>Made with</span>

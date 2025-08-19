@@ -11,6 +11,11 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import GoalForm from "../../components/GoalForm";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
+import { Progress } from "../../components/ui/progress";
+import { Badge } from "../../components/ui/badge";
+import { cn } from "../../lib/utils";
 
 function AnnualGoals() {
   const db = useDatabase();
@@ -128,120 +133,123 @@ function AnnualGoals() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="welcome-card">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="welcome-title">Annual Goals 🎯</h1>
-            <p className="welcome-subtitle">
-              Set and track your yearly objectives
-            </p>
+      <Card className="welcome-card">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="welcome-title">Annual Goals 🎯</h1>
+              <p className="welcome-subtitle">
+                Set and track your yearly objectives
+              </p>
+            </div>
+            <Button onClick={handleCreateGoal}>
+              <Plus className="w-4 h-4 mr-2" />
+              New Annual Goal
+            </Button>
           </div>
-          <button onClick={handleCreateGoal} className="green-button">
-            <Plus className="w-4 h-4 mr-2" />
-            New Annual Goal
-          </button>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="card">
-          <div className="card-body">
+        <Card className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
+          <CardContent className="p-4">
             <div className="flex items-center">
-              <Target className="w-8 h-8 text-blue-600" />
-              <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600">Total Goals</p>
-                <p className="text-2xl font-bold text-gray-900">
+              <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded-md mr-3">
+                <Target className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Total Goals</p>
+                <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
                   {goals.length}
                 </p>
               </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className="card">
-          <div className="card-body">
+        <Card className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
+          <CardContent className="p-4">
             <div className="flex items-center">
-              <TrendingUp className="w-8 h-8 text-green-600" />
-              <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600">Completed</p>
-                <p className="text-2xl font-bold text-gray-900">
+              <div className="bg-green-100 dark:bg-green-900 p-2 rounded-md mr-3">
+                <TrendingUp className="w-6 h-6 text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-green-700 dark:text-green-300">Completed</p>
+                <p className="text-2xl font-bold text-green-900 dark:text-green-100">
                   {goals.filter((g) => g.progress === 100).length}
                 </p>
               </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className="card">
-          <div className="card-body">
+        <Card className="bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800">
+          <CardContent className="p-4">
             <div className="flex items-center">
-              <Flag className="w-8 h-8 text-red-600" />
-              <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600">
+              <div className="bg-red-100 dark:bg-red-900 p-2 rounded-md mr-3">
+                <Flag className="w-6 h-6 text-red-600 dark:text-red-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-red-700 dark:text-red-300">
                   High Priority
                 </p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-2xl font-bold text-red-900 dark:text-red-100">
                   {goals.filter((g) => g.priority === "high").length}
                 </p>
               </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className="card">
-          <div className="card-body">
+        <Card className="bg-purple-50 dark:bg-purple-950 border-purple-200 dark:border-purple-800">
+          <CardContent className="p-4">
             <div className="flex items-center">
-              <Calendar className="w-8 h-8 text-purple-600" />
-              <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600">This Year</p>
-                <p className="text-2xl font-bold text-gray-900">
+              <div className="bg-purple-100 dark:bg-purple-900 p-2 rounded-md mr-3">
+                <Calendar className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-purple-700 dark:text-purple-300">This Year</p>
+                <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
                   {new Date().getFullYear()}
                 </p>
               </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Goals List */}
       <div className="space-y-4">
         {goals.length > 0 ? (
           goals.map((goal) => (
-            <div
-              key={goal.id}
-              className="card hover:shadow-md transition-shadow"
-            >
-              <div className="card-body">
+            <Card key={goal.id} className="hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center space-x-3 mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900">
+                      <h3 className="text-lg font-semibold text-foreground">
                         {goal.title}
                       </h3>
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(
-                          goal.priority
-                        )}`}
-                      >
+                      <Badge variant={goal.priority === 'high' ? 'destructive' : goal.priority === 'medium' ? 'secondary' : 'default'}>
                         {goal.priority}
-                      </span>
+                      </Badge>
                     </div>
 
                     {goal.description && (
-                      <p className="text-gray-600 mb-3">{goal.description}</p>
+                      <p className="text-muted-foreground mb-3">{goal.description}</p>
                     )}
 
                     <div className="flex items-center space-x-6 mb-3">
                       {goal.focus_area_id && (
-                        <div className="flex items-center text-sm text-gray-500">
+                        <div className="flex items-center text-sm text-muted-foreground">
                           <Target className="w-4 h-4 mr-1" />
                           {getFocusAreaName(goal.focus_area_id)}
                         </div>
                       )}
 
                       {goal.target_date && (
-                        <div className="flex items-center text-sm text-gray-500">
+                        <div className="flex items-center text-sm text-muted-foreground">
                           <Calendar className="w-4 h-4 mr-1" />
                           Target:{" "}
                           {format(new Date(goal.target_date), "MMM dd, yyyy")}
@@ -251,10 +259,10 @@ function AnnualGoals() {
 
                     {goal.success_criteria && (
                       <div className="mb-3">
-                        <p className="text-sm font-medium text-gray-700 mb-1">
+                        <p className="text-sm font-medium text-foreground mb-1">
                           Success Criteria:
                         </p>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-muted-foreground">
                           {goal.success_criteria}
                         </p>
                       </div>
@@ -262,53 +270,53 @@ function AnnualGoals() {
 
                     <div className="flex items-center space-x-4">
                       <div className="flex-1">
-                        <div className="flex items-center justify-between text-sm text-gray-600 mb-1">
+                        <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
                           <span>Progress</span>
                           <span>{goal.progress}%</span>
                         </div>
-                        <div className="progress-bar">
-                          <div
-                            className="progress-fill"
-                            style={{ width: `${goal.progress}%` }}
-                          ></div>
-                        </div>
+                        <Progress value={goal.progress} className="h-2" />
                       </div>
                     </div>
                   </div>
 
                   <div className="flex items-start space-x-2">
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       onClick={() => handleEditGoal(goal)}
-                      className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
                     >
                       <Edit3 className="w-4 h-4" />
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       onClick={() => handleDeleteGoal(goal.id)}
-                      className="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50"
+                      className="hover:text-destructive hover:bg-destructive/10"
                     >
                       <Trash2 className="w-4 h-4" />
-                    </button>
+                    </Button>
                   </div>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           ))
         ) : (
-          <div className="text-center py-12">
-            <Target className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No Annual Goals Yet
-            </h3>
-            <p className="text-gray-600 mb-4">
-              Start by creating your first annual goal to track your yearly
-              progress.
-            </p>
-            <button onClick={handleCreateGoal} className="btn btn-primary">
-              <Plus className="w-4 h-4 mr-2" />
-              Create Your First Annual Goal
-            </button>
-          </div>
+          <Card>
+            <CardContent className="text-center py-12">
+              <Target className="w-16 h-16 text-muted-foreground/40 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-foreground mb-2">
+                No Annual Goals Yet
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                Start by creating your first annual goal to track your yearly
+                progress.
+              </p>
+              <Button onClick={handleCreateGoal}>
+                <Plus className="w-4 h-4 mr-2" />
+                Create Your First Annual Goal
+              </Button>
+            </CardContent>
+          </Card>
         )}
       </div>
 

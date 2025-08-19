@@ -12,6 +12,11 @@ import {
   Zap,
 } from "lucide-react";
 import { format } from "date-fns";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Progress } from "../components/ui/progress";
+import { Badge } from "../components/ui/badge";
+import { cn } from "../lib/utils";
 
 function Dashboard() {
   const db = useDatabase();
@@ -112,395 +117,285 @@ function Dashboard() {
     totalHabits > 0 ? Math.round((completedHabits / totalHabits) * 100) : 0;
 
   return (
-    <div className="dashboard-container">
+    <div className="space-y-6">
       {/* Welcome Header */}
-      <div
-        className="flat-card gradient-primary welcome-header"
-        style={{
-          background:
-            "linear-gradient(135deg, var(--primary-light), var(--primary))",
-          color: "var(--primary-dark)",
-          border: "none",
-        }}
-      >
-        <div className="welcome-content">
-          <div className="welcome-text">
-            <h1
-              className="welcome-title"
-              style={{ color: "var(--primary-dark)" }}
-            >
-              Good Morning! 🌟
-            </h1>
-            <p className="welcome-subtitle" style={{ color: "var(--primary-dark)", opacity: 0.8 }}>
-              Ready to architect another amazing day?
-            </p>
-          </div>
-          <div
-            className="progress-card"
-            style={{
-              padding: "24px",
-              textAlign: "center",
-              background: "white",
-              boxShadow: "var(--shadow-lg)",
-              borderRadius: "var(--radius-lg)",
-            }}
-          >
-            <div className="progress-percentage text-primary">
-              {completionPercentage}%
+      <Card className="welcome-card">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <h1 className="welcome-title">
+                Good Morning! 🌟
+              </h1>
+              <p className="welcome-subtitle">
+                Ready to architect another amazing day?
+              </p>
             </div>
-            <div className="progress-label text-gray-500">Today's Progress</div>
+            <Card className="bg-background shadow-lg">
+              <CardContent className="p-6 text-center">
+                <div className="text-3xl font-bold text-primary mb-1">
+                  {completionPercentage}%
+                </div>
+                <div className="text-sm text-muted-foreground">Today's Progress</div>
+              </CardContent>
+            </Card>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       <div className="dashboard-grid">
         {/* Today's Focus */}
-        <div
-          className="flat-card"
-          style={{
-            background: "white",
-            boxShadow: "var(--shadow-md)",
-            border: "1px solid var(--border)",
-          }}
-        >
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center">
-              <div
-                style={{
-                  background: "var(--primary-light)",
-                  padding: "8px",
-                  borderRadius: "var(--radius)",
-                  marginRight: "12px",
-                }}
-              >
-                <Target className="w-6 h-6 text-primary" />
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="bg-primary/20 p-2 rounded-md mr-3">
+                  <Target className="w-6 h-6 text-primary" />
+                </div>
+                <CardTitle>Today's Focus</CardTitle>
               </div>
-              <h3 className="text-xl font-semibold text-gray-800">
-                Today's Focus
-              </h3>
+              <Button size="sm">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Goal
+              </Button>
             </div>
-            <button className="flat-button flat-button-primary">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Goal
-            </button>
-          </div>
+          </CardHeader>
+          <CardContent>
 
-          {dashboardData.todaysFocus.length > 0 ? (
-            <div className="space-y-4">
-              {dashboardData.todaysFocus.map((goal) => (
-                <div key={goal.id} className="flat-surface p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-gray-800 mb-2">
-                        {goal.title}
-                      </h4>
-                      <div className="flex items-center">
-                        <div className="progress-bar flex-1 mr-3">
-                          <div
-                            className="progress-fill"
-                            style={{ width: `${goal.progress || 0}%` }}
-                          ></div>
+            {dashboardData.todaysFocus.length > 0 ? (
+              <div className="space-y-4">
+                {dashboardData.todaysFocus.map((goal) => (
+                  <Card key={goal.id} className="border border-border">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-foreground mb-2">
+                            {goal.title}
+                          </h4>
+                          <div className="flex items-center">
+                            <Progress value={goal.progress || 0} className="flex-1 mr-3" />
+                            <Badge variant="default">
+                              {goal.progress || 0}%
+                            </Badge>
+                          </div>
                         </div>
-                        <span className="badge badge-primary">
+                        <ChevronRight className="w-5 h-5 text-muted-foreground ml-3" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Target className="w-16 h-16 text-muted-foreground/40 mx-auto mb-4" />
+                <p className="text-muted-foreground mb-4">
+                  No goals set for this week yet.
+                </p>
+                <Button>
+                  Set Weekly Goals
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Habits Tracker */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="bg-orange-100 dark:bg-orange-900 p-2 rounded-md mr-3">
+                  <CheckSquare className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+                </div>
+                <CardTitle>Today's Habits</CardTitle>
+              </div>
+              <div className="flex items-center space-x-3">
+                <span className="text-sm text-muted-foreground font-medium">
+                  {completedHabits}/{totalHabits}
+                </span>
+                <Button variant="secondary" size="icon">
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+
+            {dashboardData.habitStreaks.length > 0 ? (
+              <div className="space-y-3">
+                {dashboardData.habitStreaks.map((habit) => (
+                  <Card 
+                    key={habit.id} 
+                    className={cn(
+                      "cursor-pointer transition-all",
+                      habit.completedToday ? "bg-primary/10 border-primary/20" : "hover:bg-muted/50"
+                    )}
+                    onClick={() => toggleHabit(habit)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-semibold text-foreground">
+                            {habit.name}
+                          </h4>
+                          <div className="flex items-center mt-1">
+                            <Zap className="w-4 h-4 text-orange-500 mr-1" />
+                            <span className="text-sm text-muted-foreground">
+                              {habit.streak} day streak
+                            </span>
+                          </div>
+                        </div>
+                        <div
+                          className={cn(
+                            "w-6 h-6 rounded-full border-2 flex items-center justify-center",
+                            habit.completedToday
+                              ? "bg-primary border-primary"
+                              : "border-muted-foreground/30"
+                          )}
+                        >
+                          {habit.completedToday && (
+                            <CheckSquare className="w-4 h-4 text-white" />
+                          )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <CheckSquare className="w-16 h-16 text-muted-foreground/40 mx-auto mb-4" />
+                <p className="text-muted-foreground mb-4">No habits tracked yet.</p>
+                <Button>
+                  Add Your First Habit
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Goal Progress Overview */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center">
+              <div className="bg-primary/20 p-2 rounded-md mr-3">
+                <TrendingUp className="w-6 h-6 text-primary" />
+              </div>
+              <CardTitle>Goal Progress</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {dashboardData.goalProgress.length > 0 ? (
+              <div className="space-y-4">
+                {dashboardData.goalProgress.map((goal) => (
+                  <Card key={goal.id} className="border border-border">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-medium text-foreground">{goal.title}</h4>
+                        <span className="text-sm text-muted-foreground">
                           {goal.progress || 0}%
                         </span>
                       </div>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-gray-400 ml-3" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <Target className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500 mb-4">
-                No goals set for this week yet.
-              </p>
-              <button className="flat-button flat-button-primary">
-                Set Weekly Goals
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Habits Tracker */}
-        <div
-          className="flat-card"
-          style={{
-            background: "white",
-            boxShadow: "var(--shadow-md)",
-            border: "1px solid var(--border)",
-          }}
-        >
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center">
-              <div
-                style={{
-                  background: "var(--accent-light)",
-                  padding: "8px",
-                  borderRadius: "var(--radius)",
-                  marginRight: "12px",
-                }}
-              >
-                <CheckSquare className="w-6 h-6 text-accent" />
+                      <Progress value={goal.progress || 0} />
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-              <h3 className="text-xl font-semibold text-gray-800">
-                Today's Habits
-              </h3>
-            </div>
-            <div className="flex items-center space-x-3">
-              <span className="text-sm text-gray-600 font-medium">
-                {completedHabits}/{totalHabits}
-              </span>
-              <button
-                className="flat-button flat-button-secondary"
-                style={{ padding: "8px" }}
-              >
-                <Plus className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-
-          {dashboardData.habitStreaks.length > 0 ? (
-            <div className="space-y-3">
-              {dashboardData.habitStreaks.map((habit) => (
-                <div
-                  key={habit.id}
-                  className={`flat-surface p-4 cursor-pointer transition-all ${
-                    habit.completedToday ? "bg-primary-light" : ""
-                  }`}
-                  onClick={() => toggleHabit(habit)}
-                  style={{
-                    background: habit.completedToday
-                      ? "var(--primary-light)"
-                      : "var(--white)",
-                  }}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-semibold text-gray-800">
-                        {habit.name}
-                      </h4>
-                      <div className="flex items-center mt-1">
-                        <Zap className="w-4 h-4 text-orange-500 mr-1" />
-                        <span className="text-sm text-gray-600">
-                          {habit.streak} day streak
-                        </span>
-                      </div>
-                    </div>
-                    <div
-                      className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                        habit.completedToday
-                          ? "bg-primary border-primary"
-                          : "border-gray-300"
-                      }`}
-                    >
-                      {habit.completedToday && (
-                        <CheckSquare className="w-4 h-4 text-white" />
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <CheckSquare className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500 mb-4">No habits tracked yet.</p>
-              <button className="flat-button flat-button-primary">
-                Add Your First Habit
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Goal Progress Overview */}
-        <div
-          className="flat-card"
-          style={{
-            background: "white",
-            boxShadow: "var(--shadow-md)",
-            border: "1px solid var(--border)",
-          }}
-        >
-          <div className="flex items-center mb-6">
-            <div
-              style={{
-                background: "var(--primary-light)",
-                padding: "8px",
-                borderRadius: "var(--radius)",
-                marginRight: "12px",
-              }}
-            >
-              <TrendingUp className="w-6 h-6 text-primary" />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-800">
-              Goal Progress
-            </h3>
-          </div>
-
-          {dashboardData.goalProgress.length > 0 ? (
-            <div className="space-y-4">
-              {dashboardData.goalProgress.map((goal) => (
-                <div key={goal.id} className="flat-surface p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium text-gray-800">{goal.title}</h4>
-                    <span className="text-sm text-gray-600">
-                      {goal.progress || 0}%
-                    </span>
-                  </div>
-                  <div className="progress-bar">
-                    <div
-                      className="progress-fill"
-                      style={{ width: `${goal.progress || 0}%` }}
-                    ></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <TrendingUp className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500 mb-4">No annual goals set yet.</p>
-              <button className="flat-button flat-button-primary">
-                Set Annual Goals
-              </button>
-            </div>
-          )}
-        </div>
+            ) : (
+              <div className="text-center py-12">
+                <TrendingUp className="w-16 h-16 text-muted-foreground/40 mx-auto mb-4" />
+                <p className="text-muted-foreground mb-4">No annual goals set yet.</p>
+                <Button>
+                  Set Annual Goals
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Daily Wisdom */}
-        <div
-          className="flat-card"
-          style={{
-            background: "white",
-            boxShadow: "var(--shadow-md)",
-            border: "1px solid var(--border)",
-          }}
-        >
-          <div className="flex items-center mb-6">
-            <div
-              style={{
-                background: "var(--accent-light)",
-                padding: "8px",
-                borderRadius: "var(--radius)",
-                marginRight: "12px",
-              }}
-            >
-              <Quote className="w-6 h-6 text-accent" />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-800">
-              Daily Inspiration
-            </h3>
-          </div>
-
-          {dashboardData.dailyWisdom ? (
-            <div
-              className="flat-surface p-4"
-              style={{ background: "var(--gray-50)" }}
-            >
-              <blockquote className="text-gray-700 italic mb-3 text-lg leading-relaxed">
-                "{dashboardData.dailyWisdom.content}"
-              </blockquote>
-              <div className="flex items-center">
-                <Star className="w-4 h-4 text-primary mr-2" />
-                <cite className="text-sm text-gray-600 font-medium">
-                  {dashboardData.dailyWisdom.author || "Unknown"}
-                </cite>
+        <Card>
+          <CardHeader>
+            <div className="flex items-center">
+              <div className="bg-amber-100 dark:bg-amber-900 p-2 rounded-md mr-3">
+                <Quote className="w-6 h-6 text-amber-600 dark:text-amber-400" />
               </div>
+              <CardTitle>Daily Inspiration</CardTitle>
             </div>
-          ) : (
-            <div className="text-center py-12">
-              <Quote className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500 mb-4">No wisdom quotes yet.</p>
-              <button className="flat-button flat-button-primary">
-                Add Inspiration
-              </button>
-            </div>
-          )}
-        </div>
+          </CardHeader>
+          <CardContent>
+            {dashboardData.dailyWisdom ? (
+              <Card className="bg-muted/50">
+                <CardContent className="p-4">
+                  <blockquote className="text-foreground italic mb-3 text-lg leading-relaxed">
+                    "{dashboardData.dailyWisdom.content}"
+                  </blockquote>
+                  <div className="flex items-center">
+                    <Star className="w-4 h-4 text-primary mr-2" />
+                    <cite className="text-sm text-muted-foreground font-medium">
+                      {dashboardData.dailyWisdom.author || "Unknown"}
+                    </cite>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="text-center py-12">
+                <Quote className="w-16 h-16 text-muted-foreground/40 mx-auto mb-4" />
+                <p className="text-muted-foreground mb-4">No wisdom quotes yet.</p>
+                <Button>
+                  Add Inspiration
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Quick Stats */}
-        <div
-          className="flat-card"
-          style={{
-            background: "white",
-            boxShadow: "var(--shadow-md)",
-            border: "1px solid var(--border)",
-          }}
-        >
-          <div className="flex items-center mb-6">
-            <div
-              style={{
-                background: "var(--primary-light)",
-                padding: "8px",
-                borderRadius: "var(--radius)",
-                marginRight: "12px",
-              }}
-            >
-              <Calendar className="w-6 h-6 text-primary" />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-800">
-              Today's Summary
-            </h3>
-          </div>
-
-          <div className="stats-grid">
-            <div
-              className="flat-surface p-4 text-center"
-              style={{
-                background: "var(--primary-light)",
-                border: "1px solid var(--primary)",
-                borderRadius: "var(--radius-lg)",
-              }}
-            >
-              <div className="text-2xl font-bold text-primary mb-1">
-                {dashboardData.todaysFocus.length}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center">
+              <div className="bg-primary/20 p-2 rounded-md mr-3">
+                <Calendar className="w-6 h-6 text-primary" />
               </div>
-              <div className="text-sm text-primary">Focus Goals</div>
+              <CardTitle>Today's Summary</CardTitle>
             </div>
-            <div
-              className="flat-surface p-4 text-center"
-              style={{
-                background: "var(--accent-light)",
-                border: "1px solid var(--accent)",
-                borderRadius: "var(--radius-lg)",
-              }}
-            >
-              <div className="text-2xl font-bold text-accent mb-1">
-                {completedHabits}
-              </div>
-              <div className="text-sm text-accent">Habits Done</div>
+          </CardHeader>
+          <CardContent>
+            <div className="stats-grid">
+              <Card className="bg-primary/10 border-primary/20">
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold text-primary mb-1">
+                    {dashboardData.todaysFocus.length}
+                  </div>
+                  <div className="text-sm text-primary">Focus Goals</div>
+                </CardContent>
+              </Card>
+              <Card className="bg-orange-100 dark:bg-orange-900 border-orange-200 dark:border-orange-800">
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold text-orange-600 dark:text-orange-400 mb-1">
+                    {completedHabits}
+                  </div>
+                  <div className="text-sm text-orange-600 dark:text-orange-400">Habits Done</div>
+                </CardContent>
+              </Card>
+              <Card className="bg-primary/10 border-primary/20">
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold text-primary mb-1">
+                    {dashboardData.goalProgress.length}
+                  </div>
+                  <div className="text-sm text-primary">Active Goals</div>
+                </CardContent>
+              </Card>
+              <Card className="bg-muted/50">
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold text-foreground mb-1">
+                    {format(new Date(), "d")}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Day of Month</div>
+                </CardContent>
+              </Card>
             </div>
-            <div
-              className="flat-surface p-4 text-center"
-              style={{
-                background: "var(--primary-light)",
-                border: "1px solid var(--primary)",
-                borderRadius: "var(--radius-lg)",
-              }}
-            >
-              <div className="text-2xl font-bold text-primary mb-1">
-                {dashboardData.goalProgress.length}
-              </div>
-              <div className="text-sm text-primary">Active Goals</div>
-            </div>
-            <div
-              className="flat-surface p-4 text-center"
-              style={{
-                background: "var(--gray-100)",
-                border: "1px solid var(--gray-300)",
-                borderRadius: "var(--radius-lg)",
-              }}
-            >
-              <div className="text-2xl font-bold text-gray-700 mb-1">
-                {format(new Date(), "d")}
-              </div>
-              <div className="text-sm text-gray-600">Day of Month</div>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

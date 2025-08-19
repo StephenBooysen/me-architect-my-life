@@ -1,0 +1,434 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 142 76% 36%;
+    --primary-foreground: 355.7 100% 97.3%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 142 76% 36%;
+    --radius: 0.5rem;
+    
+    /* Custom design system colors */
+    --primary-hover: 142 69% 30%;
+    --primary-light: 142 76% 93%;
+    --primary-dark: 142 85% 25%;
+    
+    --accent-color: 38 92% 50%;
+    --accent-hover: 32 95% 44%;
+    --accent-light: 38 100% 94%;
+    
+    --success: 142 71% 45%;
+    --success-light: 142 76% 93%;
+    --warning: 38 92% 50%;
+    --warning-light: 38 100% 94%;
+    --error: 0 84% 60%;
+    --error-light: 0 93% 94%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 142 71% 45%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 142 71% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+      "Oxygen", "Ubuntu", "Cantarell", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.6;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    min-width: 100vw;
+    min-height: 100vh;
+  }
+
+  #root {
+    min-width: 100vw;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+@layer components {
+  /* Modern Loading Spinner */
+  .spinner {
+    @apply h-8 w-8 animate-spin rounded-full border-4;
+    border-color: hsl(var(--primary)) transparent hsl(var(--primary)) transparent;
+  }
+
+  /* Enhanced Navigation Items */
+  .nav-item {
+    @apply flex items-center px-3 py-2 mb-1 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-200 w-full text-left cursor-pointer;
+  }
+
+  .nav-item.active {
+    @apply bg-primary text-primary-foreground font-semibold;
+  }
+
+  .nav-item svg {
+    @apply w-5 h-5 mr-3;
+  }
+
+  .nav-subitem {
+    @apply block py-2 px-3 ml-8 text-sm text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-all duration-200;
+  }
+
+  .nav-subitem.active {
+    @apply text-primary font-medium;
+  }
+
+  /* Modern Cards */
+  .modern-card {
+    @apply bg-card text-card-foreground rounded-lg border shadow-sm transition-all duration-300 hover:shadow-md;
+  }
+
+  .modern-card-header {
+    @apply p-6 pb-4;
+  }
+
+  .modern-card-content {
+    @apply p-6 pt-0;
+  }
+
+  .modern-card-title {
+    @apply text-lg font-semibold leading-none tracking-tight;
+  }
+
+  .modern-card-description {
+    @apply text-sm text-muted-foreground mt-2;
+  }
+
+  /* Progress Components */
+  .progress-bar {
+    @apply w-full h-3 bg-secondary rounded-full overflow-hidden;
+  }
+
+  .progress-fill {
+    @apply h-full bg-primary transition-all duration-300 ease-in-out rounded-full;
+    background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary-hover)));
+  }
+
+  /* Status Badges */
+  .status-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .status-badge-success {
+    @apply bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200;
+  }
+
+  .status-badge-warning {
+    @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200;
+  }
+
+  .status-badge-error {
+    @apply bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200;
+  }
+
+  .status-badge-primary {
+    @apply bg-primary/10 text-primary;
+  }
+
+  /* Form Components */
+  .modern-input {
+    @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .modern-textarea {
+    @apply flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .modern-label {
+    @apply text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70;
+  }
+
+  /* Button Components */
+  .btn {
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .btn-default {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2;
+  }
+
+  .btn-outline {
+    @apply border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2;
+  }
+
+  .btn-ghost {
+    @apply hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2;
+  }
+
+  .btn-destructive {
+    @apply bg-destructive text-destructive-foreground hover:bg-destructive/90 h-10 px-4 py-2;
+  }
+
+  .btn-sm {
+    @apply h-9 px-3;
+  }
+
+  .btn-lg {
+    @apply h-11 px-8;
+  }
+
+  /* Layout Components */
+  .app-layout {
+    @apply flex h-screen w-screen max-w-full overflow-hidden;
+  }
+
+  .sidebar {
+    @apply w-64 min-w-[16rem] max-w-[16rem] h-full bg-card border-r flex flex-col p-4 shadow-sm;
+    background: linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--muted)) 100%);
+  }
+
+  .main-container {
+    @apply flex flex-col flex-1 min-w-0;
+  }
+
+  .main-header {
+    @apply h-16 bg-card border-b flex items-center justify-between px-6 shadow-sm;
+    backdrop-filter: blur(10px);
+  }
+
+  .main-content {
+    @apply flex-1 overflow-y-auto p-8 min-h-0 w-full;
+    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%);
+  }
+
+  /* Welcome Card */
+  .welcome-card {
+    @apply bg-gradient-to-br from-primary/20 to-primary/10 rounded-lg p-6 mb-6 border;
+  }
+
+  .welcome-title {
+    @apply text-3xl font-bold text-foreground mb-2 leading-tight;
+  }
+
+  .welcome-subtitle {
+    @apply text-muted-foreground opacity-90 text-base leading-relaxed;
+  }
+
+  /* Dashboard Grid */
+  .dashboard-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full;
+  }
+
+  /* Stats Grid */
+  .stats-grid {
+    @apply grid grid-cols-2 md:grid-cols-4 gap-4;
+  }
+
+  /* AI Chat Sidebar */
+  .ai-chat-sidebar {
+    @apply w-80 min-w-[20rem] max-w-[20rem] bg-card border-l relative z-10;
+  }
+
+  .ai-chat-header {
+    @apply bg-primary text-primary-foreground border-b;
+  }
+}
+
+@layer utilities {
+  /* Custom scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 9999px;
+    border: 2px solid hsl(var(--background));
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground));
+  }
+
+  /* Animation utilities */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from { 
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to { 
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Responsive layout utilities */
+  .responsive-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+  }
+
+  .responsive-flex {
+    @apply flex flex-col sm:flex-row;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .sidebar {
+    @apply w-56 min-w-[14rem] max-w-[14rem];
+  }
+
+  .main-content {
+    @apply p-6;
+  }
+
+  .dashboard-grid {
+    @apply grid-cols-1 md:grid-cols-2 gap-4;
+  }
+
+  .welcome-title {
+    @apply text-2xl;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-layout {
+    @apply flex-col;
+  }
+
+  .sidebar {
+    @apply w-full min-w-full max-w-full h-auto flex-row overflow-x-auto p-3;
+  }
+
+  .ai-chat-sidebar {
+    @apply hidden;
+  }
+
+  .main-container {
+    @apply flex-1 min-h-0 w-full max-w-full;
+  }
+
+  .main-content {
+    @apply p-4;
+    min-height: calc(100vh - 4rem - 5rem);
+  }
+
+  .dashboard-grid {
+    @apply grid-cols-1 gap-4;
+  }
+
+  .welcome-content {
+    @apply flex-col items-stretch text-center;
+  }
+
+  .welcome-title {
+    @apply text-xl;
+  }
+
+  .welcome-subtitle {
+    @apply text-sm;
+  }
+
+  .stats-grid {
+    @apply grid-cols-2 gap-3;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    @apply p-3;
+  }
+
+  .dashboard-grid {
+    @apply gap-3;
+  }
+
+  .welcome-header {
+    @apply mb-4;
+  }
+
+  .modern-card {
+    @apply p-4;
+  }
+
+  .welcome-title {
+    @apply text-lg;
+  }
+
+  .welcome-subtitle {
+    @apply text-xs;
+  }
+
+  .stats-grid {
+    @apply grid-cols-1 gap-2;
+  }
+}
