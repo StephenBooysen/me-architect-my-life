@@ -106,8 +106,12 @@ function AIChat({ currentPage, pageData }) {
       throw new Error('Claude API key not configured. Please add your API key in settings.');
     }
 
+    // Determine the correct endpoint based on environment
+    const isElectron = typeof window !== "undefined" && window.electronAPI;
+    const baseUrl = isElectron ? 'http://localhost:4001' : '';
+    
     // Use the proxy endpoint to avoid CORS issues
-    const response = await fetch('/api/claude', {
+    const response = await fetch(`${baseUrl}/api/claude`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

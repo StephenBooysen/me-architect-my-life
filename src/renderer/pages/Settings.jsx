@@ -44,8 +44,12 @@ function Settings() {
     setConnectionStatus(null);
 
     try {
+      // Determine the correct endpoint based on environment
+      const isElectron = typeof window !== "undefined" && window.electronAPI;
+      const baseUrl = isElectron ? 'http://localhost:4001' : '';
+      
       // Use the proxy endpoint to test the connection
-      const response = await fetch('/api/claude/test', {
+      const response = await fetch(`${baseUrl}/api/claude/test`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

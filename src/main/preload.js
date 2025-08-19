@@ -12,10 +12,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
     get: (sql, params) => ipcRenderer.invoke("db-get", sql, params),
   },
 
-  // AI operations
-  ai: {
-    chat: (message, context) => ipcRenderer.invoke("ai-chat", message, context),
-  },
 
   // File operations
   files: {

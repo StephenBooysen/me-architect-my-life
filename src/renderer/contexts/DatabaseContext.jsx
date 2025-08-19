@@ -294,6 +294,60 @@ export function DatabaseProvider({ children }) {
     [getRecord]
   );
 
+  const getAllMorningNotes = useCallback(
+    async () => {
+      return await getAllRecords("SELECT * FROM morning_notes ORDER BY date DESC");
+    },
+    [getAllRecords]
+  );
+
+  const getAllEveningReflections = useCallback(
+    async () => {
+      return await getAllRecords("SELECT * FROM evening_reflections ORDER BY date DESC");
+    },
+    [getAllRecords]
+  );
+
+  // AI Chat operations
+  const saveAIChat = useCallback(
+    async (session_id, role, message, context = null) => {
+      return await runQuery(
+        "INSERT INTO ai_chats (session_id, role, message, context) VALUES (?, ?, ?, ?)",
+        [session_id, role, message, context]
+      );
+    },
+    [runQuery]
+  );
+
+  const getAIChats = useCallback(
+    async (session_id = null, limit = 50) => {
+      let sql = "SELECT * FROM ai_chats";
+      let params = [];
+      
+      if (session_id) {
+        sql += " WHERE session_id = ?";
+        params.push(session_id);
+      }
+      
+      sql += " ORDER BY created_at ASC LIMIT ?";
+      params.push(limit);
+      
+      return await getAllRecords(sql, params);
+    },
+    [getAllRecords]
+  );
+
+  const clearAIChats = useCallback(
+    async (session_id = null) => {
+      if (session_id) {
+        return await runQuery("DELETE FROM ai_chats WHERE session_id = ?", [session_id]);
+      } else {
+        return await runQuery("DELETE FROM ai_chats");
+      }
+    },
+    [runQuery]
+  );
+
   // Wisdom operations
   const addWisdom = useCallback(
     async (wisdomData) => {
@@ -394,6 +448,8 @@ export function DatabaseProvider({ children }) {
     getMorningNote,
     saveEveningReflection,
     getEveningReflection,
+    getAllMorningNotes,
+    getAllEveningReflections,
 
     // Wisdom
     addWisdom,
@@ -403,6 +459,11 @@ export function DatabaseProvider({ children }) {
     // Templates
     getTemplates,
     createTemplate,
+
+    // AI Chat
+    saveAIChat,
+    getAIChats,
+    clearAIChats,
   };
 
   return (
