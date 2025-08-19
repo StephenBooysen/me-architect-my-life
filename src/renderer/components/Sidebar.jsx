@@ -7,7 +7,6 @@ import {
   CheckSquare,
   BookOpen,
   Brain,
-  MessageCircle,
   Settings,
   TrendingUp,
 } from "lucide-react";
@@ -49,19 +48,11 @@ const navigation = [
     icon: Brain,
   },
   {
-    name: "AI Guide",
-    href: "/ai-guide",
-    icon: MessageCircle,
-  },
-  {
     name: "Settings",
     href: "/settings",
     icon: Settings,
     children: [
-      { name: "Templates", href: "/settings/templates" },
-      { name: "Preferences", href: "/settings/preferences" },
-      { name: "Data Management", href: "/settings/data" },
-      { name: "AI Settings", href: "/settings/ai" },
+      { name: "AI Settings", href: "/settings" },
     ],
   },
 ];

@@ -367,19 +367,16 @@ Focus on:
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`w-full p-3 ${
+              message.role === 'user'
+                ? 'bg-gray-100'
+                : message.isError
+                ? 'bg-red-100'
+                : message.isAnalysis
+                ? 'bg-amber-50'
+                : 'bg-amber-50'
+            }`}
           >
-            <div
-              className={`max-w-[85%] p-3 ${
-                message.role === 'user'
-                  ? 'bg-primary text-white'
-                  : message.isError
-                  ? 'bg-red-100 text-red-800'
-                  : message.isAnalysis
-                  ? 'bg-primary-light text-gray-900 border border-primary'
-                  : 'bg-white text-gray-900 border border-gray-200'
-              }`}
-            >
               <div className="flex items-start space-x-2">
                 {message.role === 'assistant' && (
                   <Bot className={`w-4 h-4 mt-0.5 flex-shrink-0 ${
@@ -387,21 +384,18 @@ Focus on:
                   }`} />
                 )}
                 {message.role === 'user' && (
-                  <User className="w-4 h-4 mt-0.5 flex-shrink-0 text-white" />
+                  <User className="w-4 h-4 mt-0.5 flex-shrink-0 text-gray-600" />
                 )}
                 <div className="flex-1">
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-gray-900">
                     {message.content}
                   </p>
-                  <p className={`text-xs mt-2 opacity-70 ${
-                    message.role === 'user' ? 'text-white' : 'text-gray-500'
-                  }`}>
+                  <p className="text-xs mt-2 opacity-70 text-gray-500">
                     {format(new Date(message.timestamp), 'HH:mm')}
                   </p>
                 </div>
               </div>
             </div>
-          </div>
         ))}
         
         <div ref={messagesEndRef} />
@@ -414,7 +408,7 @@ Focus on:
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder={apiKey ? "Ask me anything about your goals, habits, or progress..." : "Please configure API key first..."}
+placeholder=""
             disabled={!apiKey || isLoading}
             className="flex-1 resize-none p-2 border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
             rows="2"

@@ -9,6 +9,7 @@ import Reflection from "./pages/Reflection";
 import Wisdom from "./pages/Wisdom";
 import AIGuide from "./pages/AIGuide";
 import Settings from "./pages/Settings";
+import Search from "./pages/Search";
 import { DatabaseProvider } from "./contexts/UnifiedDatabaseContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 
@@ -58,6 +59,7 @@ function App() {
             <Route path="/wisdom" element={<Wisdom />} />
             <Route path="/ai-guide" element={<AIGuide />} />
             <Route path="/settings/*" element={<Settings />} />
+            <Route path="/search" element={<Search />} />
           </Routes>
         </Layout>
       </DatabaseProvider>

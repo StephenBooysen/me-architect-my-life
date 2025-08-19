@@ -632,6 +632,28 @@ export function DatabaseProvider({ children }) {
     [isElectron, getRecord]
   );
 
+  const getAllMorningNotes = useCallback(
+    async () => {
+      if (isElectron) {
+        return await getAllRecords("SELECT * FROM morning_notes ORDER BY date DESC");
+      } else {
+        return await apiCall("/morning-notes");
+      }
+    },
+    [isElectron, getAllRecords]
+  );
+
+  const getAllEveningReflections = useCallback(
+    async () => {
+      if (isElectron) {
+        return await getAllRecords("SELECT * FROM evening_reflections ORDER BY date DESC");
+      } else {
+        return await apiCall("/evening-reflections");
+      }
+    },
+    [isElectron, getAllRecords]
+  );
+
   // Wisdom operations
   const addWisdom = useCallback(
     async (wisdomData) => {
@@ -847,6 +869,8 @@ export function DatabaseProvider({ children }) {
     getMorningNote,
     saveEveningReflection,
     getEveningReflection,
+    getAllMorningNotes,
+    getAllEveningReflections,
 
     // Wisdom
     addWisdom,
