@@ -1722,7 +1722,7 @@ input[type="range"]::-moz-range-thumb {
 /* Layout Toggle Controls */
 .toggle-btn {
   position: fixed;
-  top: 20px;
+  top: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1749,13 +1749,14 @@ input[type="range"]::-moz-range-thumb {
 }
 
 /* Specific positioning for each toggle */
-.sidebar-toggle {
-  left: 20px;
+.sidebar-show {
+  left: 10px;
 }
 
-.ai-chat-toggle {
-  right: 20px;
+.ai-chat-show {
+  right: 10px;
 }
+
 
 /* Hidden states */
 .app-layout.sidebar-hidden .main-container {
@@ -1778,13 +1779,10 @@ input[type="range"]::-moz-range-thumb {
     height: 36px;
   }
   
-  .sidebar-toggle {
+  .sidebar-show {
     left: 10px;
   }
   
-  .ai-chat-toggle {
-    right: 10px;
-  }
   
   .app-layout.sidebar-hidden .main-container,
   .app-layout.ai-chat-hidden .main-container,

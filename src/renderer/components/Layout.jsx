@@ -200,28 +200,15 @@ function Layout({ children }) {
 
   return (
     <div className={`app-layout ${!sidebarVisible ? 'sidebar-hidden' : ''} ${!aiChatVisible ? 'ai-chat-hidden' : ''}`}>
-      {/* Sidebar Toggle Button */}
-      <button
-        onClick={toggleSidebar}
-        className="toggle-btn sidebar-toggle"
-        title={sidebarVisible ? 'Hide sidebar' : 'Show sidebar'}
-      >
-        {sidebarVisible ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeftOpen className="w-4 h-4" />}
-      </button>
-      
-      {/* AI Chat Toggle Button */}
-      <button
-        onClick={toggleAiChat}
-        className="toggle-btn ai-chat-toggle"
-        title={aiChatVisible ? 'Hide AI chat' : 'Show AI chat'}
-      >
-        {aiChatVisible ? <PanelRightClose className="w-4 h-4" /> : <PanelRightOpen className="w-4 h-4" />}
-      </button>
-
       {sidebarVisible && <Sidebar />}
       
       <div className="main-container">
-        <Header />
+        <Header 
+          sidebarVisible={sidebarVisible}
+          onToggleSidebar={toggleSidebar}
+          aiChatVisible={aiChatVisible}
+          onToggleAiChat={toggleAiChat}
+        />
         <main className="main-content">{children}</main>
       </div>
       
