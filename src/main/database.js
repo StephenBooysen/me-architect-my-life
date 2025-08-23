@@ -166,14 +166,59 @@ class Database {
         context TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )`,
+
+      // Moods table
+      `CREATE TABLE IF NOT EXISTS moods (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        date TEXT NOT NULL UNIQUE,
+        rating INTEGER NOT NULL
+      )`,
     ];
 
     for (const table of tables) {
       await this.run(table);
     }
 
+    // Run migrations to add missing columns
+    await this.runMigrations();
+
     // Insert default focus areas
     await this.insertDefaultData();
+  }
+
+  async runMigrations() {
+    // Check if target_year column exists, if not add it
+    try {
+      await this.get("SELECT target_year FROM goals LIMIT 1");
+    } catch (error) {
+      // Column doesn't exist, add it
+      if (error.message.includes("no such column: target_year")) {
+        console.log("Adding target_year column to goals table");
+        await this.run("ALTER TABLE goals ADD COLUMN target_year INTEGER");
+      }
+    }
+
+    // Check if target_month column exists, if not add it
+    try {
+      await this.get("SELECT target_month FROM goals LIMIT 1");
+    } catch (error) {
+      // Column doesn't exist, add it
+      if (error.message.includes("no such column: target_month")) {
+        console.log("Adding target_month column to goals table");
+        await this.run("ALTER TABLE goals ADD COLUMN target_month INTEGER");
+      }
+    }
+
+    // Check if target_week column exists, if not add it
+    try {
+      await this.get("SELECT target_week FROM goals LIMIT 1");
+    } catch (error) {
+      // Column doesn't exist, add it
+      if (error.message.includes("no such column: target_week")) {
+        console.log("Adding target_week column to goals table");
+        await this.run("ALTER TABLE goals ADD COLUMN target_week INTEGER");
+      }
+    }
   }
 
   async insertDefaultData() {

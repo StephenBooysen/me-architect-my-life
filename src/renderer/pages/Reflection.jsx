@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useDatabase } from "../contexts/UnifiedDatabaseContext";
 import { format, subDays, addDays, isSameDay, parseISO } from "date-fns";
-import { ChevronLeft, ChevronRight, Save, Edit3, Sun, Moon } from "lucide-react";
+import { ChevronLeft, ChevronRight, Save, Edit3, Sun, Moon, Calendar, BookOpen } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { Card, CardContent } from "../components/ui/card";
+import { Button } from "../components/ui/button";
 
 function Reflection() {
   const db = useDatabase();
@@ -125,68 +127,138 @@ ${reflection.what_went_well || "No reflection yet..."}`;
   return (
     <div className="h-full flex flex-col space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Daily Reflections</h1>
-          <p className="text-gray-600">Capture your thoughts and insights</p>
-        </div>
-        
-        {/* Date Navigation */}
-        <div className="flex items-center space-x-4">
-          <button
-            onClick={() => navigateDate("prev")}
-            className="btn"
-            title="Previous day"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          
-          <div className="text-lg font-semibold text-gray-900">
-            {format(currentDate, "MMMM d, yyyy")}
+      <Card className="welcome-card">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="welcome-title">Daily Reflections 📝</h1>
+              <p className="welcome-subtitle">Capture your thoughts and insights</p>
+            </div>
+            
+            {/* Date Navigation */}
+            <div className="flex items-center space-x-4">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => navigateDate("prev")}
+                title="Previous day"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </Button>
+              
+              <div className="flex items-center space-x-2">
+                <Calendar className="w-5 h-5 text-primary" />
+                <div className="text-lg font-semibold text-foreground">
+                  {format(currentDate, "MMMM d, yyyy")}
+                </div>
+              </div>
+              
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => navigateDate("next")}
+                title="Next day"
+                disabled={isSameDay(currentDate, new Date())}
+              >
+                <ChevronRight className="w-5 h-5" />
+              </Button>
+            </div>
           </div>
-          
-          <button
-            onClick={() => navigateDate("next")}
-            className="btn"
-            title="Next day"
-            disabled={isSameDay(currentDate, new Date())}
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
+        </CardContent>
+      </Card>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="bg-orange-50 dark:bg-orange-950 border-orange-200 dark:border-orange-800">
+          <CardContent className="p-4">
+            <div className="flex items-center">
+              <div className="bg-orange-100 dark:bg-orange-900 p-2 rounded-md mr-3">
+                <Sun className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-orange-700 dark:text-orange-300">Morning</p>
+                <p className="text-2xl font-bold text-orange-900 dark:text-orange-100">
+                  {morningReflections[format(currentDate, "yyyy-MM-dd")] ? '✓' : '−'}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-purple-50 dark:bg-purple-950 border-purple-200 dark:border-purple-800">
+          <CardContent className="p-4">
+            <div className="flex items-center">
+              <div className="bg-purple-100 dark:bg-purple-900 p-2 rounded-md mr-3">
+                <Moon className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-purple-700 dark:text-purple-300">Evening</p>
+                <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
+                  {eveningReflections[format(currentDate, "yyyy-MM-dd")] ? '✓' : '−'}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
+          <CardContent className="p-4">
+            <div className="flex items-center">
+              <div className="bg-green-100 dark:bg-green-900 p-2 rounded-md mr-3">
+                <BookOpen className="w-6 h-6 text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-green-700 dark:text-green-300">Total Days</p>
+                <p className="text-2xl font-bold text-green-900 dark:text-green-100">
+                  {new Set([...Object.keys(morningReflections), ...Object.keys(eveningReflections)]).size}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
+          <CardContent className="p-4">
+            <div className="flex items-center">
+              <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded-md mr-3">
+                <Calendar className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Current Day</p>
+                <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                  {format(currentDate, "d")}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Tab Selector */}
-      <div className="flex space-x-2 w-64">
-        <button
+      <div className="flex space-x-2 w-80">
+        <Button
+          variant={activeTab === "morning" ? "default" : "outline"}
           onClick={() => setActiveTab("morning")}
-          className={`flex-1 flex items-center justify-center ${
-            activeTab === "morning"
-              ? "btn btn-primary"
-              : "btn"
-          }`}
+          className="flex-1"
         >
           <Sun className="w-4 h-4 mr-2" />
           Morning
-        </button>
-        <button
+        </Button>
+        <Button
+          variant={activeTab === "evening" ? "default" : "outline"}
           onClick={() => setActiveTab("evening")}
-          className={`flex-1 flex items-center justify-center ${
-            activeTab === "evening"
-              ? "btn btn-primary"
-              : "btn"
-          }`}
+          className="flex-1"
         >
           <Moon className="w-4 h-4 mr-2" />
           Evening
-        </button>
+        </Button>
       </div>
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col space-y-6">
         {/* Previous Days Display */}
         <div className="">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          <h2 className="text-lg font-semibold text-foreground mb-4">
             Previous {activeTab === "morning" ? "Morning" : "Evening"} Reflections
           </h2>
           
@@ -198,10 +270,10 @@ ${reflection.what_went_well || "No reflection yet..."}`;
                 : eveningReflections[dateStr];
 
               return (
-                <div key={dateStr} className="card">
-                  <div className="card-body">
+                <Card key={dateStr}>
+                  <CardContent className="p-4">
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-md font-semibold text-gray-900">
+                      <h3 className="text-md font-semibold text-foreground">
                         {format(date, "EEEE, MMM d")}
                       </h3>
                       {activeTab === "morning" ? (
@@ -213,17 +285,17 @@ ${reflection.what_went_well || "No reflection yet..."}`;
                     
                     <div className="prose prose-sm max-w-none text-sm">
                       {reflection ? (
-                        <div className="text-gray-700 line-clamp-6">
+                        <div className="text-foreground line-clamp-6">
                           {(activeTab === "morning" ? reflection.intention : reflection.what_went_well) || "No reflection recorded"}
                         </div>
                       ) : (
-                        <p className="text-gray-400 italic text-sm">
+                        <p className="text-muted-foreground italic text-sm">
                           No reflection recorded
                         </p>
                       )}
                     </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               );
             })}
           </div>
@@ -231,25 +303,24 @@ ${reflection.what_went_well || "No reflection yet..."}`;
 
         {/* Editor for Today */}
         <div className="flex-1">
-          <div className="card h-full">
-            <div className="card-body h-full flex flex-col">
+          <Card className="h-full">
+            <CardContent className="p-6 h-full flex flex-col">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
-                  <Edit3 className="w-5 h-5 text-gray-600" />
-                  <h3 className="text-lg font-semibold text-gray-900">
+                  <Edit3 className="w-5 h-5 text-muted-foreground" />
+                  <h3 className="text-lg font-semibold text-foreground">
                     Today's {activeTab === "morning" ? "Morning" : "Evening"} Reflection
                   </h3>
-                  <span className="text-sm text-gray-500">({format(currentDate, "MMMM d, yyyy")})</span>
+                  <span className="text-sm text-muted-foreground">({format(currentDate, "MMMM d, yyyy")})</span>
                 </div>
                 
-                <button
+                <Button
                   onClick={saveReflection}
                   disabled={saving}
-                  className="green-button flex items-center"
                 >
                   <Save className="w-4 h-4 mr-2" />
                   {saving ? "Saving..." : "Save"}
-                </button>
+                </Button>
               </div>
               
               <div className="flex-1">
@@ -263,22 +334,22 @@ ${reflection.what_went_well || "No reflection yet..."}`;
                     }
                   }}
                   placeholder={`Write your ${activeTab} reflection here...\n\nYou can use markdown formatting:\n**Bold text**\n*Italic text*\n## Headings\n- Lists\n\nTell me about your thoughts, feelings, insights, and experiences from today.`}
-                  className="w-full h-full resize-none p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm leading-relaxed"
+                  className="w-full h-full resize-none form-input font-mono text-sm leading-relaxed"
                   style={{ minHeight: "400px" }}
                 />
               </div>
               
-              <div className="mt-4 text-sm text-gray-500 flex justify-between items-center">
+              <div className="mt-4 text-sm text-muted-foreground flex justify-between items-center">
                 <div>
                   <p>💡 Tip: Use markdown formatting for better organization</p>
                   <p>**Bold**, *italic*, ## Headings, - Lists</p>
                 </div>
-                <div className="text-xs text-gray-400">
+                <div className="text-xs text-muted-foreground">
                   {(activeTab === "morning" ? currentMorningContent : currentEveningContent).length} characters
                 </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

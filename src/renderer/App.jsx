@@ -5,6 +5,7 @@ import Dashboard from "./pages/Dashboard";
 import Goals from "./pages/Goals";
 import FocusAreas from "./pages/FocusAreas";
 import Habits from "./pages/Habits";
+import HowDoYouFeel from "./pages/HowDoYouFeel";
 import Reflection from "./pages/Reflection";
 import Wisdom from "./pages/Wisdom";
 import AIGuide from "./pages/AIGuide";
@@ -55,6 +56,7 @@ function App() {
             <Route path="/goals/*" element={<Goals />} />
             <Route path="/focus-areas" element={<FocusAreas />} />
             <Route path="/habits" element={<Habits />} />
+            <Route path="/how-you-feel" element={<HowDoYouFeel />} />
             <Route path="/reflection/*" element={<Reflection />} />
             <Route path="/wisdom" element={<Wisdom />} />
             <Route path="/ai-guide" element={<AIGuide />} />

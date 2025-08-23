@@ -720,6 +720,64 @@ export function DatabaseProvider({ children }) {
     [isElectron, runQuery]
   );
 
+  const updateWisdom = useCallback(
+    async (id, updates) => {
+      if (isElectron) {
+        const fields = Object.keys(updates);
+        const values = Object.values(updates);
+        const setClause = fields.map((field) => `${field} = ?`).join(", ");
+
+        return await runQuery(
+          `UPDATE wisdom SET ${setClause} WHERE id = ?`,
+          [...values, id]
+        );
+      } else {
+        return await apiCall(`/wisdom/${id}`, "PUT", updates);
+      }
+    },
+    [isElectron, runQuery]
+  );
+
+  const deleteWisdom = useCallback(
+    async (id) => {
+      if (isElectron) {
+        return await runQuery("DELETE FROM wisdom WHERE id = ?", [id]);
+      } else {
+        return await apiCall(`/wisdom/${id}`, "DELETE");
+      }
+    },
+    [isElectron, runQuery]
+  );
+
+  // Moods operations
+  const getMoodsForMonth = useCallback(
+    async (month) => {
+      if (isElectron) {
+        return await getAllRecords(
+          "SELECT * FROM moods WHERE strftime('%Y-%m', date) = ?",
+          [month]
+        );
+      } else {
+        return await apiCall(`/moods?month=${month}`);
+      }
+    },
+    [isElectron, getAllRecords]
+  );
+
+  const setMood = useCallback(
+    async (date, rating) => {
+      if (isElectron) {
+        return await runQuery(
+          "INSERT OR REPLACE INTO moods (date, rating) VALUES (?, ?)",
+          [date, rating]
+        );
+      } else {
+        return await apiCall("/moods", "POST", { date, rating });
+      }
+    },
+    [isElectron, runQuery]
+  );
+
   // Templates operations
   const getTemplates = useCallback(
     async (type = null) => {
@@ -876,6 +934,12 @@ export function DatabaseProvider({ children }) {
     addWisdom,
     getWisdom,
     toggleWisdomFavorite,
+    updateWisdom,
+    deleteWisdom,
+
+    // Moods
+    getMoodsForMonth,
+    setMood,
 
     // Templates
     getTemplates,

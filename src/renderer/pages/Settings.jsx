@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Key, Bot, Save, Eye, EyeOff, ExternalLink, CheckCircle, AlertCircle } from "lucide-react";
+import { Key, Bot, Save, Eye, EyeOff, ExternalLink, CheckCircle, AlertCircle, Settings as SettingsIcon, Shield, Zap } from "lucide-react";
+import { Card, CardContent } from "../components/ui/card";
+import { Button } from "../components/ui/button";
 
 function Settings() {
   const [apiKey, setApiKey] = useState('');
@@ -90,17 +92,75 @@ function Settings() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-        <p className="text-gray-600">Configure your application preferences</p>
+      {/* Header */}
+      <Card className="welcome-card">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="welcome-title">Settings ⚙️</h1>
+              <p className="welcome-subtitle">Configure your application preferences</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
+          <CardContent className="p-4">
+            <div className="flex items-center">
+              <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded-md mr-3">
+                <Bot className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-blue-700 dark:text-blue-300">AI Assistant</p>
+                <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                  {apiKey ? '✓' : '✖'}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
+          <CardContent className="p-4">
+            <div className="flex items-center">
+              <div className="bg-green-100 dark:bg-green-900 p-2 rounded-md mr-3">
+                <Shield className="w-6 h-6 text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-green-700 dark:text-green-300">Security</p>
+                <p className="text-2xl font-bold text-green-900 dark:text-green-100">
+                  Local
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-purple-50 dark:bg-purple-950 border-purple-200 dark:border-purple-800">
+          <CardContent className="p-4">
+            <div className="flex items-center">
+              <div className="bg-purple-100 dark:bg-purple-900 p-2 rounded-md mr-3">
+                <Zap className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-purple-700 dark:text-purple-300">Status</p>
+                <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
+                  {connectionStatus?.type === 'success' ? 'Ready' : 'Setup'}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* AI Assistant Settings */}
-      <div className="card">
-        <div className="card-body">
+      <Card>
+        <CardContent className="p-6">
           <div className="flex items-center space-x-3 mb-6">
             <Bot className="w-6 h-6 text-primary" />
-            <h2 className="text-xl font-semibold text-gray-900">AI Assistant Settings</h2>
+            <h2 className="text-xl font-semibold text-foreground">AI Assistant Settings</h2>
           </div>
           
           {/* API Key Section */}
@@ -127,21 +187,18 @@ function Settings() {
                     {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
-                <button
-                  onClick={saveApiKey}
-                  className="btn btn-primary flex items-center"
-                >
+                <Button onClick={saveApiKey}>
                   <Save className="w-4 h-4 mr-2" />
                   Save
-                </button>
+                </Button>
               </div>
-              <p className="text-sm text-gray-500 mt-2">
+              <p className="text-sm text-muted-foreground mt-2">
                 Your API key is stored locally and never shared. 
                 <a 
                   href="https://console.anthropic.com/" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-primary hover:text-primary-hover inline-flex items-center ml-1"
+                  className="text-primary hover:text-primary/80 inline-flex items-center ml-1"
                 >
                   Get your API key here
                   <ExternalLink className="w-3 h-3 ml-1" />
@@ -152,7 +209,9 @@ function Settings() {
             {/* Save Status */}
             {saveStatus && (
               <div className={`flex items-center space-x-2 p-3 rounded-lg ${
-                saveStatus.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
+                saveStatus.type === 'success' 
+                  ? 'bg-green-50 text-green-800 dark:bg-green-950 dark:text-green-200' 
+                  : 'bg-red-50 text-red-800 dark:bg-red-950 dark:text-red-200'
               }`}>
                 {saveStatus.type === 'success' ? (
                   <CheckCircle className="w-4 h-4" />
@@ -165,10 +224,10 @@ function Settings() {
             
             {/* Test Connection */}
             <div className="flex space-x-3">
-              <button
+              <Button
+                variant="outline"
                 onClick={testConnection}
                 disabled={isTestingConnection || !apiKey.trim()}
-                className="btn btn-secondary flex items-center"
               >
                 {isTestingConnection ? (
                   <div className="w-4 h-4 mr-2 border-2 border-current border-t-transparent rounded-full animate-spin" />
@@ -176,22 +235,25 @@ function Settings() {
                   <Bot className="w-4 h-4 mr-2" />
                 )}
                 {isTestingConnection ? 'Testing...' : 'Test Connection'}
-              </button>
+              </Button>
               
               {apiKey && (
-                <button
+                <Button
+                  variant="outline"
                   onClick={clearApiKey}
-                  className="btn text-red-600 hover:text-red-700 hover:bg-red-50"
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
                 >
                   Clear API Key
-                </button>
+                </Button>
               )}
             </div>
             
             {/* Connection Status */}
             {connectionStatus && (
               <div className={`flex items-center space-x-2 p-3 rounded-lg ${
-                connectionStatus.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
+                connectionStatus.type === 'success' 
+                  ? 'bg-green-50 text-green-800 dark:bg-green-950 dark:text-green-200' 
+                  : 'bg-red-50 text-red-800 dark:bg-red-950 dark:text-red-200'
               }`}>
                 {connectionStatus.type === 'success' ? (
                   <CheckCircle className="w-4 h-4" />
@@ -204,9 +266,9 @@ function Settings() {
           </div>
           
           {/* AI Features Info */}
-          <div className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <h3 className="font-semibold text-blue-900 mb-2">AI Assistant Features</h3>
-            <ul className="text-sm text-blue-800 space-y-1">
+          <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
+            <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">AI Assistant Features</h3>
+            <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
               <li>• Automatic page analysis after 1 minute of inactivity</li>
               <li>• Personalized insights based on your goals, habits, and reflections</li>
               <li>• Interactive chat for questions and guidance</li>
@@ -214,18 +276,23 @@ function Settings() {
               <li>• Persistent conversation history across sessions</li>
             </ul>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Application Settings */}
-      <div className="card">
-        <div className="card-body">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Application Settings</h2>
-          <div className="text-center text-gray-500 py-8">
-            Additional settings coming soon...
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center space-x-3 mb-4">
+            <SettingsIcon className="w-6 h-6 text-primary" />
+            <h2 className="text-xl font-semibold text-foreground">Application Settings</h2>
           </div>
-        </div>
-      </div>
+          <div className="text-center text-muted-foreground py-8">
+            <SettingsIcon className="w-16 h-16 mx-auto mb-4 opacity-40" />
+            <p className="text-lg font-medium mb-2">Additional settings coming soon...</p>
+            <p className="text-sm">Theme preferences, data management, and more features will be added here</p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

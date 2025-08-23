@@ -10,6 +10,9 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { format } from "date-fns";
+import { Card, CardContent } from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Progress } from "../components/ui/progress";
 
 function FocusAreas() {
   const db = useDatabase();
@@ -175,88 +178,98 @@ function FocusAreas() {
   return (
     <div className="space-y-6 w-full">
       {/* Header */}
-      <div className="welcome-card">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="welcome-title">Focus Areas 🎯</h1>
-            <p className="welcome-subtitle">
-              Plan your year by assigning focus areas and goals to each month
-            </p>
-          </div>
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <Calendar className="w-5 h-5 text-primary" />
-              <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                className="form-input py-2 px-3"
-              >
-                {[2024, 2025, 2026, 2027].map(year => (
-                  <option key={year} value={year}>{year}</option>
-                ))}
-              </select>
+      <Card className="welcome-card">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="welcome-title">Focus Areas 🎯</h1>
+              <p className="welcome-subtitle">
+                Plan your year by assigning focus areas and goals to each month
+              </p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <Calendar className="w-5 h-5 text-primary" />
+                <select
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                  className="form-input py-2 px-3 pr-10 min-w-[100px]"
+                >
+                  {[2024, 2025, 2026, 2027].map(year => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Year Overview Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="card">
-          <div className="card-body">
+        <Card className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
+          <CardContent className="p-4">
             <div className="flex items-center">
-              <Target className="w-8 h-8 text-blue-600" />
-              <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600">Focus Areas</p>
-                <p className="text-2xl font-bold text-gray-900">
+              <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded-md mr-3">
+                <Target className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Focus Areas</p>
+                <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
                   {focusAreas.length}
                 </p>
               </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className="card">
-          <div className="card-body">
+        <Card className="bg-yellow-50 dark:bg-yellow-950 border-yellow-200 dark:border-yellow-800">
+          <CardContent className="p-4">
             <div className="flex items-center">
-              <Star className="w-8 h-8 text-yellow-600" />
-              <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600">Assigned Months</p>
-                <p className="text-2xl font-bold text-gray-900">
+              <div className="bg-yellow-100 dark:bg-yellow-900 p-2 rounded-md mr-3">
+                <Star className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-yellow-700 dark:text-yellow-300">Assigned Months</p>
+                <p className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">
                   {Object.keys(monthlySelections).filter(m => monthlySelections[m].focusAreaId).length}
                 </p>
               </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className="card">
-          <div className="card-body">
+        <Card className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
+          <CardContent className="p-4">
             <div className="flex items-center">
-              <Check className="w-8 h-8 text-green-600" />
-              <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600">Goals Assigned</p>
-                <p className="text-2xl font-bold text-gray-900">
+              <div className="bg-green-100 dark:bg-green-900 p-2 rounded-md mr-3">
+                <Check className="w-6 h-6 text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-green-700 dark:text-green-300">Goals Assigned</p>
+                <p className="text-2xl font-bold text-green-900 dark:text-green-100">
                   {Object.values(monthlySelections).reduce((sum, sel) => sum + (sel.assignedGoals?.length || 0), 0)}
                 </p>
               </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className="card">
-          <div className="card-body">
+        <Card className="bg-purple-50 dark:bg-purple-950 border-purple-200 dark:border-purple-800">
+          <CardContent className="p-4">
             <div className="flex items-center">
-              <TrendingUp className="w-8 h-8 text-purple-600" />
-              <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600">Avg Progress</p>
-                <p className="text-2xl font-bold text-gray-900">
+              <div className="bg-purple-100 dark:bg-purple-900 p-2 rounded-md mr-3">
+                <TrendingUp className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-purple-700 dark:text-purple-300">Avg Progress</p>
+                <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
                   {Math.round(months.reduce((sum, m) => sum + getMonthProgress(m.number), 0) / 12)}%
                 </p>
               </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Monthly Grid - 3 columns, 4 rows */}
@@ -268,12 +281,12 @@ function FocusAreas() {
           const availableGoals = selection.focusAreaId ? getGoalsForFocusArea(selection.focusAreaId) : [];
 
           return (
-            <div key={month.number} className="card hover:shadow-lg transition-shadow">
-              <div className="card-body">
+            <Card key={month.number} className="hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
                 {/* Month Header */}
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h3 className="text-xl font-bold text-gray-900">
+                    <h3 className="text-xl font-bold text-foreground">
                       {month.name} {selectedYear}
                     </h3>
                     {selection.focusAreaId && (
@@ -286,27 +299,24 @@ function FocusAreas() {
                     <div className="text-2xl font-bold text-primary">
                       {progress}%
                     </div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-muted-foreground">
                       {selection.assignedGoals?.length || 0} goals
                     </div>
                   </div>
                 </div>
 
                 {/* Progress Bar */}
-                <div className="progress-bar mb-4">
-                  <div
-                    className="progress-fill"
-                    style={{ width: `${progress}%` }}
-                  ></div>
+                <div className="mb-4">
+                  <Progress value={progress} className="h-2" />
                 </div>
 
                 {/* Focus Area Selector */}
-                <div className="form-group">
-                  <label className="form-label">Focus Area</label>
+                <div className="mb-4">
+                  <label className="form-label block mb-3">Focus Area</label>
                   <select
                     value={selection.focusAreaId || ""}
                     onChange={(e) => handleFocusAreaChange(month.number, e.target.value ? parseInt(e.target.value) : null)}
-                    className="form-input"
+                    className="form-input w-full"
                   >
                     <option value="">Select focus area</option>
                     {focusAreas.map((area) => (
@@ -322,23 +332,24 @@ function FocusAreas() {
                   <div>
                     <div className="flex items-center justify-between mb-3">
                       <label className="form-label mb-0">Goals for this Month</label>
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         onClick={() => toggleMonthExpansion(month.number)}
-                        className="p-1 hover:bg-gray-100 rounded"
                       >
                         {isExpanded ? (
                           <ChevronUp className="w-4 h-4" />
                         ) : (
                           <ChevronDown className="w-4 h-4" />
                         )}
-                      </button>
+                      </Button>
                     </div>
                     
                     <div className={`space-y-2 ${!isExpanded ? 'max-h-32 overflow-hidden' : ''}`}>
                       {availableGoals.slice(0, isExpanded ? undefined : 3).map((goal) => {
                         const isSelected = selection.assignedGoals?.includes(goal.id) || false;
                         return (
-                          <label key={goal.id} className="flex items-start space-x-3 cursor-pointer p-2 hover:bg-gray-50 rounded">
+                          <label key={goal.id} className="flex items-start space-x-3 cursor-pointer p-2 hover:bg-muted/50 rounded">
                             <input
                               type="checkbox"
                               checked={isSelected}
@@ -346,22 +357,19 @@ function FocusAreas() {
                               className="mt-1"
                             />
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900 truncate">
+                              <p className="text-sm font-medium text-foreground truncate">
                                 {goal.title}
                               </p>
                               {goal.description && (
-                                <p className="text-xs text-gray-500 truncate">
+                                <p className="text-xs text-muted-foreground truncate">
                                   {goal.description}
                                 </p>
                               )}
                               <div className="flex items-center mt-1">
-                                <div className="progress-bar w-16 mr-2">
-                                  <div
-                                    className="progress-fill"
-                                    style={{ width: `${goal.progress || 0}%` }}
-                                  ></div>
+                                <div className="w-16 mr-2">
+                                  <Progress value={goal.progress || 0} className="h-1" />
                                 </div>
-                                <span className="text-xs text-gray-500">
+                                <span className="text-xs text-muted-foreground">
                                   {goal.progress || 0}%
                                 </span>
                               </div>
@@ -371,7 +379,7 @@ function FocusAreas() {
                       })}
                       
                       {!isExpanded && availableGoals.length > 3 && (
-                        <p className="text-xs text-gray-500 text-center py-2">
+                        <p className="text-xs text-muted-foreground text-center py-2">
                           +{availableGoals.length - 3} more goals
                         </p>
                       )}
@@ -381,14 +389,14 @@ function FocusAreas() {
 
                 {/* Empty State */}
                 {selection.focusAreaId && availableGoals.length === 0 && (
-                  <div className="text-center py-4 text-gray-500">
+                  <div className="text-center py-4 text-muted-foreground">
                     <Target className="w-8 h-8 mx-auto mb-2 opacity-50" />
                     <p className="text-sm">No goals available</p>
                     <p className="text-xs">Create goals for this focus area</p>
                   </div>
                 )}
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           );
         })}
       </div>

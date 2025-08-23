@@ -16,10 +16,10 @@
   "main": "src/main/main.js",
   "scripts": {
     "start": "npx electron .",
-    "dev": "concurrently \"npm run dev:renderer\" \"wait-on http://localhost:3000 && npx electron . --dev\"",
+    "dev": "concurrently \"npm run dev:renderer\"  \"npx electron . --dev\"",
     "dev:renderer": "vite",
-    "dev:web": "concurrently \"npm run dev:renderer\" \"npm run dev:server\"",
-    "dev:server": "node src/web/server.js",
+    "dev:web": "concurrently --kill-others-on-fail \"npm run dev:renderer\" \"npm run dev:server\"",
+    "dev:server": "node --max-old-space-size=4096 src/web/server.js",
     "start:web": "npm run build:renderer && node src/web/server.js",
     "build": "vite build && electron-builder",
     "build:renderer": "vite build",
@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.24.0",
+    "@google/gemini-cli": "^0.1.22",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-label": "^2.1.7",
@@ -47,7 +48,6 @@
     "clsx": "^2.1.1",
     "cors": "^2.8.5",
     "date-fns": "^2.29.3",
-    "electron": "^32.0.0",
     "express": "^4.21.2",
     "lucide-react": "^0.263.1",
     "node-fetch": "^2.7.0",
@@ -66,6 +66,7 @@
   "devDependencies": {
     "@vitejs/plugin-react": "^4.0.0",
     "concurrently": "^7.6.0",
+    "electron": "^32.0.0",
     "electron-builder": "^24.0.0",
     "eslint": "^8.36.0",
     "eslint-plugin-react": "^7.32.2",

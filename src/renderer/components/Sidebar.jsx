@@ -9,6 +9,7 @@ import {
   Brain,
   Settings,
   TrendingUp,
+  Smile,
 } from "lucide-react";
 import { cn } from "../lib/utils";
 
@@ -22,11 +23,6 @@ const navigation = [
     name: "Goals",
     href: "/goals",
     icon: Target,
-    children: [
-      { name: "Annual Goals", href: "/goals/annual" },
-      { name: "Monthly Goals", href: "/goals/monthly" },
-      { name: "Weekly Goals", href: "/goals/weekly" },
-    ],
   },
   {
     name: "Focus Areas",
@@ -37,6 +33,11 @@ const navigation = [
     name: "Habits",
     href: "/habits",
     icon: CheckSquare,
+  },
+  {
+    name: "How You Feel",
+    href: "/how-you-feel",
+    icon: Smile,
   },
   {
     name: "Notes",

@@ -9,8 +9,8 @@ class WebDatabase {
   }
 
   async init() {
-    // Use a web-specific database path in the project directory
-    const dbPath = path.join(__dirname, "../../web-database.db");
+    // Use a web-specific database path in the data directory
+    const dbPath = path.join(__dirname, "../../data/web-database.db");
 
     return new Promise((resolve, reject) => {
       this.db = new sqlite3.Database(dbPath, (err) => {
@@ -167,6 +167,13 @@ class WebDatabase {
         message TEXT NOT NULL,
         context TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )`,
+
+      // Moods table
+      `CREATE TABLE IF NOT EXISTS moods (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        date TEXT NOT NULL UNIQUE,
+        rating INTEGER NOT NULL
       )`,
     ];
 
@@ -458,10 +465,13 @@ app.post("/api/goals", async (req, res) => {
       priority,
       success_criteria,
       target_date,
+      target_year,
+      target_month,
+      target_week,
       focus_area_id,
     } = req.body;
     const result = await database.run(
-      "INSERT INTO goals (type, title, description, parent_id, priority, success_criteria, target_date, focus_area_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO goals (type, title, description, parent_id, priority, success_criteria, target_date, target_year, target_month, target_week, focus_area_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [
         type,
         title,
@@ -470,6 +480,9 @@ app.post("/api/goals", async (req, res) => {
         priority,
         success_criteria,
         target_date,
+        target_year,
+        target_month,
+        target_week,
         focus_area_id,
       ]
     );
@@ -905,6 +918,39 @@ app.delete("/api/ai-chats", async (req, res) => {
   }
 });
 
+// Moods API
+app.get("/api/moods", async (req, res) => {
+  try {
+    const { month } = req.query;
+    if (!month) {
+      return res.status(400).json({ error: "Month parameter is required" });
+    }
+    const moods = await database.all(
+      "SELECT * FROM moods WHERE strftime('%Y-%m', date) = ?",
+      [month]
+    );
+    res.json(moods);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/api/moods", async (req, res) => {
+  try {
+    const { date, rating } = req.body;
+    if (!date || !rating) {
+      return res.status(400).json({ error: "Date and rating are required" });
+    }
+    const result = await database.run(
+      "INSERT OR REPLACE INTO moods (date, rating) VALUES (?, ?)",
+      [date, rating]
+    );
+    res.json({ id: result.id, date, rating });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Claude API Proxy
 app.post("/api/claude", async (req, res) => {
   try {
@@ -1003,9 +1049,65 @@ app.get("*", (req, res) => {
 async function startServer() {
   try {
     await database.init();
-    app.listen(port, () => {
+    
+    const server = app.listen(port, () => {
       console.log(`Web server running at http://localhost:${port}`);
     });
+
+    // Handle server errors
+    server.on('error', (error) => {
+      if (error.syscall !== 'listen') {
+        throw error;
+      }
+
+      switch (error.code) {
+        case 'EACCES':
+          console.error(`Port ${port} requires elevated privileges`);
+          process.exit(1);
+          break;
+        case 'EADDRINUSE':
+          console.error(`Port ${port} is already in use`);
+          process.exit(1);
+          break;
+        default:
+          throw error;
+      }
+    });
+
+    // Graceful shutdown handlers
+    process.on('SIGTERM', () => {
+      console.log('SIGTERM received, shutting down gracefully');
+      server.close(() => {
+        console.log('Server closed');
+        if (database && database.db) {
+          database.db.close();
+        }
+        process.exit(0);
+      });
+    });
+
+    process.on('SIGINT', () => {
+      console.log('SIGINT received, shutting down gracefully');
+      server.close(() => {
+        console.log('Server closed');
+        if (database && database.db) {
+          database.db.close();
+        }
+        process.exit(0);
+      });
+    });
+
+    // Handle uncaught exceptions
+    process.on('uncaughtException', (error) => {
+      console.error('Uncaught Exception:', error);
+      process.exit(1);
+    });
+
+    process.on('unhandledRejection', (reason, promise) => {
+      console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+      process.exit(1);
+    });
+
   } catch (error) {
     console.error("Failed to start server:", error);
     process.exit(1);

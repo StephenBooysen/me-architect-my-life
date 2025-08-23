@@ -6,17 +6,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
   // Database operations
   database: {
-    query: (sql, params) => ipcRenderer.invoke("db-query", sql, params),
     run: (sql, params) => ipcRenderer.invoke("db-run", sql, params),
     all: (sql, params) => ipcRenderer.invoke("db-all", sql, params),
     get: (sql, params) => ipcRenderer.invoke("db-get", sql, params),
-  },
-
-
-  // File operations
-  files: {
-    export: (data, filename) =>
-      ipcRenderer.invoke("export-data", data, filename),
-    import: () => ipcRenderer.invoke("import-data"),
   },
 });

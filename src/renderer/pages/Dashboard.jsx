@@ -10,6 +10,7 @@ import {
   ChevronRight,
   Star,
   Zap,
+  Smile,
 } from "lucide-react";
 import { format } from "date-fns";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
@@ -27,6 +28,7 @@ function Dashboard() {
     dailyWisdom: null,
     recentReflections: [],
     morningNote: null,
+    moodSummary: [],
   });
   const [loading, setLoading] = useState(true);
 
@@ -75,12 +77,24 @@ function Dashboard() {
       // Get recent morning note
       const morningNote = await db.getMorningNote(today);
 
+      // Get mood summary for the last 7 days
+      const moods = await db.getMoodsForMonth(format(new Date(), 'yyyy-MM'));
+      const moodSummary = [];
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateStr = format(date, 'yyyy-MM-dd');
+        const mood = moods.find(m => m.date === dateStr);
+        moodSummary.push({ date: dateStr, rating: mood ? mood.rating : 0 });
+      }
+
       setDashboardData({
         todaysFocus: currentWeekGoals,
         goalProgress: annualGoals.slice(0, 4),
         habitStreaks: habitStreaks,
         dailyWisdom: randomWisdom,
         morningNote: morningNote,
+        moodSummary: moodSummary,
       });
     } catch (error) {
       console.error("Error loading dashboard data:", error);
@@ -195,6 +209,35 @@ function Dashboard() {
                 </Button>
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Mood Summary */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center">
+              <div className="bg-green-100 dark:bg-green-900 p-2 rounded-md mr-3">
+                <Smile className="w-6 h-6 text-green-600 dark:text-green-400" />
+              </div>
+              <CardTitle>This Week's Mood</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-7 gap-2">
+              {dashboardData.moodSummary.map((mood) => (
+                <div key={mood.date} className="text-center">
+                  <div className="text-sm text-muted-foreground">{format(new Date(mood.date), 'E')}</div>
+                  <div className="text-2xl mt-2">
+                    {mood.rating === 1 && '😡'}
+                    {mood.rating === 2 && '😞'}
+                    {mood.rating === 3 && '😐'}
+                    {mood.rating === 4 && '😊'}
+                    {mood.rating === 5 && '🤩'}
+                    {mood.rating === 0 && '❓'}
+                  </div>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
 
