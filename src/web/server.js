@@ -750,6 +750,16 @@ app.put("/api/wisdom/:id", async (req, res) => {
   }
 });
 
+app.delete("/api/wisdom/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    await database.run("DELETE FROM wisdom WHERE id = ?", [id]);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Morning notes API
 app.get("/api/morning-notes", async (req, res) => {
   try {

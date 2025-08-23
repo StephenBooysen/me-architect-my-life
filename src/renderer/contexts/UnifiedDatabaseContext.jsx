@@ -451,6 +451,17 @@ export function DatabaseProvider({ children }) {
     [isElectron, runQuery]
   );
 
+  const deleteFocusArea = useCallback(
+    async (id) => {
+      if (isElectron) {
+        return await runQuery("DELETE FROM focus_areas WHERE id = ?", [id]);
+      } else {
+        return await apiCall(`/focus-areas/${id}`, "DELETE");
+      }
+    },
+    [isElectron, runQuery]
+  );
+
   // Habits operations
   const createHabit = useCallback(
     async (habitData) => {
@@ -722,13 +733,14 @@ export function DatabaseProvider({ children }) {
 
   const updateWisdom = useCallback(
     async (id, updates) => {
+      console.log('Updating wisdom with id:', id, 'and updates:', updates);
       if (isElectron) {
         const fields = Object.keys(updates);
         const values = Object.values(updates);
         const setClause = fields.map((field) => `${field} = ?`).join(", ");
 
         return await runQuery(
-          `UPDATE wisdom SET ${setClause} WHERE id = ?`,
+          `UPDATE wisdom SET ${setClause}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
           [...values, id]
         );
       } else {
@@ -912,6 +924,7 @@ export function DatabaseProvider({ children }) {
     getFocusAreas,
     createFocusArea,
     updateFocusArea,
+    deleteFocusArea,
     setMonthlyFocusArea,
     getMonthlyFocusAreas,
 

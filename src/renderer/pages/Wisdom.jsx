@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
+import ReactMarkdownEditorLite from "react-markdown-editor-lite";
+import "react-markdown-editor-lite/lib/index.css";
 import { useDatabase } from "../contexts/UnifiedDatabaseContext";
 import { format } from "date-fns";
 import { Plus, Edit3, Save, X, Heart, BookOpen, Quote, Tag, User, Trash2 } from "lucide-react";
@@ -172,11 +175,11 @@ function Wisdom() {
                   <Quote className="w-4 h-4 mr-2" />
                   Wisdom Content *
                 </Label>
-                <Textarea
+                <ReactMarkdownEditorLite
                   value={editForm.content}
-                  onChange={(e) => setEditForm({ ...editForm, content: e.target.value })}
-                  placeholder="Enter your wisdom, quote, or insight here...\n\nYou can use markdown formatting:\n**Bold text**\n*Italic text*\n## Headings\n- Lists"
-                  rows="8"
+                  view={{ menu: true, md: true, html: false }}
+                  onChange={({ text }) => setEditForm({ ...editForm, content: text })}
+                  style={{ height: "300px" }}
                 />
               </div>
 
@@ -382,8 +385,8 @@ function Wisdom() {
                 <div className="mb-4">
                   <div className="flex items-start">
                     <Quote className="w-6 h-6 text-muted-foreground/40 mr-3 mt-1 flex-shrink-0" />
-                    <blockquote className="text-foreground italic leading-relaxed text-lg">
-                      "{item.content}"
+                    <blockquote className="text-foreground italic leading-relaxed text-lg prose max-w-none">
+                      <ReactMarkdown>{item.content}</ReactMarkdown>
                     </blockquote>
                   </div>
                 </div>

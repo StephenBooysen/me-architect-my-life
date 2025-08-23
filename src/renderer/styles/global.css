@@ -1718,3 +1718,78 @@ input[type="range"]::-moz-range-thumb {
     min-height: calc(100vh - 60px - 80px); /* Subtract mobile header and sidebar */
   }
 }
+
+/* Layout Toggle Controls */
+.toggle-btn {
+  position: fixed;
+  top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+  z-index: 1000;
+}
+
+.toggle-btn:hover {
+  background: var(--background);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.toggle-btn:active {
+  transform: translateY(1px);
+}
+
+/* Specific positioning for each toggle */
+.sidebar-toggle {
+  left: 20px;
+}
+
+.ai-chat-toggle {
+  right: 20px;
+}
+
+/* Hidden states */
+.app-layout.sidebar-hidden .main-container {
+  width: calc(100vw - 320px); /* Only subtract AI chat width */
+}
+
+.app-layout.ai-chat-hidden .main-container {
+  width: calc(100vw - 260px); /* Only subtract sidebar width */
+}
+
+.app-layout.sidebar-hidden.ai-chat-hidden .main-container {
+  width: 100vw; /* Full width when both are hidden */
+}
+
+/* Responsive adjustments for toggle buttons */
+@media (max-width: 768px) {
+  .toggle-btn {
+    top: 10px;
+    width: 36px;
+    height: 36px;
+  }
+  
+  .sidebar-toggle {
+    left: 10px;
+  }
+  
+  .ai-chat-toggle {
+    right: 10px;
+  }
+  
+  .app-layout.sidebar-hidden .main-container,
+  .app-layout.ai-chat-hidden .main-container,
+  .app-layout.sidebar-hidden.ai-chat-hidden .main-container {
+    width: 100vw;
+    max-width: 100vw;
+  }
+}

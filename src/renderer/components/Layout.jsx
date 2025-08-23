@@ -4,12 +4,42 @@ import Sidebar from "./Sidebar";
 import Header from "./Header";
 import AIChat from "./AIChat";
 import { useDatabase } from "../contexts/UnifiedDatabaseContext";
+import { PanelLeftOpen, PanelLeftClose, PanelRightOpen, PanelRightClose } from "lucide-react";
 
 function Layout({ children }) {
   const [currentPage, setCurrentPage] = useState('');
   const [pageData, setPageData] = useState(null);
+  const [sidebarVisible, setSidebarVisible] = useState(true);
+  const [aiChatVisible, setAiChatVisible] = useState(true);
   const location = useLocation();
   const db = useDatabase();
+
+  // Load visibility preferences from localStorage on mount
+  useEffect(() => {
+    const savedSidebarState = localStorage.getItem('sidebar-visible');
+    const savedAiChatState = localStorage.getItem('ai-chat-visible');
+    
+    if (savedSidebarState !== null) {
+      setSidebarVisible(JSON.parse(savedSidebarState));
+    }
+    
+    if (savedAiChatState !== null) {
+      setAiChatVisible(JSON.parse(savedAiChatState));
+    }
+  }, []);
+
+  // Save visibility preferences to localStorage
+  const toggleSidebar = () => {
+    const newState = !sidebarVisible;
+    setSidebarVisible(newState);
+    localStorage.setItem('sidebar-visible', JSON.stringify(newState));
+  };
+
+  const toggleAiChat = () => {
+    const newState = !aiChatVisible;
+    setAiChatVisible(newState);
+    localStorage.setItem('ai-chat-visible', JSON.stringify(newState));
+  };
 
   // Track page changes
   useEffect(() => {
@@ -169,17 +199,38 @@ function Layout({ children }) {
 
 
   return (
-    <div className="app-layout">
-      <Sidebar />
+    <div className={`app-layout ${!sidebarVisible ? 'sidebar-hidden' : ''} ${!aiChatVisible ? 'ai-chat-hidden' : ''}`}>
+      {/* Sidebar Toggle Button */}
+      <button
+        onClick={toggleSidebar}
+        className="toggle-btn sidebar-toggle"
+        title={sidebarVisible ? 'Hide sidebar' : 'Show sidebar'}
+      >
+        {sidebarVisible ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeftOpen className="w-4 h-4" />}
+      </button>
+      
+      {/* AI Chat Toggle Button */}
+      <button
+        onClick={toggleAiChat}
+        className="toggle-btn ai-chat-toggle"
+        title={aiChatVisible ? 'Hide AI chat' : 'Show AI chat'}
+      >
+        {aiChatVisible ? <PanelRightClose className="w-4 h-4" /> : <PanelRightOpen className="w-4 h-4" />}
+      </button>
+
+      {sidebarVisible && <Sidebar />}
+      
       <div className="main-container">
         <Header />
         <main className="main-content">{children}</main>
       </div>
       
-      <AIChat 
-        currentPage={currentPage}
-        pageData={pageData}
-      />
+      {aiChatVisible && (
+        <AIChat 
+          currentPage={currentPage}
+          pageData={pageData}
+        />
+      )}
     </div>
   );
 }

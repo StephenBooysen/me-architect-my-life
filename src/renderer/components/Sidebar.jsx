@@ -53,9 +53,6 @@ const navigation = [
     name: "Settings",
     href: "/settings",
     icon: Settings,
-    children: [
-      { name: "AI Settings", href: "/settings" },
-    ],
   },
 ];
 

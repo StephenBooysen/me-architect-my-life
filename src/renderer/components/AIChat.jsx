@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useDatabase } from '../contexts/UnifiedDatabaseContext';
-import { MessageCircle, Send, Bot, User, Settings, ChevronRight, ChevronLeft, Loader } from 'lucide-react';
+import { MessageCircle, Send, Bot, User, Settings, ChevronRight, ChevronLeft, Loader, Copy, BookOpen, Check } from 'lucide-react';
 import { format } from 'date-fns';
 
 function AIChat({ currentPage, pageData }) {
@@ -11,6 +11,7 @@ function AIChat({ currentPage, pageData }) {
   const [apiKey, setApiKey] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [sessionId, setSessionId] = useState('');
+  const [copiedMessageId, setCopiedMessageId] = useState(null);
   const messagesEndRef = useRef(null);
   const pageTimerRef = useRef(null);
   const lastPageRef = useRef('');
@@ -334,6 +335,38 @@ Focus on:
     }
   };
 
+  // Copy message to clipboard
+  const copyMessage = async (messageContent, messageId) => {
+    try {
+      await navigator.clipboard.writeText(messageContent);
+      setCopiedMessageId(messageId);
+      setTimeout(() => setCopiedMessageId(null), 2000); // Reset after 2 seconds
+    } catch (error) {
+      console.error('Failed to copy message:', error);
+    }
+  };
+
+  // Create wisdom entry from AI message
+  const createWisdomFromMessage = async (messageContent) => {
+    try {
+      const wisdomEntry = {
+        content: messageContent,
+        author: 'Claude AI',
+        source: 'AI Life Coach Session',
+        category: 'Personal Development',
+        tags: 'ai-insight, personal-coaching',
+        personal_notes: `Generated from AI conversation on ${format(new Date(), 'MMM d, yyyy')}`
+      };
+      
+      await db.addWisdom(wisdomEntry);
+      
+      // You could add a toast notification here if you have one
+      console.log('Wisdom entry created successfully!');
+    } catch (error) {
+      console.error('Failed to create wisdom entry:', error);
+    }
+  };
+
   return (
     <div className="ai-chat-sidebar h-full flex flex-col bg-white border-l border-gray-200">
       {/* Header */}
@@ -371,7 +404,7 @@ Focus on:
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`w-full p-3 ${
+            className={`group w-full p-3 ${
               message.role === 'user'
                 ? 'bg-gray-100'
                 : message.isError
@@ -394,9 +427,33 @@ Focus on:
                   <p className="text-sm leading-relaxed whitespace-pre-wrap text-gray-900">
                     {message.content}
                   </p>
-                  <p className="text-xs mt-2 opacity-70 text-gray-500">
-                    {format(new Date(message.timestamp), 'HH:mm')}
-                  </p>
+                  <div className="flex items-center justify-between mt-2">
+                    <p className="text-xs opacity-70 text-gray-500">
+                      {format(new Date(message.timestamp), 'HH:mm')}
+                    </p>
+                    {message.role === 'assistant' && (
+                      <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => copyMessage(message.content, message.id)}
+                          className="p-1 hover:bg-gray-200 rounded transition-colors"
+                          title="Copy message"
+                        >
+                          {copiedMessageId === message.id ? (
+                            <Check className="w-3 h-3 text-green-600" />
+                          ) : (
+                            <Copy className="w-3 h-3 text-gray-500" />
+                          )}
+                        </button>
+                        <button
+                          onClick={() => createWisdomFromMessage(message.content)}
+                          className="p-1 hover:bg-gray-200 rounded transition-colors"
+                          title="Save as wisdom"
+                        >
+                          <BookOpen className="w-3 h-3 text-gray-500" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -411,7 +468,7 @@ Focus on:
           <textarea
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyPress}
 placeholder=""
             disabled={!apiKey || isLoading}
             className="flex-1 resize-none p-2 border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent text-sm"

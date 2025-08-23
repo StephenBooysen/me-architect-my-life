@@ -81,14 +81,15 @@ function HowDoYouFeel() {
               return (
                 <div key={day.toString()} className={`p-4 border rounded-lg flex flex-col items-center justify-center space-y-2 ${isDisabled ? 'bg-muted/50' : ''}`}>
                   <div className="text-lg font-semibold">{format(day, 'd')}</div>
-                  <div className="flex space-x-2">
+                  <div className="flex flex-col space-y-2">
                     {moodOptions.map(option => (
                       <Button
                         key={option.rating}
-                        variant={moodRating === option.rating ? 'default' : 'ghost'}
+                        variant={moodRating === option.rating ? 'outline' : 'ghost'}
                         size="icon"
                         onClick={() => handleSetMood(day, option.rating)}
                         disabled={isDisabled}
+                        className={moodRating === option.rating ? 'bg-gray-200' : ''}
                       >
                         {option.icon}
                       </Button>

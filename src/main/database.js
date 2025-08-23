@@ -144,7 +144,8 @@ class Database {
         category TEXT,
         personal_notes TEXT,
         is_favorite BOOLEAN DEFAULT 0,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )`,
 
       // Templates table
@@ -217,6 +218,17 @@ class Database {
       if (error.message.includes("no such column: target_week")) {
         console.log("Adding target_week column to goals table");
         await this.run("ALTER TABLE goals ADD COLUMN target_week INTEGER");
+      }
+    }
+
+    // Check if updated_at column exists in wisdom, if not add it
+    try {
+      await this.get("SELECT updated_at FROM wisdom LIMIT 1");
+    } catch (error) {
+      // Column doesn't exist, add it
+      if (error.message.includes("no such column: updated_at")) {
+        console.log("Adding updated_at column to wisdom table");
+        await this.run("ALTER TABLE wisdom ADD COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP");
       }
     }
   }

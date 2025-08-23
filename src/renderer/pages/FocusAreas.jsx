@@ -12,6 +12,7 @@ import {
 import { format } from "date-fns";
 import { Card, CardContent } from "../components/ui/card";
 import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
 import { Progress } from "../components/ui/progress";
 
 function FocusAreas() {
@@ -22,6 +23,9 @@ function FocusAreas() {
   const [expandedMonth, setExpandedMonth] = useState(null);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [loading, setLoading] = useState(true);
+  const [editingFocusAreaId, setEditingFocusAreaId] = useState(null);
+  const [editingFocusAreaName, setEditingFocusAreaName] = useState("");
+  const [isCreatingFocusArea, setIsCreatingFocusArea] = useState(false);
 
   const months = [
     { name: "January", short: "Jan", number: 1 },
@@ -48,7 +52,8 @@ function FocusAreas() {
       
       // Load focus areas
       const areasData = await db.getFocusAreas();
-      setFocusAreas(areasData);
+      const uniqueFocusAreas = Array.from(new Map(areasData.map(item => [item.name, item])).values());
+      setFocusAreas(uniqueFocusAreas);
 
       // Load all goals
       const goalsData = await db.getGoals();
@@ -167,6 +172,38 @@ function FocusAreas() {
     setExpandedMonth(expandedMonth === monthNumber ? null : monthNumber);
   };
 
+  const handleStartEditing = (area) => {
+    setEditingFocusAreaId(area.id);
+    setEditingFocusAreaName(area.name);
+  };
+
+  const handleCancelEditing = () => {
+    setEditingFocusAreaId(null);
+    setEditingFocusAreaName("");
+  };
+
+  const handleUpdateFocusArea = async () => {
+    if (!editingFocusAreaName.trim()) return;
+    await db.updateFocusArea(editingFocusAreaId, { name: editingFocusAreaName });
+    handleCancelEditing();
+    loadData();
+  };
+
+  const handleDeleteFocusArea = async (id) => {
+    if (window.confirm("Are you sure you want to delete this focus area?")) {
+      await db.deleteFocusArea(id);
+      loadData();
+    }
+  };
+
+  const handleCreateFocusArea = async () => {
+    if (!editingFocusAreaName.trim()) return;
+    await db.createFocusArea(editingFocusAreaName, "default", null, null);
+    setIsCreatingFocusArea(false);
+    setEditingFocusAreaName("");
+    loadData();
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -271,6 +308,8 @@ function FocusAreas() {
           </CardContent>
         </Card>
       </div>
+
+      
 
       {/* Monthly Grid - 3 columns, 4 rows */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -400,6 +439,54 @@ function FocusAreas() {
           );
         })}
       </div>
+
+      {/* Focus Area Management */}
+      <Card>
+        <CardContent className="p-6">
+          <h2 className="text-lg font-semibold mb-4">Manage Focus Areas</h2>
+          <div className="space-y-2">
+            {focusAreas.map((area) => (
+              <div key={area.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
+                {editingFocusAreaId === area.id ? (
+                  <div className="flex-1 flex items-center space-x-2">
+                    <Input
+                      type="text"
+                      value={editingFocusAreaName}
+                      onChange={(e) => setEditingFocusAreaName(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Button onClick={handleUpdateFocusArea} size="sm">Save</Button>
+                    <Button onClick={handleCancelEditing} variant="ghost" size="sm">Cancel</Button>
+                  </div>
+                ) : (
+                  <>
+                    <span>{area.name}</span>
+                    <div className="flex items-center space-x-2">
+                      <Button onClick={() => handleStartEditing(area)} variant="ghost" size="sm">Edit</Button>
+                      <Button onClick={() => handleDeleteFocusArea(area.id)} variant="ghost" size="sm" className="text-destructive">Delete</Button>
+                    </div>
+                  </>
+                )}
+              </div>
+            ))}
+            {isCreatingFocusArea ? (
+              <div className="flex items-center space-x-2 p-2">
+                <Input
+                  type="text"
+                  value={editingFocusAreaName}
+                  onChange={(e) => setEditingFocusAreaName(e.target.value)}
+                  placeholder="New focus area name"
+                  className="flex-1"
+                />
+                <Button onClick={handleCreateFocusArea} size="sm">Save</Button>
+                <Button onClick={() => { setIsCreatingFocusArea(false); setEditingFocusAreaName(""); }} variant="ghost" size="sm">Cancel</Button>
+              </div>
+            ) : (
+              <Button onClick={() => setIsCreatingFocusArea(true)} className="mt-4">Add New Focus Area</Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
