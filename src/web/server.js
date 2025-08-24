@@ -289,7 +289,7 @@ class WebDatabase {
 }
 
 const app = express();
-const port = process.env.PORT || 3002;
+const port = process.env.PORT || 4000;
 
 // Middleware
 app.use(cors());
