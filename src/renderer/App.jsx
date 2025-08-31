@@ -13,6 +13,7 @@ import Settings from "./pages/Settings";
 import Search from "./pages/Search";
 import { DatabaseProvider } from "./contexts/UnifiedDatabaseContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import PWAInstaller from "./components/PWAInstaller";
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -64,6 +65,7 @@ function App() {
             <Route path="/search" element={<Search />} />
           </Routes>
         </Layout>
+        <PWAInstaller />
       </DatabaseProvider>
     </ThemeProvider>
   );

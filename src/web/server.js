@@ -289,14 +289,40 @@ class WebDatabase {
 }
 
 const app = express();
-const port = process.env.PORT || 10000;
+const port = process.env.PORT || 3100;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
+// PWA headers middleware
+app.use((req, res, next) => {
+  // Add PWA-friendly headers
+  if (req.path === '/site.webmanifest') {
+    res.setHeader('Content-Type', 'application/manifest+json');
+  }
+  
+  // Service worker should not be cached
+  if (req.path === '/sw.js') {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+  }
+  
+  // Add security headers for PWA
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  
+  next();
+});
+
 // Serve static files from React build
 app.use(express.static(path.join(__dirname, "../../dist-renderer")));
+
+// Serve PWA files from public directory
+app.use(express.static(path.join(__dirname, "../../public")));
 
 // Database instance
 const database = new WebDatabase();

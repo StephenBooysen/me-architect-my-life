@@ -56,9 +56,9 @@ const navigation = [
   },
 ];
 
-function Sidebar() {
+function Sidebar({ className = "", onClose }) {
   return (
-    <div className="sidebar">
+    <div className={`sidebar ${className}`}>
       {/* Logo/Brand */}
       <div className="flex flex-col space-y-1.5 p-6">
         <div className="flex items-center">
@@ -78,6 +78,7 @@ function Sidebar() {
           <div key={item.name}>
             <NavLink
               to={item.href}
+              onClick={onClose}
               className={({ isActive }) =>
                 cn(
                   "nav-item",
@@ -113,7 +114,7 @@ function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t">
+      <div className="p-4 border-t sidebar-footer-version">
         <div className="text-sm text-muted-foreground">
           <p className="font-medium mb-1">Version 1.0.0</p>
           <p className="flex items-center text-xs">

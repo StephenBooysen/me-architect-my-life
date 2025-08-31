@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import AIChat from "./AIChat";
+import BurgerMenu from "./BurgerMenu";
 import { useDatabase } from "../contexts/UnifiedDatabaseContext";
 import { PanelLeftOpen, PanelLeftClose, PanelRightOpen, PanelRightClose } from "lucide-react";
 
@@ -11,6 +12,7 @@ function Layout({ children }) {
   const [pageData, setPageData] = useState(null);
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [aiChatVisible, setAiChatVisible] = useState(true);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const location = useLocation();
   const db = useDatabase();
 
@@ -41,6 +43,14 @@ function Layout({ children }) {
     localStorage.setItem('ai-chat-visible', JSON.stringify(newState));
   };
 
+  const toggleMobileNav = () => {
+    setMobileNavOpen(!mobileNavOpen);
+  };
+
+  const closeMobileNav = () => {
+    setMobileNavOpen(false);
+  };
+
   // Track page changes
   useEffect(() => {
     const path = location.pathname;
@@ -64,6 +74,7 @@ function Layout({ children }) {
     
     setCurrentPage(pageName);
     loadPageData(pageName);
+    closeMobileNav(); // Close mobile nav when navigating
   }, [location.pathname]);
 
   // Load relevant data for the current page
@@ -199,8 +210,24 @@ function Layout({ children }) {
 
 
   return (
-    <div className={`app-layout ${!sidebarVisible ? 'sidebar-hidden' : ''} ${!aiChatVisible ? 'ai-chat-hidden' : ''}`}>
-      {sidebarVisible && <Sidebar />}
+    <div className={`app-layout ${!sidebarVisible ? 'sidebar-hidden' : ''} ${!aiChatVisible ? 'ai-chat-hidden' : ''} ${mobileNavOpen ? 'mobile-nav-open' : ''}`}>
+      {/* Desktop Sidebar */}
+      {sidebarVisible && <Sidebar className="desktop-sidebar" />}
+      
+      {/* Mobile Burger Menu */}
+      <BurgerMenu 
+        isOpen={mobileNavOpen}
+        onToggle={toggleMobileNav}
+        className="mobile-burger"
+      />
+      
+      {/* Mobile Navigation Overlay */}
+      {mobileNavOpen && (
+        <>
+          <div className="mobile-nav-overlay" onClick={closeMobileNav}></div>
+          <Sidebar className="mobile-sidebar" onClose={closeMobileNav} />
+        </>
+      )}
       
       <div className="main-container">
         <Header 
