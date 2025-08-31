@@ -158,3 +158,7 @@ ISC License - Feel free to use this for your own personal goal tracking needs!
 ---
 
 **Start architecting your best life today!** 🚀
+
+  docker build -t architect-my-life-web .
+  docker run -p 4000:4000 architect-my-life-web
+  
