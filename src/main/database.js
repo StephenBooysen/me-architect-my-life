@@ -168,6 +168,18 @@ class Database {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )`,
 
+      // Monthly focus goals table
+      `CREATE TABLE IF NOT EXISTS monthly_focus_goals (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        goal_id INTEGER NOT NULL,
+        month INTEGER NOT NULL,
+        year INTEGER NOT NULL,
+        is_selected BOOLEAN DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (goal_id) REFERENCES goals (id) ON DELETE CASCADE,
+        UNIQUE(goal_id, month, year)
+      )`,
+
       // Moods table
       `CREATE TABLE IF NOT EXISTS moods (
         id INTEGER PRIMARY KEY AUTOINCREMENT,

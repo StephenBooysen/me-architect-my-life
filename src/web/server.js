@@ -295,6 +295,9 @@ const port = process.env.PORT || 3100;
 app.use(cors());
 app.use(express.json());
 
+// Serve static files from the built React app
+app.use(express.static(path.join(__dirname, '../../dist-renderer')));
+
 // PWA headers middleware
 app.use((req, res, next) => {
   // Add PWA-friendly headers

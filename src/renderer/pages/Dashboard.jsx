@@ -12,6 +12,7 @@ import {
   Zap,
   Smile,
 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 import { format } from "date-fns";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
@@ -369,9 +370,9 @@ function Dashboard() {
             {dashboardData.dailyWisdom ? (
               <Card className="bg-muted/50">
                 <CardContent className="p-4">
-                  <blockquote className="text-foreground italic mb-3 text-lg leading-relaxed">
-                    "{dashboardData.dailyWisdom.content}"
-                  </blockquote>
+                  <div className="prose prose-lg prose-invert max-w-none">
+                    <ReactMarkdown>{dashboardData.dailyWisdom.content}</ReactMarkdown>
+                  </div>
                   <div className="flex items-center">
                     <Star className="w-4 h-4 text-primary mr-2" />
                     <cite className="text-sm text-muted-foreground font-medium">

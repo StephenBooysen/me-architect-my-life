@@ -901,6 +901,57 @@ export function DatabaseProvider({ children }) {
     [isElectron, runQuery]
   );
 
+  // Monthly focus goals
+  const getMonthlyFocusGoals = useCallback(
+    async (year, month) => {
+      if (isElectron) {
+        return await getAllRecords(
+          `SELECT * FROM monthly_focus_goals WHERE year = ? AND month = ?`,
+          [year, month]
+        );
+      } else {
+        return await apiCall(`/monthly-focus-goals?year=${year}&month=${month}`);
+      }
+    },
+    [isElectron, getAllRecords]
+  );
+
+  const addMonthlyFocusGoal = useCallback(
+    async (goalId, month, year) => {
+      if (isElectron) {
+        return await runQuery(
+          "INSERT OR IGNORE INTO monthly_focus_goals (goal_id, month, year, is_selected) VALUES (?, ?, ?, ?)",
+          [goalId, month, year, 1]
+        );
+      } else {
+        return await apiCall("/monthly-focus-goals", "POST", {
+          goal_id: goalId,
+          month,
+          year,
+          is_selected: 1,
+        });
+      }
+    },
+    [isElectron, runQuery]
+  );
+
+  const removeMonthlyFocusGoal = useCallback(
+    async (goalId, month, year) => {
+      if (isElectron) {
+        return await runQuery(
+          "DELETE FROM monthly_focus_goals WHERE goal_id = ? AND month = ? AND year = ?",
+          [goalId, month, year]
+        );
+      } else {
+        return await apiCall(
+          `/monthly-focus-goals?goal_id=${goalId}&month=${month}&year=${year}`,
+          "DELETE"
+        );
+      }
+    },
+    [isElectron, runQuery]
+  );
+
   const value = {
     // Core database operations
     runQuery,
@@ -962,6 +1013,11 @@ export function DatabaseProvider({ children }) {
     saveAIChat,
     getAIChats,
     clearAIChats,
+
+    // Monthly focus goals
+    getMonthlyFocusGoals,
+    addMonthlyFocusGoal,
+    removeMonthlyFocusGoal,
   };
 
   return (

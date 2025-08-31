@@ -55,8 +55,8 @@ function FocusAreas() {
       const uniqueFocusAreas = Array.from(new Map(areasData.map(item => [item.name, item])).values());
       setFocusAreas(uniqueFocusAreas);
 
-      // Load all goals
-      const goalsData = await db.getGoals();
+      // Load all monthly goals
+      const goalsData = await db.getGoals('monthly');
       setGoals(goalsData);
 
       // Load monthly focus area selections
@@ -70,20 +70,14 @@ function FocusAreas() {
 
   const loadMonthlySelections = async () => {
     try {
-      // Load saved monthly focus selections and goal assignments
       const selections = {};
-      
-      // Get all monthly focus assignments for the year
       const monthlyAssignments = await db.getMonthlyFocusAreas(selectedYear);
-      
-      // Process each assignment
+
       for (const assignment of monthlyAssignments) {
-        // Get monthly goals assigned to this focus area and month
-        const assignedGoals = await db.getMonthlyGoals(selectedYear, assignment.month);
-        
+        const assignedGoals = await db.getMonthlyFocusGoals(selectedYear, assignment.month);
         selections[assignment.month] = {
           focusAreaId: assignment.focus_area_id,
-          assignedGoals: assignedGoals.map(g => g.id)
+          assignedGoals: assignedGoals.map(g => g.goal_id)
         };
       }
       
@@ -96,10 +90,8 @@ function FocusAreas() {
 
   const handleFocusAreaChange = async (monthNumber, focusAreaId) => {
     try {
-      // Use the convenience method from the database context
       await db.setMonthlyFocusArea(selectedYear, monthNumber, focusAreaId);
 
-      // Update local state
       setMonthlySelections(prev => ({
         ...prev,
         [monthNumber]: {
@@ -114,25 +106,12 @@ function FocusAreas() {
 
   const handleGoalToggle = async (monthNumber, goalId, isSelected) => {
     try {
-      const selection = monthlySelections[monthNumber];
-      
       if (isSelected) {
-        // Assign goal to this month and focus area
-        await db.updateGoal(goalId, {
-          target_year: selectedYear,
-          target_month: monthNumber,
-          focus_area_id: selection.focusAreaId
-        });
+        await db.addMonthlyFocusGoal(goalId, monthNumber, selectedYear);
       } else {
-        // Remove goal assignment
-        await db.updateGoal(goalId, {
-          target_year: null,
-          target_month: null,
-          focus_area_id: null
-        });
+        await db.removeMonthlyFocusGoal(goalId, monthNumber, selectedYear);
       }
 
-      // Update local state
       setMonthlySelections(prev => ({
         ...prev,
         [monthNumber]: {
@@ -148,10 +127,7 @@ function FocusAreas() {
   };
 
   const getGoalsForFocusArea = (focusAreaId) => {
-    return goals.filter(goal => 
-      goal.type === 'monthly' && 
-      (goal.focus_area_id === focusAreaId || !goal.focus_area_id)
-    );
+    return goals.filter(goal => goal.focus_area_id === focusAreaId);
   };
 
   const getFocusAreaName = (focusAreaId) => {
@@ -165,7 +141,7 @@ function FocusAreas() {
     
     const monthGoals = goals.filter(g => selection.assignedGoals.includes(g.id));
     const totalProgress = monthGoals.reduce((sum, goal) => sum + (goal.progress || 0), 0);
-    return Math.round(totalProgress / monthGoals.length);
+    return monthGoals.length > 0 ? Math.round(totalProgress / monthGoals.length) : 0;
   };
 
   const toggleMonthExpansion = (monthNumber) => {
@@ -367,7 +343,7 @@ function FocusAreas() {
                 </div>
 
                 {/* Goals Section */}
-                {selection.focusAreaId && availableGoals.length > 0 && (
+                {selection.focusAreaId && (
                   <div>
                     <div className="flex items-center justify-between mb-3">
                       <label className="form-label mb-0">Goals for this Month</label>
@@ -423,15 +399,14 @@ function FocusAreas() {
                         </p>
                       )}
                     </div>
-                  </div>
-                )}
 
-                {/* Empty State */}
-                {selection.focusAreaId && availableGoals.length === 0 && (
-                  <div className="text-center py-4 text-muted-foreground">
-                    <Target className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">No goals available</p>
-                    <p className="text-xs">Create goals for this focus area</p>
+                    {availableGoals.length === 0 && (
+                        <div className="text-center py-4 text-muted-foreground">
+                            <Target className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                            <p className="text-sm">No goals available</p>
+                            <p className="text-xs">Create goals for this focus area</p>
+                        </div>
+                    )}
                   </div>
                 )}
               </CardContent>

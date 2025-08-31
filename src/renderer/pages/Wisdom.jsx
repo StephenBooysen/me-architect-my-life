@@ -385,7 +385,7 @@ function Wisdom() {
                 <div className="mb-4">
                   <div className="flex items-start">
                     <Quote className="w-6 h-6 text-muted-foreground/40 mr-3 mt-1 flex-shrink-0" />
-                    <blockquote className="text-foreground italic leading-relaxed text-lg prose max-w-none">
+                    <blockquote className="text-foreground leading-relaxed text-lg prose max-w-none">
                       <ReactMarkdown>{item.content}</ReactMarkdown>
                     </blockquote>
                   </div>
