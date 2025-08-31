@@ -22,8 +22,8 @@ RUN npm run build:renderer
 # Create data directory for SQLite database with proper permissions
 RUN mkdir -p /app/data && chmod 755 /app/data
 
-# Expose port 4000 (as configured)
-EXPOSE 4000
+# Expose port 10000 (as configured)
+EXPOSE 10000
 
 # Start the web application
 CMD ["npm", "run", "start:web"]
