@@ -1,0 +1,533 @@
+<style>
+/* Reflection page styles */
+.reflection-container {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.reflection-tabs {
+  display: flex;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 2rem;
+}
+
+.reflection-tab {
+  padding: 1rem 1.5rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  font-weight: 500;
+  color: #6b7280;
+  transition: all 0.2s;
+}
+
+.reflection-tab:hover {
+  color: #374151;
+}
+
+.reflection-tab.active {
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+}
+
+.reflection-form {
+  animation: fadeIn 0.3s ease;
+}
+
+.form-section {
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.75rem;
+}
+
+.form-textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  resize: vertical;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.form-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.rating-group {
+  margin-bottom: 1rem;
+}
+
+.rating-label {
+  display: block;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.rating-scale {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.rating-button {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background: white;
+  color: #6b7280;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.rating-button:hover {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.rating-button.selected {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: #3b82f6;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #2563eb;
+}
+
+.spinner {
+  border: 2px solid #f3f4f6;
+  border-top: 2px solid #3b82f6;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hidden {
+  display: none !important;
+}
+
+.mt-4 { margin-top: 1rem; }
+.mt-6 { margin-top: 1.5rem; }
+.mb-8 { margin-bottom: 2rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+
+/* Utility classes */
+.flex { display: flex; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+</style>
+
+<div class="reflection-container">
+  <!-- Loading state -->
+  <div id="loading-state" class="flex items-center justify-center" style="height: 200px;">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Reflection content -->
+  <div id="reflection-content" class="hidden">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 style="font-size: 2rem; font-weight: bold; color: #111827; margin-bottom: 0.5rem;">Daily Reflection</h1>
+      <p style="font-size: 1.125rem; color: #6b7280;">Take time to reflect on your day and set intentions</p>
+    </div>
+
+    <!-- Reflection Tabs -->
+    <div class="reflection-tabs">
+      <button class="reflection-tab active" data-type="morning">Morning Notes</button>
+      <button class="reflection-tab" data-type="evening">Evening Reflection</button>
+    </div>
+
+    <!-- Morning Notes Form -->
+    <div id="morning-form" class="reflection-form">
+      <form id="morning-notes-form">
+        <div class="form-section">
+          <h3 class="section-title">Today's Priorities</h3>
+          <textarea id="morning-priorities" class="form-textarea" placeholder="What are your top 3 priorities for today?"></textarea>
+        </div>
+
+        <div class="form-section">
+          <h3 class="section-title">How are you feeling?</h3>
+          <div class="rating-group">
+            <span class="rating-label">Mood:</span>
+            <div class="rating-scale" id="morning-mood">
+              <button type="button" class="rating-button" data-value="1">1</button>
+              <button type="button" class="rating-button" data-value="2">2</button>
+              <button type="button" class="rating-button" data-value="3">3</button>
+              <button type="button" class="rating-button" data-value="4">4</button>
+              <button type="button" class="rating-button" data-value="5">5</button>
+              <button type="button" class="rating-button" data-value="6">6</button>
+              <button type="button" class="rating-button" data-value="7">7</button>
+              <button type="button" class="rating-button" data-value="8">8</button>
+              <button type="button" class="rating-button" data-value="9">9</button>
+              <button type="button" class="rating-button" data-value="10">10</button>
+            </div>
+          </div>
+          
+          <div class="rating-group mt-4">
+            <span class="rating-label">Energy:</span>
+            <div class="rating-scale" id="morning-energy">
+              <button type="button" class="rating-button" data-value="1">1</button>
+              <button type="button" class="rating-button" data-value="2">2</button>
+              <button type="button" class="rating-button" data-value="3">3</button>
+              <button type="button" class="rating-button" data-value="4">4</button>
+              <button type="button" class="rating-button" data-value="5">5</button>
+              <button type="button" class="rating-button" data-value="6">6</button>
+              <button type="button" class="rating-button" data-value="7">7</button>
+              <button type="button" class="rating-button" data-value="8">8</button>
+              <button type="button" class="rating-button" data-value="9">9</button>
+              <button type="button" class="rating-button" data-value="10">10</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3 class="section-title">Gratitude</h3>
+          <textarea id="morning-gratitude" class="form-textarea" placeholder="What are you grateful for today?"></textarea>
+        </div>
+
+        <div class="form-section">
+          <h3 class="section-title">Challenges & Intention</h3>
+          <textarea id="morning-challenges" class="form-textarea" placeholder="What challenges might you face today?"></textarea>
+          <textarea id="morning-intention" class="form-textarea mt-4" placeholder="Set your intention for the day..."></textarea>
+        </div>
+
+        <div class="form-actions mt-6">
+          <button type="submit" class="btn btn-primary">Save Morning Notes</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Evening Reflection Form -->
+    <div id="evening-form" class="reflection-form hidden">
+      <form id="evening-reflection-form">
+        <div class="form-section">
+          <h3 class="section-title">Day Review</h3>
+          <textarea id="evening-went-well" class="form-textarea" placeholder="What went well today?"></textarea>
+          <textarea id="evening-improve" class="form-textarea mt-4" placeholder="What could have been better?"></textarea>
+        </div>
+
+        <div class="form-section">
+          <h3 class="section-title">Learning & Growth</h3>
+          <textarea id="evening-lessons" class="form-textarea" placeholder="What did you learn today?"></textarea>
+        </div>
+
+        <div class="form-section">
+          <h3 class="section-title">Day Rating</h3>
+          <div class="rating-group">
+            <span class="rating-label">Overall:</span>
+            <div class="rating-scale" id="evening-rating">
+              <button type="button" class="rating-button" data-value="1">1</button>
+              <button type="button" class="rating-button" data-value="2">2</button>
+              <button type="button" class="rating-button" data-value="3">3</button>
+              <button type="button" class="rating-button" data-value="4">4</button>
+              <button type="button" class="rating-button" data-value="5">5</button>
+              <button type="button" class="rating-button" data-value="6">6</button>
+              <button type="button" class="rating-button" data-value="7">7</button>
+              <button type="button" class="rating-button" data-value="8">8</button>
+              <button type="button" class="rating-button" data-value="9">9</button>
+              <button type="button" class="rating-button" data-value="10">10</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3 class="section-title">Tomorrow's Focus</h3>
+          <textarea id="evening-tomorrow" class="form-textarea" placeholder="What's your top priority for tomorrow?"></textarea>
+        </div>
+
+        <div class="form-section">
+          <h3 class="section-title">Gratitude</h3>
+          <textarea id="evening-gratitude" class="form-textarea" placeholder="What are you grateful for today?"></textarea>
+        </div>
+
+        <div class="form-actions mt-6">
+          <button type="submit" class="btn btn-primary">Save Evening Reflection</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// Initialize reflection page when DOM loads
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Reflection: DOM loaded');
+  console.log('Reflection: APP_CONFIG:', window.APP_CONFIG);
+  console.log('Reflection: Current pathname:', window.location.pathname);
+  
+  // Always initialize if we're on the reflection page
+  if (window.location.pathname.includes('reflection')) {
+    console.log('Reflection: Initializing...');
+    
+    // Hide loading and show content
+    const loading = document.getElementById('loading-state');
+    const content = document.getElementById('reflection-content');
+    if (loading) loading.classList.add('hidden');
+    if (content) content.classList.remove('hidden');
+    
+    setupReflectionPage();
+    loadReflectionData();
+  } else {
+    console.log('Reflection: Not on reflection page, skipping initialization');
+  }
+});
+
+// Also try to initialize after a short delay in case APP_CONFIG isn't ready
+setTimeout(() => {
+  if (window.location.pathname.includes('reflection')) {
+    const content = document.getElementById('reflection-content');
+    if (content && content.classList.contains('hidden')) {
+      console.log('Reflection: Delayed initialization attempt...');
+      
+      const loading = document.getElementById('loading-state');
+      if (loading) loading.classList.add('hidden');
+      content.classList.remove('hidden');
+      
+      setupReflectionPage();
+      loadReflectionData();
+    }
+  }
+}, 500);
+
+function setupReflectionPage() {
+  // Tab switching
+  const tabs = document.querySelectorAll('.reflection-tab');
+  const morningForm = document.getElementById('morning-form');
+  const eveningForm = document.getElementById('evening-form');
+  
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      
+      const type = tab.dataset.type;
+      if (type === 'morning') {
+        morningForm.classList.remove('hidden');
+        eveningForm.classList.add('hidden');
+      } else {
+        morningForm.classList.add('hidden');
+        eveningForm.classList.remove('hidden');
+      }
+    });
+  });
+  
+  // Rating buttons
+  setupRatingButtons();
+  
+  // Form submissions
+  document.getElementById('morning-notes-form').addEventListener('submit', saveMorningNotes);
+  document.getElementById('evening-reflection-form').addEventListener('submit', saveEveningReflection);
+}
+
+function setupRatingButtons() {
+  const ratingGroups = document.querySelectorAll('.rating-scale');
+  
+  ratingGroups.forEach(group => {
+    const buttons = group.querySelectorAll('.rating-button');
+    buttons.forEach(button => {
+      button.addEventListener('click', () => {
+        buttons.forEach(b => b.classList.remove('selected'));
+        button.classList.add('selected');
+      });
+    });
+  });
+}
+
+async function loadReflectionData() {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Ensure API is available
+    if (!window.API) {
+      console.error('API not available');
+      return;
+    }
+    
+    console.log('Loading reflection data for:', today);
+    
+    const [morningNote, eveningReflection] = await Promise.all([
+      window.API.get(`/morning-notes?date=${today}`).catch(e => {
+        console.log('No morning note found:', e);
+        return null;
+      }),
+      window.API.get(`/evening-reflections?date=${today}`).catch(e => {
+        console.log('No evening reflection found:', e);
+        return null;
+      })
+    ]);
+    
+    console.log('Loaded data:', { morningNote, eveningReflection });
+    
+    // Populate forms with existing data
+    if (morningNote) {
+      populateMorningForm(morningNote);
+    }
+    
+    if (eveningReflection) {
+      populateEveningForm(eveningReflection);
+    }
+  } catch (error) {
+    console.error('Error loading reflection data:', error);
+  }
+}
+
+function populateMorningForm(data) {
+  if (data.priorities) document.getElementById('morning-priorities').value = data.priorities;
+  if (data.gratitude) document.getElementById('morning-gratitude').value = data.gratitude;
+  if (data.challenges) document.getElementById('morning-challenges').value = data.challenges;
+  if (data.intention) document.getElementById('morning-intention').value = data.intention;
+  
+  // Set ratings
+  if (data.mood) setRating('morning-mood', data.mood);
+  if (data.energy) setRating('morning-energy', data.energy);
+}
+
+function populateEveningForm(data) {
+  if (data.what_went_well) document.getElementById('evening-went-well').value = data.what_went_well;
+  if (data.what_could_improve) document.getElementById('evening-improve').value = data.what_could_improve;
+  if (data.lessons_learned) document.getElementById('evening-lessons').value = data.lessons_learned;
+  if (data.tomorrow_priority) document.getElementById('evening-tomorrow').value = data.tomorrow_priority;
+  if (data.gratitude) document.getElementById('evening-gratitude').value = data.gratitude;
+  
+  if (data.day_rating) setRating('evening-rating', data.day_rating);
+}
+
+function setRating(groupId, value) {
+  const group = document.getElementById(groupId);
+  if (group) {
+    const buttons = group.querySelectorAll('.rating-button');
+    buttons.forEach(button => {
+      if (parseInt(button.dataset.value) === value) {
+        button.classList.add('selected');
+      }
+    });
+  }
+}
+
+async function saveMorningNotes(e) {
+  e.preventDefault();
+  
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const mood = getRating('morning-mood');
+    const energy = getRating('morning-energy');
+    
+    const data = {
+      date: today,
+      priorities: document.getElementById('morning-priorities').value,
+      mood: mood,
+      energy: energy,
+      gratitude: document.getElementById('morning-gratitude').value,
+      challenges: document.getElementById('morning-challenges').value,
+      intention: document.getElementById('morning-intention').value
+    };
+    
+    console.log('Saving morning notes:', data);
+    await window.API.post('/morning-notes', data);
+    
+    // Show success notification
+    if (window.Utils) {
+      window.Utils.showNotification('Morning notes saved successfully! 🌅', 'success');
+    } else {
+      alert('Morning notes saved successfully!');
+    }
+  } catch (error) {
+    console.error('Error saving morning notes:', error);
+    if (window.Utils) {
+      window.Utils.showNotification('Error saving morning notes', 'error');
+    } else {
+      alert('Error saving morning notes');
+    }
+  }
+}
+
+async function saveEveningReflection(e) {
+  e.preventDefault();
+  
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const dayRating = getRating('evening-rating');
+    
+    const data = {
+      date: today,
+      what_went_well: document.getElementById('evening-went-well').value,
+      what_could_improve: document.getElementById('evening-improve').value,
+      lessons_learned: document.getElementById('evening-lessons').value,
+      tomorrow_priority: document.getElementById('evening-tomorrow').value,
+      gratitude: document.getElementById('evening-gratitude').value,
+      day_rating: dayRating
+    };
+    
+    console.log('Saving evening reflection:', data);
+    await window.API.post('/evening-reflections', data);
+    
+    // Show success notification
+    if (window.Utils) {
+      window.Utils.showNotification('Evening reflection saved successfully! 🌙', 'success');
+    } else {
+      alert('Evening reflection saved successfully!');
+    }
+  } catch (error) {
+    console.error('Error saving evening reflection:', error);
+    if (window.Utils) {
+      window.Utils.showNotification('Error saving evening reflection', 'error');
+    } else {
+      alert('Error saving evening reflection');
+    }
+  }
+}
+
+function getRating(groupId) {
+  const group = document.getElementById(groupId);
+  if (group) {
+    const selected = group.querySelector('.rating-button.selected');
+    return selected ? parseInt(selected.dataset.value) : null;
+  }
+  return null;
+}
+</script>

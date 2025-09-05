@@ -1,0 +1,279 @@
+<div class="ai-guide-container">
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-foreground mb-2">AI Guide</h1>
+    <p class="text-lg text-muted-foreground">Get personalized guidance for your goals and personal development</p>
+  </div>
+
+  <!-- API Key Setup -->
+  <div id="api-setup" class="card mb-8">
+    <div class="card-header">
+      <h3 class="card-title">Claude API Configuration</h3>
+    </div>
+    <div class="card-content">
+      <div class="form-group">
+        <label for="api-key-input" class="form-label">Claude API Key</label>
+        <div class="flex gap-2">
+          <input type="password" id="api-key-input" class="form-input" placeholder="Enter your Claude API key">
+          <button type="button" class="btn btn-primary" id="save-api-key">Save</button>
+          <button type="button" class="btn btn-secondary" id="test-api-key">Test</button>
+        </div>
+        <p class="text-sm text-muted-foreground mt-2">
+          Get your API key from <a href="https://console.anthropic.com" target="_blank" class="text-primary hover:underline">Anthropic Console</a>
+        </p>
+      </div>
+      <div id="api-status" class="mt-4">
+        <!-- API status will be shown here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat Interface -->
+  <div class="card">
+    <div class="card-header">
+      <div class="flex justify-between items-center">
+        <h3 class="card-title">AI Assistant Chat</h3>
+        <button class="btn btn-outline btn-sm" id="clear-chat-history">
+          <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c0-1 1-2 2-2v2"/>
+          </svg>
+          Clear Chat
+        </button>
+      </div>
+    </div>
+    <div class="card-content p-0">
+      <!-- Chat Messages -->
+      <div id="chat-messages" class="p-6 max-h-96 overflow-y-auto border-b">
+        <div class="ai-message">
+          <div class="message-content">
+            <p>Hello! I'm your AI assistant, specialized in personal development and goal achievement. I can help you with:</p>
+            <ul class="list-disc list-inside mt-2 space-y-1">
+              <li>Setting and refining your goals</li>
+              <li>Creating action plans</li>
+              <li>Analyzing your progress</li>
+              <li>Providing motivation and accountability</li>
+              <li>Suggesting habits and strategies</li>
+            </ul>
+            <p class="mt-3">What would you like to work on today?</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Chat Input -->
+      <div class="p-4">
+        <form id="chat-form" class="flex gap-2">
+          <input 
+            type="text" 
+            id="chat-input" 
+            class="form-input flex-1" 
+            placeholder="Ask me anything about your goals, habits, or personal development..."
+            disabled
+          >
+          <button type="submit" class="btn btn-primary" id="send-message" disabled>
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m22 2-7 20-4-9-9-4Z"/>
+              <path d="M22 2 11 13"/>
+            </svg>
+          </button>
+        </form>
+        
+        <!-- Quick Actions -->
+        <div class="mt-4">
+          <p class="text-sm text-muted-foreground mb-2">Quick Actions:</p>
+          <div class="flex flex-wrap gap-2">
+            <button class="btn btn-outline btn-sm quick-action" data-prompt="Help me set a meaningful goal">Set a Goal</button>
+            <button class="btn btn-outline btn-sm quick-action" data-prompt="Analyze my current progress and suggest improvements">Review Progress</button>
+            <button class="btn btn-outline btn-sm quick-action" data-prompt="Suggest daily habits that align with my goals">Build Habits</button>
+            <button class="btn btn-outline btn-sm quick-action" data-prompt="I'm feeling unmotivated, help me get back on track">Get Motivated</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Initialize AI guide page when DOM loads
+document.addEventListener('DOMContentLoaded', function() {
+  if (window.APP_CONFIG.currentPage === 'ai-guide') {
+    setupAIGuidePage();
+  }
+});
+
+function setupAIGuidePage() {
+  // Load saved API key
+  const savedApiKey = localStorage.getItem('claude-api-key');
+  if (savedApiKey) {
+    document.getElementById('api-key-input').value = savedApiKey;
+    enableChat();
+    updateApiStatus('connected');
+  } else {
+    updateApiStatus('not-configured');
+  }
+
+  // API key management
+  document.getElementById('save-api-key').addEventListener('click', saveApiKey);
+  document.getElementById('test-api-key').addEventListener('click', testApiKey);
+  
+  // Chat functionality
+  document.getElementById('chat-form').addEventListener('submit', sendMessage);
+  document.getElementById('clear-chat-history').addEventListener('click', clearChatHistory);
+  
+  // Quick actions
+  document.querySelectorAll('.quick-action').forEach(button => {
+    button.addEventListener('click', (e) => {
+      const prompt = e.target.dataset.prompt;
+      document.getElementById('chat-input').value = prompt;
+      sendMessage(new Event('submit'));
+    });
+  });
+}
+
+async function saveApiKey() {
+  const apiKey = document.getElementById('api-key-input').value.trim();
+  if (!apiKey) {
+    Utils.showNotification('Please enter an API key', 'error');
+    return;
+  }
+  
+  localStorage.setItem('claude-api-key', apiKey);
+  enableChat();
+  updateApiStatus('saved');
+  Utils.showNotification('API key saved successfully', 'success');
+}
+
+async function testApiKey() {
+  const apiKey = document.getElementById('api-key-input').value.trim();
+  if (!apiKey) {
+    Utils.showNotification('Please enter an API key first', 'error');
+    return;
+  }
+  
+  updateApiStatus('testing');
+  
+  try {
+    const response = await API.post('/claude/test', { apiKey });
+    if (response.success) {
+      updateApiStatus('connected');
+      enableChat();
+      Utils.showNotification('API key is valid!', 'success');
+    } else {
+      updateApiStatus('error');
+      Utils.showNotification('API key test failed', 'error');
+    }
+  } catch (error) {
+    updateApiStatus('error');
+    Utils.showNotification('Error testing API key', 'error');
+  }
+}
+
+function enableChat() {
+  document.getElementById('chat-input').disabled = false;
+  document.getElementById('send-message').disabled = false;
+}
+
+function updateApiStatus(status) {
+  const statusElement = document.getElementById('api-status');
+  const statusMessages = {
+    'not-configured': '<span class="text-warning">⚠️ API key not configured</span>',
+    'saved': '<span class="text-success">✅ API key saved</span>',
+    'testing': '<span class="text-primary">🔄 Testing API key...</span>',
+    'connected': '<span class="text-success">✅ Connected to Claude API</span>',
+    'error': '<span class="text-error">❌ API key invalid or connection failed</span>'
+  };
+  
+  statusElement.innerHTML = statusMessages[status] || '';
+}
+
+async function sendMessage(e) {
+  e.preventDefault();
+  
+  const input = document.getElementById('chat-input');
+  const message = input.value.trim();
+  
+  if (!message) return;
+  
+  const apiKey = localStorage.getItem('claude-api-key');
+  if (!apiKey) {
+    Utils.showNotification('Please configure your API key first', 'error');
+    return;
+  }
+  
+  // Add user message to chat
+  addMessageToChat(message, 'user');
+  input.value = '';
+  
+  // Show typing indicator
+  const typingId = addMessageToChat('Thinking...', 'ai', true);
+  
+  try {
+    const response = await API.post('/claude', {
+      messages: [{ role: 'user', content: message }],
+      system: `You are a helpful AI assistant specialized in personal development, goal setting, and productivity. You're integrated into the 'Architect My Life' application to help users achieve their goals. 
+      
+      Key areas you can help with:
+      - Goal setting and refinement
+      - Habit formation and tracking
+      - Progress analysis
+      - Motivation and accountability
+      - Time management and productivity
+      - Personal reflection and growth
+      
+      Be encouraging, practical, and specific in your advice. When possible, suggest concrete next steps the user can take.`,
+      apiKey: apiKey
+    });
+    
+    // Remove typing indicator
+    removeMessage(typingId);
+    
+    if (response.content && response.content[0] && response.content[0].text) {
+      addMessageToChat(response.content[0].text, 'ai');
+    } else {
+      addMessageToChat('Sorry, I had trouble processing your request. Please try again.', 'ai');
+    }
+  } catch (error) {
+    removeMessage(typingId);
+    console.error('AI Chat error:', error);
+    addMessageToChat('Sorry, there was an error processing your request. Please check your API key and try again.', 'ai');
+  }
+}
+
+function addMessageToChat(content, type, isTemporary = false) {
+  const messagesContainer = document.getElementById('chat-messages');
+  const messageDiv = document.createElement('div');
+  const messageId = 'msg-' + Date.now();
+  
+  messageDiv.id = messageId;
+  messageDiv.className = `${type}-message`;
+  messageDiv.innerHTML = `
+    <div class="message-content">
+      <p>${content}</p>
+    </div>
+  `;
+  
+  messagesContainer.appendChild(messageDiv);
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  
+  return isTemporary ? messageId : null;
+}
+
+function removeMessage(messageId) {
+  if (messageId) {
+    const element = document.getElementById(messageId);
+    if (element) {
+      element.remove();
+    }
+  }
+}
+
+function clearChatHistory() {
+  const messagesContainer = document.getElementById('chat-messages');
+  messagesContainer.innerHTML = `
+    <div class="ai-message">
+      <div class="message-content">
+        <p>Chat history cleared. How can I help you today?</p>
+      </div>
+    </div>
+  `;
+}
+</script>

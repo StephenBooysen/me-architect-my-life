@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title || 'Architect My Life' %></title>
+    <meta name="description" content="Comprehensive personal goal management, habit tracking, and self-reflection application">
+    <meta name="keywords" content="goals, habits, productivity, self-improvement, planning">
+    <meta name="author" content="Architect My Life">
+    <meta name="theme-color" content="#22c55e">
+    
+    <!-- PWA meta tags -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Architect My Life">
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/pages.css">
+    
+    <!-- Flaticon CSS -->
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
+</head>
+<body class="h-full bg-background text-foreground">
+    <div class="app-layout" id="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <%- include('../partials/sidebar', { currentPage: currentPage || 'dashboard' }) %>
+        </aside>
+        
+        <!-- Main container -->
+        <div class="main-container">
+            <!-- Header -->
+            <header class="header">
+                <%- include('../partials/header', { title: title, currentPage: currentPage || 'dashboard' }) %>
+            </header>
+            
+            <!-- Main content area -->
+            <main class="main-content" id="main-content">
+                <%- body %>
+            </main>
+        </div>
+        
+        <!-- AI Chat -->
+        <aside class="ai-chat" id="ai-chat">
+            <%- include('../partials/ai-chat', { currentPage: currentPage || 'dashboard' }) %>
+        </aside>
+    </div>
+    
+    <!-- JavaScript -->
+    <script src="/js/icons.js"></script>
+    <script src="/js/main.js"></script>
+    <script src="/js/components.js"></script>
+    <script>
+        // Initialize the app
+        window.APP_CONFIG = {
+            currentPage: '<%= currentPage || "dashboard" %>',
+            apiBase: '/api'
+        };
+    </script>
+    
+    <!-- Page-specific scripts injected here -->
+    <%- script %>
+</body>
+</html>

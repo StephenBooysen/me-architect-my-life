@@ -1,0 +1,491 @@
+<div class="focus-areas-container">
+  <!-- Loading state -->
+  <div id="loading-state" class="hidden flex items-center justify-content-center" style="height: 200px;">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Focus Areas content -->
+  <div id="focus-areas-content">
+    <!-- Header -->
+    <div class="focus-areas-header">
+      <div class="header-left">
+        <div class="page-title-group">
+          <h1 class="page-title">
+            <i class="fi fi-rr-target page-title-icon"></i>
+            Focus Areas
+          </h1>
+          <p class="page-subtitle">Plan your year by assigning focus areas and goals to each month</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="year-selector">
+          <select id="year-select" class="form-select">
+            <option value="2025">2025</option>
+            <option value="2026">2026</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="focus-summary-cards">
+      <div class="summary-card">
+        <div class="summary-icon">
+          <i class="fi fi-rr-crosshairs"></i>
+        </div>
+        <div class="summary-content">
+          <div class="summary-title">Focus Areas</div>
+          <div class="summary-value" id="total-focus-areas">0</div>
+        </div>
+      </div>
+      
+      <div class="summary-card">
+        <div class="summary-icon">
+          <i class="fi fi-rr-star"></i>
+        </div>
+        <div class="summary-content">
+          <div class="summary-title">Assigned Months</div>
+          <div class="summary-value" id="assigned-months">0</div>
+        </div>
+      </div>
+      
+      <div class="summary-card">
+        <div class="summary-icon">
+          <i class="fi fi-rr-check-circle"></i>
+        </div>
+        <div class="summary-content">
+          <div class="summary-title">Goals Assigned</div>
+          <div class="summary-value" id="goals-assigned">0</div>
+        </div>
+      </div>
+      
+      <div class="summary-card">
+        <div class="summary-icon">
+          <i class="fi fi-rr-trending-up"></i>
+        </div>
+        <div class="summary-content">
+          <div class="summary-title">Avg Progress</div>
+          <div class="summary-value" id="avg-progress">0%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly Focus Areas Grid -->
+    <div class="monthly-grid" id="monthly-grid">
+      <!-- Monthly focus area cards will be populated here -->
+    </div>
+  </div>
+</div>
+
+<script>
+// Global state for focus areas page
+let focusAreasData = [];
+let monthlyAssignments = {};
+let monthlyGoals = {};
+let currentYear = 2025;
+
+// Month names
+const monthNames = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
+
+// Initialize focus areas page when DOM loads
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Focus Areas: DOM loaded');
+  console.log('Focus Areas: APP_CONFIG:', window.APP_CONFIG);
+  console.log('Focus Areas: Current pathname:', window.location.pathname);
+  
+  // Always initialize if we're on the focus areas page
+  if (window.location.pathname.includes('focus-areas')) {
+    console.log('Focus Areas: Initializing...');
+    initializeFocusAreasPage();
+  } else {
+    console.log('Focus Areas: Not on focus-areas page, skipping initialization');
+  }
+});
+
+// Also try to initialize after a short delay in case APP_CONFIG isn't ready
+setTimeout(() => {
+  if (window.location.pathname.includes('focus-areas') && !focusAreasData.length) {
+    console.log('Focus Areas: Delayed initialization attempt...');
+    initializeFocusAreasPage();
+  }
+}, 500);
+
+// Emergency fallback - populate with static data for testing
+setTimeout(() => {
+  if (window.location.pathname.includes('focus-areas')) {
+    const grid = document.getElementById('monthly-grid');
+    if (grid && (!grid.innerHTML || grid.innerHTML.trim() === '<!-- Monthly focus area cards will be populated here -->')) {
+      console.log('Focus Areas: Using static data fallback...');
+      
+      // Set some static test data
+      focusAreasData = [
+        {id: 1, name: 'Health & Fitness'},
+        {id: 2, name: 'Career & Wealth'},
+        {id: 3, name: 'Personal Development'}
+      ];
+      monthlyAssignments = {};
+      monthlyGoals = {};
+      currentYear = 2025;
+      
+      renderMonthlyGrid();
+      updateSummaryStats();
+    }
+  }
+}, 2000);
+
+async function initializeFocusAreasPage() {
+  console.log('Initializing focus areas page...');
+  try {
+    // Set current year
+    const currentDate = new Date();
+    currentYear = currentDate.getFullYear();
+    const yearSelect = document.getElementById('year-select');
+    if (yearSelect) {
+      yearSelect.value = currentYear;
+      yearSelect.addEventListener('change', handleYearChange);
+    }
+
+    // Load data
+    await loadFocusAreasData();
+    console.log('Focus areas page initialized successfully');
+  } catch (error) {
+    console.error('Error initializing focus areas page:', error);
+    if (window.Utils && Utils.showNotification) {
+      Utils.showNotification('Error loading focus areas page', 'error');
+    }
+  }
+}
+
+async function loadFocusAreasData() {
+  try {
+    console.log('Focus Areas: Starting data load...');
+    console.log('Focus Areas: API object available:', !!window.API);
+    console.log('Focus Areas: APP_CONFIG:', window.APP_CONFIG);
+    
+    // Load focus areas
+    console.log('Focus Areas: Loading focus areas...');
+    focusAreasData = await API.get('/focus-areas');
+    console.log('Focus Areas: Loaded focus areas:', focusAreasData.length, 'items');
+    
+    // Create a mapping from focus area name to the clean IDs
+    const focusAreaNameToId = {};
+    focusAreasData.forEach(area => {
+      focusAreaNameToId[area.name] = area.id;
+    });
+    console.log('Focus Areas: Created name-to-ID mapping:', focusAreaNameToId);
+    
+    // Load monthly focus assignments for current year
+    console.log('Focus Areas: Loading monthly assignments for year:', currentYear);
+    const assignments = await API.get(`/monthly-focus?year=${currentYear}`);
+    console.log('Focus Areas: Loaded assignments:', assignments.length, 'items');
+    
+    monthlyAssignments = {};
+    assignments.forEach(assignment => {
+      // Map assignment to clean focus area ID based on name
+      const cleanFocusAreaId = focusAreaNameToId[assignment.focus_area_name];
+      if (cleanFocusAreaId) {
+        monthlyAssignments[assignment.month] = {
+          focus_area_id: cleanFocusAreaId,
+          focus_area_name: assignment.focus_area_name
+        };
+      } else {
+        console.warn('Focus Areas: Could not map assignment to clean ID:', assignment);
+      }
+    });
+    console.log('Focus Areas: Processed monthly assignments:', monthlyAssignments);
+
+    // Load goals for current year
+    console.log('Focus Areas: Loading monthly goals for year:', currentYear);
+    const goals = await API.get(`/goals?type=monthly&target_year=${currentYear}`);
+    console.log('Focus Areas: Loaded goals:', goals.length, 'items');
+    
+    monthlyGoals = {};
+    
+    // Group goals by month and filter by focus area
+    goals.forEach(goal => {
+      if (!monthlyGoals[goal.target_month]) {
+        monthlyGoals[goal.target_month] = [];
+      }
+      monthlyGoals[goal.target_month].push(goal);
+    });
+    console.log('Focus Areas: Processed monthly goals:', monthlyGoals);
+
+    console.log('Focus Areas: Rendering monthly grid...');
+    renderMonthlyGrid();
+    console.log('Focus Areas: Updating summary stats...');
+    updateSummaryStats();
+    console.log('Focus Areas: Data load complete!');
+  } catch (error) {
+    console.error('Focus Areas: Error loading data:', error);
+    if (window.Utils && Utils.showNotification) {
+      Utils.showNotification('Error loading focus areas data', 'error');
+    }
+  }
+}
+
+function renderMonthlyGrid() {
+  console.log('renderMonthlyGrid called');
+  const grid = document.getElementById('monthly-grid');
+  if (!grid) {
+    console.error('monthly-grid element not found!');
+    return;
+  }
+  console.log('monthly-grid element found, rendering...');
+
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth() + 1; // JavaScript months are 0-indexed
+  const currentYear = currentDate.getFullYear();
+
+  grid.innerHTML = monthNames.map((monthName, index) => {
+    const monthNumber = index + 1;
+    const isPastMonth = (currentYear === parseInt(document.getElementById('year-select').value)) && monthNumber < currentMonth;
+    const assignment = monthlyAssignments[monthNumber];
+    const goals = monthlyGoals[monthNumber] || [];
+    const completedGoals = goals.filter(goal => goal.progress >= 100).length;
+    const totalGoals = goals.length;
+    const progressPercentage = totalGoals > 0 ? Math.round((completedGoals / totalGoals) * 100) : 0;
+
+    return `
+      <div class="monthly-card ${isPastMonth ? 'past-month' : ''}" data-month="${monthNumber}">
+        <div class="monthly-header">
+          <h3 class="monthly-title">${monthName} ${document.getElementById('year-select').value}</h3>
+          <div class="monthly-progress">
+            <span class="progress-percentage">${progressPercentage}%</span>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: ${progressPercentage}%"></div>
+            </div>
+            <span class="progress-text">${totalGoals} goals</span>
+          </div>
+        </div>
+        
+        <div class="monthly-content">
+          <div class="focus-area-selection">
+            <label class="form-label">Focus Area</label>
+            <select class="form-select focus-area-select" data-month="${monthNumber}" ${isPastMonth ? 'disabled' : ''}>
+              <option value="">Select focus area</option>
+              ${focusAreasData.map(area => `
+                <option value="${area.id}" ${assignment && assignment.focus_area_id === area.id ? 'selected' : ''}>
+                  ${area.name}
+                </option>
+              `).join('')}
+            </select>
+          </div>
+          
+          <div class="monthly-goals" id="goals-${monthNumber}" style="${assignment ? 'display: block;' : 'display: none;'}">
+            <label class="form-label">Monthly Goals</label>
+            <div class="goals-list" id="goals-list-${monthNumber}">
+              ${renderMonthlyGoals(monthNumber, goals, isPastMonth)}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Add event listeners for focus area selections
+  document.querySelectorAll('.focus-area-select').forEach(select => {
+    select.addEventListener('change', handleFocusAreaChange);
+  });
+
+  // Add event listeners for goal checkboxes
+  document.querySelectorAll('.goal-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', handleGoalToggle);
+  });
+}
+
+function renderMonthlyGoals(monthNumber, goals, isPastMonth) {
+  if (goals.length === 0) {
+    return '<p class="no-goals-text">No goals assigned to this focus area for this month.</p>';
+  }
+
+  return goals.map(goal => `
+    <div class="goal-item">
+      <label class="goal-label">
+        <input 
+          type="checkbox" 
+          class="goal-checkbox" 
+          data-goal-id="${goal.id}"
+          data-month="${monthNumber}"
+          ${goal.progress >= 100 ? 'checked' : ''}
+          ${isPastMonth ? 'disabled' : ''}
+        >
+        <div class="goal-content">
+          <span class="goal-title">${goal.title}</span>
+          ${goal.description ? `<span class="goal-description">${goal.description}</span>` : ''}
+        </div>
+      </label>
+    </div>
+  `).join('');
+}
+
+async function handleYearChange(event) {
+  currentYear = parseInt(event.target.value);
+  await loadFocusAreasData();
+}
+
+async function handleFocusAreaChange(event) {
+  const month = parseInt(event.target.dataset.month);
+  const focusAreaId = event.target.value;
+  
+  try {
+    if (focusAreaId) {
+      // Assign focus area to month
+      await API.post('/monthly-focus', {
+        year: currentYear,
+        month: month,
+        focus_area_id: parseInt(focusAreaId)
+      });
+      
+      // Update local state
+      const focusArea = focusAreasData.find(area => area.id === parseInt(focusAreaId));
+      monthlyAssignments[month] = {
+        focus_area_id: parseInt(focusAreaId),
+        focus_area_name: focusArea.name
+      };
+    } else {
+      // Remove focus area assignment
+      await API.post('/monthly-focus', {
+        year: currentYear,
+        month: month,
+        focus_area_id: null
+      });
+      
+      delete monthlyAssignments[month];
+    }
+
+    // Load and display goals for this focus area and month
+    await loadGoalsForMonth(month, focusAreaId);
+    updateSummaryStats();
+    
+    Utils.showNotification('Focus area updated successfully', 'success');
+  } catch (error) {
+    console.error('Error updating focus area:', error);
+    Utils.showNotification('Error updating focus area', 'error');
+  }
+}
+
+async function loadGoalsForMonth(month, focusAreaId) {
+  try {
+    const goalsContainer = document.getElementById(`goals-${month}`);
+    const goalsListContainer = document.getElementById(`goals-list-${month}`);
+    
+    if (!goalsContainer || !goalsListContainer) return;
+
+    if (focusAreaId) {
+      // Load all monthly goals for current year and filter by focus area
+      const allGoals = await API.get(`/goals?type=monthly&target_year=${currentYear}`);
+      
+      // Find the selected focus area
+      const selectedFocusArea = focusAreasData.find(area => area.id == focusAreaId);
+      
+      // Filter goals that match this focus area (by name matching)
+      const goals = allGoals.filter(goal => {
+        // Match by focus area name or category
+        return goal.focus_area_id == focusAreaId || 
+               (selectedFocusArea && goal.focus_area_name === selectedFocusArea.name) ||
+               (selectedFocusArea && goal.category === selectedFocusArea.category);
+      });
+      
+      // Update local state
+      monthlyGoals[month] = goals;
+      
+      // Show goals container
+      goalsContainer.style.display = 'block';
+      
+      // Render goals
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth() + 1;
+      const currentYear = currentDate.getFullYear();
+      const isPastMonth = (currentYear === parseInt(document.getElementById('year-select').value)) && month < currentMonth;
+      
+      goalsListContainer.innerHTML = renderMonthlyGoals(month, goals, isPastMonth);
+      
+      // Add event listeners for new checkboxes
+      goalsListContainer.querySelectorAll('.goal-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', handleGoalToggle);
+      });
+    } else {
+      // Hide goals container
+      goalsContainer.style.display = 'none';
+      monthlyGoals[month] = [];
+    }
+  } catch (error) {
+    console.error('Error loading goals for month:', error);
+    Utils.showNotification('Error loading goals', 'error');
+  }
+}
+
+async function handleGoalToggle(event) {
+  const goalId = parseInt(event.target.dataset.goalId);
+  const month = parseInt(event.target.dataset.month);
+  const isCompleted = event.target.checked;
+  
+  try {
+    // Update goal progress and month assignment
+    await API.put(`/goals/${goalId}`, {
+      progress: isCompleted ? 100 : 0,
+      target_month: month
+    });
+    
+    // Update local state
+    const goals = monthlyGoals[month] || [];
+    const goal = goals.find(g => g.id === goalId);
+    if (goal) {
+      goal.progress = isCompleted ? 100 : 0;
+      goal.target_month = month;
+    }
+    
+    // Update progress display for this month
+    updateMonthProgress(month);
+    updateSummaryStats();
+    
+    Utils.showNotification(`Goal ${isCompleted ? 'completed' : 'uncompleted'} successfully`, 'success');
+  } catch (error) {
+    console.error('Error updating goal:', error);
+    Utils.showNotification('Error updating goal', 'error');
+    // Revert checkbox state
+    event.target.checked = !isCompleted;
+  }
+}
+
+function updateMonthProgress(month) {
+  const goals = monthlyGoals[month] || [];
+  const completedGoals = goals.filter(goal => goal.progress >= 100).length;
+  const totalGoals = goals.length;
+  const progressPercentage = totalGoals > 0 ? Math.round((completedGoals / totalGoals) * 100) : 0;
+  
+  const monthCard = document.querySelector(`[data-month="${month}"]`);
+  if (monthCard) {
+    const progressElement = monthCard.querySelector('.progress-percentage');
+    const progressBar = monthCard.querySelector('.progress-fill');
+    const progressText = monthCard.querySelector('.progress-text');
+    
+    if (progressElement) progressElement.textContent = `${progressPercentage}%`;
+    if (progressBar) progressBar.style.width = `${progressPercentage}%`;
+    if (progressText) progressText.textContent = `${totalGoals} goals`;
+  }
+}
+
+function updateSummaryStats() {
+  // Update assigned months count
+  const assignedMonthsCount = Object.keys(monthlyAssignments).length;
+  document.getElementById('assigned-months').textContent = assignedMonthsCount;
+  
+  // Update total goals assigned count
+  const totalGoalsAssigned = Object.values(monthlyGoals).reduce((total, goals) => total + goals.length, 0);
+  document.getElementById('goals-assigned').textContent = totalGoalsAssigned;
+  
+  // Update average progress
+  const allGoals = Object.values(monthlyGoals).flat();
+  const avgProgress = allGoals.length > 0 
+    ? Math.round(allGoals.reduce((total, goal) => total + goal.progress, 0) / allGoals.length)
+    : 0;
+  document.getElementById('avg-progress').textContent = `${avgProgress}%`;
+  
+  // Focus areas count is static (from server)
+  document.getElementById('total-focus-areas').textContent = focusAreasData.length;
+}
+</script>

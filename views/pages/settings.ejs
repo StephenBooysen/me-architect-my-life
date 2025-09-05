@@ -1,0 +1,369 @@
+<div class="settings-container">
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-foreground mb-2">Settings</h1>
+    <p class="text-lg text-muted-foreground">Customize your experience and preferences</p>
+  </div>
+
+  <!-- Appearance Settings -->
+  <div class="settings-section">
+    <div class="settings-title">Appearance</div>
+    
+    <div class="setting-item">
+      <div class="setting-label">
+        <div class="setting-name">Theme</div>
+        <div class="setting-description">Choose between light and dark mode</div>
+      </div>
+      <div class="setting-control">
+        <label class="toggle-switch">
+          <input type="checkbox" class="toggle-input" id="theme-toggle-setting">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+    
+    <div class="setting-item">
+      <div class="setting-label">
+        <div class="setting-name">Sidebar Visibility</div>
+        <div class="setting-description">Show or hide the navigation sidebar</div>
+      </div>
+      <div class="setting-control">
+        <label class="toggle-switch">
+          <input type="checkbox" class="toggle-input" id="sidebar-toggle-setting" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+    
+    <div class="setting-item">
+      <div class="setting-label">
+        <div class="setting-name">AI Chat Panel</div>
+        <div class="setting-description">Show or hide the AI assistant panel</div>
+      </div>
+      <div class="setting-control">
+        <label class="toggle-switch">
+          <input type="checkbox" class="toggle-input" id="ai-chat-toggle-setting" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Assistant Settings -->
+  <div class="settings-section">
+    <div class="settings-title">AI Assistant</div>
+    
+    <div class="setting-item">
+      <div class="setting-label">
+        <div class="setting-name">Claude API Key</div>
+        <div class="setting-description">Your personal API key for Claude AI integration</div>
+      </div>
+      <div class="setting-control">
+        <div class="flex gap-2">
+          <input type="password" id="claude-api-key" class="form-input" placeholder="Enter your Claude API key">
+          <button type="button" class="btn btn-primary" id="save-claude-key">Save</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="setting-item">
+      <div class="setting-label">
+        <div class="setting-name">AI Suggestions</div>
+        <div class="setting-description">Get AI-powered suggestions throughout the app</div>
+      </div>
+      <div class="setting-control">
+        <label class="toggle-switch">
+          <input type="checkbox" class="toggle-input" id="ai-suggestions-setting" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data & Privacy -->
+  <div class="settings-section">
+    <div class="settings-title">Data & Privacy</div>
+    
+    <div class="setting-item">
+      <div class="setting-label">
+        <div class="setting-name">Data Storage</div>
+        <div class="setting-description">All your data is stored locally on your device</div>
+      </div>
+      <div class="setting-control">
+        <span class="text-sm text-success">✅ Local Storage</span>
+      </div>
+    </div>
+    
+    <div class="setting-item">
+      <div class="setting-label">
+        <div class="setting-name">Export Data</div>
+        <div class="setting-description">Download all your data as JSON files</div>
+      </div>
+      <div class="setting-control">
+        <button type="button" class="btn btn-outline" id="export-data">Export</button>
+      </div>
+    </div>
+    
+    <div class="setting-item">
+      <div class="setting-label">
+        <div class="setting-name">Clear All Data</div>
+        <div class="setting-description">Permanently delete all your goals, habits, and notes</div>
+      </div>
+      <div class="setting-control">
+        <button type="button" class="btn btn-destructive" id="clear-all-data">Clear All</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notifications -->
+  <div class="settings-section">
+    <div class="settings-title">Notifications</div>
+    
+    <div class="setting-item">
+      <div class="setting-label">
+        <div class="setting-name">Daily Reminders</div>
+        <div class="setting-description">Get reminded to update your habits and reflections</div>
+      </div>
+      <div class="setting-control">
+        <label class="toggle-switch">
+          <input type="checkbox" class="toggle-input" id="daily-reminders-setting">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+    
+    <div class="setting-item">
+      <div class="setting-label">
+        <div class="setting-name">Goal Progress Alerts</div>
+        <div class="setting-description">Get notified about goal progress and deadlines</div>
+      </div>
+      <div class="setting-control">
+        <label class="toggle-switch">
+          <input type="checkbox" class="toggle-input" id="goal-alerts-setting">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- About -->
+  <div class="settings-section">
+    <div class="settings-title">About</div>
+    
+    <div class="setting-item">
+      <div class="setting-label">
+        <div class="setting-name">Version</div>
+        <div class="setting-description">Architect My Life</div>
+      </div>
+      <div class="setting-control">
+        <span class="text-sm text-muted-foreground">v1.0.0</span>
+      </div>
+    </div>
+    
+    <div class="setting-item">
+      <div class="setting-label">
+        <div class="setting-name">Technology Stack</div>
+        <div class="setting-description">Built with Node.js, Express, and vanilla JavaScript</div>
+      </div>
+      <div class="setting-control">
+        <span class="text-sm text-muted-foreground">Pure Web Stack</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Initialize settings page when DOM loads
+document.addEventListener('DOMContentLoaded', function() {
+  if (window.APP_CONFIG.currentPage === 'settings') {
+    setupSettingsPage();
+  }
+});
+
+function setupSettingsPage() {
+  loadCurrentSettings();
+  
+  // Theme toggle
+  document.getElementById('theme-toggle-setting').addEventListener('change', (e) => {
+    ThemeManager.setTheme(e.target.checked ? 'dark' : 'light');
+  });
+  
+  // Sidebar toggle
+  document.getElementById('sidebar-toggle-setting').addEventListener('change', (e) => {
+    window.AppState.sidebarVisible = e.target.checked;
+    localStorage.setItem('sidebar-visible', JSON.stringify(e.target.checked));
+    LayoutManager.updateLayout();
+  });
+  
+  // AI Chat toggle
+  document.getElementById('ai-chat-toggle-setting').addEventListener('change', (e) => {
+    window.AppState.aiChatVisible = e.target.checked;
+    localStorage.setItem('ai-chat-visible', JSON.stringify(e.target.checked));
+    LayoutManager.updateLayout();
+  });
+  
+  // Claude API key
+  document.getElementById('save-claude-key').addEventListener('click', saveClaudeApiKey);
+  
+  // Data export
+  document.getElementById('export-data').addEventListener('click', exportData);
+  
+  // Clear all data
+  document.getElementById('clear-all-data').addEventListener('click', clearAllData);
+  
+  // Other toggle settings
+  setupToggleSettings();
+}
+
+function loadCurrentSettings() {
+  // Load theme setting
+  const currentTheme = localStorage.getItem('theme') || 'light';
+  document.getElementById('theme-toggle-setting').checked = currentTheme === 'dark';
+  
+  // Load sidebar setting
+  const sidebarVisible = localStorage.getItem('sidebar-visible');
+  if (sidebarVisible !== null) {
+    document.getElementById('sidebar-toggle-setting').checked = JSON.parse(sidebarVisible);
+  }
+  
+  // Load AI chat setting
+  const aiChatVisible = localStorage.getItem('ai-chat-visible');
+  if (aiChatVisible !== null) {
+    document.getElementById('ai-chat-toggle-setting').checked = JSON.parse(aiChatVisible);
+  }
+  
+  // Load Claude API key (masked)
+  const claudeKey = localStorage.getItem('claude-api-key');
+  if (claudeKey) {
+    document.getElementById('claude-api-key').value = '•'.repeat(20);
+    document.getElementById('claude-api-key').dataset.hasKey = 'true';
+  }
+  
+  // Load other settings
+  loadToggleSettings();
+}
+
+function saveClaudeApiKey() {
+  const input = document.getElementById('claude-api-key');
+  const key = input.value.trim();
+  
+  if (!key || key === '•'.repeat(20)) {
+    Utils.showNotification('Please enter a valid API key', 'error');
+    return;
+  }
+  
+  localStorage.setItem('claude-api-key', key);
+  input.value = '•'.repeat(20);
+  input.dataset.hasKey = 'true';
+  
+  // Update AI chat status
+  if (window.AIChatComponent) {
+    AIChatComponent.updateChatStatus();
+  }
+  
+  Utils.showNotification('Claude API key saved successfully', 'success');
+}
+
+async function exportData() {
+  try {
+    const [goals, habits, wisdom, morningNotes, eveningReflections] = await Promise.all([
+      API.get('/goals'),
+      API.get('/habits'),
+      API.get('/wisdom'),
+      API.get('/morning-notes'),
+      API.get('/evening-reflections')
+    ]);
+    
+    const exportData = {
+      exportDate: new Date().toISOString(),
+      goals,
+      habits,
+      wisdom,
+      morningNotes,
+      eveningReflections
+    };
+    
+    const dataStr = JSON.stringify(exportData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(dataBlob);
+    link.download = `architect-my-life-export-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    
+    Utils.showNotification('Data exported successfully', 'success');
+  } catch (error) {
+    console.error('Export error:', error);
+    Utils.showNotification('Error exporting data', 'error');
+  }
+}
+
+function clearAllData() {
+  if (confirm('Are you sure you want to delete ALL your data? This action cannot be undone.')) {
+    if (confirm('This will permanently delete all your goals, habits, notes, and wisdom entries. Are you absolutely sure?')) {
+      // Clear localStorage
+      const keysToKeep = ['theme', 'sidebar-visible', 'ai-chat-visible', 'claude-api-key'];
+      const allKeys = Object.keys(localStorage);
+      
+      allKeys.forEach(key => {
+        if (!keysToKeep.includes(key)) {
+          localStorage.removeItem(key);
+        }
+      });
+      
+      Utils.showNotification('All data cleared successfully', 'success');
+      
+      // Reload page after a delay
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+    }
+  }
+}
+
+function setupToggleSettings() {
+  const toggleSettings = [
+    'ai-suggestions-setting',
+    'daily-reminders-setting', 
+    'goal-alerts-setting'
+  ];
+  
+  toggleSettings.forEach(settingId => {
+    const toggle = document.getElementById(settingId);
+    if (toggle) {
+      toggle.addEventListener('change', (e) => {
+        localStorage.setItem(settingId, e.target.checked);
+      });
+    }
+  });
+}
+
+function loadToggleSettings() {
+  const toggleSettings = [
+    'ai-suggestions-setting',
+    'daily-reminders-setting',
+    'goal-alerts-setting'
+  ];
+  
+  toggleSettings.forEach(settingId => {
+    const toggle = document.getElementById(settingId);
+    const saved = localStorage.getItem(settingId);
+    
+    if (toggle && saved !== null) {
+      toggle.checked = JSON.parse(saved);
+    }
+  });
+}
+
+// Handle API key input focus to clear masked value
+document.addEventListener('DOMContentLoaded', function() {
+  const apiKeyInput = document.getElementById('claude-api-key');
+  if (apiKeyInput) {
+    apiKeyInput.addEventListener('focus', function() {
+      if (this.dataset.hasKey === 'true' && this.value === '•'.repeat(20)) {
+        this.value = '';
+      }
+    });
+  }
+});
+</script>

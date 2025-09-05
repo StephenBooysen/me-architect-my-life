@@ -1,0 +1,68 @@
+<nav class="sidebar-nav">
+    <div class="sidebar-brand">
+        <h1 class="brand-text">
+            <i class="brand-icon fi fi-rr-building"></i>
+            Architect My Life
+        </h1>
+    </div>
+    
+    <div class="nav-section">
+        <ul class="nav-list">
+            <li class="nav-item">
+                <a href="/dashboard" class="nav-link <%= currentPage === 'dashboard' ? 'active' : '' %>">
+                    <i class="nav-icon fi fi-rr-home"></i>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a href="/goals" class="nav-link <%= currentPage === 'goals' ? 'active' : '' %>">
+                    <i class="nav-icon fi fi-rr-target"></i>
+                    <span class="nav-text">Goals</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a href="/focus-areas" class="nav-link <%= currentPage === 'focus-areas' ? 'active' : '' %>">
+                    <i class="nav-icon fi fi-rr-eye"></i>
+                    <span class="nav-text">Focus Areas</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a href="/habits" class="nav-link <%= currentPage === 'habits' ? 'active' : '' %>">
+                    <i class="nav-icon fi fi-rr-apps"></i>
+                    <span class="nav-text">Habits</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a href="/reflection" class="nav-link <%= currentPage === 'reflection' ? 'active' : '' %>">
+                    <i class="nav-icon fi fi-rr-journal"></i>
+                    <span class="nav-text">Reflection</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a href="/wisdom" class="nav-link <%= currentPage === 'wisdom' ? 'active' : '' %>">
+                    <i class="nav-icon fi fi-rr-book"></i>
+                    <span class="nav-text">Wisdom Library</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a href="/ai-guide" class="nav-link <%= currentPage === 'ai-guide' ? 'active' : '' %>">
+                    <i class="nav-icon fi fi-rr-brain"></i>
+                    <span class="nav-text">AI Guide</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="sidebar-footer">
+        <a href="/settings" class="nav-link <%= currentPage === 'settings' ? 'active' : '' %>">
+            <i class="nav-icon fi fi-rr-settings"></i>
+            <span class="nav-text">Settings</span>
+        </a>
+    </div>
+</nav>

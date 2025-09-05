@@ -1,0 +1,242 @@
+<div class="dashboard-container">
+  <!-- Loading state -->
+  <div id="loading-state" class="flex items-center justify-center" style="height: 200px;">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Dashboard content -->
+  <div id="dashboard-content" class="hidden">
+    <!-- Welcome Header -->
+    <div class="card welcome-card">
+      <div class="card-content p-6">
+        <div class="flex items-center justify-between">
+          <div class="flex-1">
+            <h1 class="text-3xl font-bold text-foreground mb-2">
+              Good Morning! 🌟
+            </h1>
+            <p class="text-lg text-muted-foreground">
+              Ready to architect another amazing day?
+            </p>
+          </div>
+          <div class="card bg-background shadow-lg">
+            <div class="card-content p-6 text-center">
+              <div class="text-3xl font-bold text-primary mb-1" id="completion-percentage">
+                0%
+              </div>
+              <div class="text-sm text-muted-foreground">Today's Progress</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-sections">
+      <!-- Today's Focus -->
+      <div class="card">
+        <div class="card-header">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <div class="bg-primary/20 p-2 rounded-md mr-3">
+                <svg class="w-6 h-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <circle cx="12" cy="12" r="6"/>
+                  <circle cx="12" cy="12" r="2"/>
+                </svg>
+              </div>
+              <h3 class="card-title">Today's Focus</h3>
+            </div>
+            <button class="btn btn-sm btn-primary">
+              <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M12 5v14"/>
+              </svg>
+              Add Goal
+            </button>
+          </div>
+        </div>
+        <div class="card-content">
+          <div id="todays-focus" class="space-y-4">
+            <!-- Goals will be loaded here -->
+          </div>
+          <div id="no-focus-goals" class="text-center py-12 hidden">
+            <svg class="w-16 h-16 text-muted-foreground/40 mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <circle cx="12" cy="12" r="6"/>
+              <circle cx="12" cy="12" r="2"/>
+            </svg>
+            <p class="text-muted-foreground mb-4">
+              No goals set for this week yet.
+            </p>
+            <button class="btn btn-primary">
+              Set Weekly Goals
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mood Summary -->
+      <div class="card">
+        <div class="card-header">
+          <div class="flex items-center">
+            <div class="bg-success/20 p-2 rounded-md mr-3">
+              <svg class="w-6 h-6 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                <line x1="9" x2="9.01" y1="9" y2="9"/>
+                <line x1="15" x2="15.01" y1="9" y2="9"/>
+              </svg>
+            </div>
+            <h3 class="card-title">This Week's Mood</h3>
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="grid grid-cols-7 gap-2" id="mood-summary">
+            <!-- Mood data will be loaded here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Habits Tracker -->
+      <div class="card">
+        <div class="card-header">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <div class="bg-warning/20 p-2 rounded-md mr-3">
+                <svg class="w-6 h-6 text-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2z"/>
+                  <path d="M19 11h-4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2z"/>
+                  <path d="M13 3h-2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/>
+                </svg>
+              </div>
+              <h3 class="card-title">Today's Habits</h3>
+            </div>
+            <div class="flex items-center space-x-3">
+              <span class="text-sm text-muted-foreground font-medium" id="habits-progress">
+                0/0
+              </span>
+              <button class="btn btn-secondary btn-sm">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M5 12h14M12 5v14"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="card-content">
+          <div id="habits-list" class="space-y-3">
+            <!-- Habits will be loaded here -->
+          </div>
+          <div id="no-habits" class="text-center py-12 hidden">
+            <svg class="w-16 h-16 text-muted-foreground/40 mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2z"/>
+              <path d="M19 11h-4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2z"/>
+              <path d="M13 3h-2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/>
+            </svg>
+            <p class="text-muted-foreground mb-4">No habits tracked yet.</p>
+            <button class="btn btn-primary">
+              Add Your First Habit
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Goal Progress Overview -->
+      <div class="card">
+        <div class="card-header">
+          <div class="flex items-center">
+            <div class="bg-primary/20 p-2 rounded-md mr-3">
+              <svg class="w-6 h-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/>
+              </svg>
+            </div>
+            <h3 class="card-title">Goal Progress</h3>
+          </div>
+        </div>
+        <div class="card-content">
+          <div id="goal-progress" class="space-y-4">
+            <!-- Goals will be loaded here -->
+          </div>
+          <div id="no-goals" class="text-center py-12 hidden">
+            <svg class="w-16 h-16 text-muted-foreground/40 mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/>
+            </svg>
+            <p class="text-muted-foreground mb-4">No annual goals set yet.</p>
+            <button class="btn btn-primary">
+              Set Annual Goals
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Daily Wisdom -->
+      <div class="card">
+        <div class="card-header">
+          <div class="flex items-center">
+            <div class="bg-warning/20 p-2 rounded-md mr-3">
+              <svg class="w-6 h-6 text-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/>
+                <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>
+              </svg>
+            </div>
+            <h3 class="card-title">Daily Inspiration</h3>
+          </div>
+        </div>
+        <div class="card-content">
+          <div id="daily-wisdom">
+            <!-- Wisdom will be loaded here -->
+          </div>
+          <div id="no-wisdom" class="text-center py-12 hidden">
+            <svg class="w-16 h-16 text-muted-foreground/40 mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/>
+              <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>
+            </svg>
+            <p class="text-muted-foreground mb-4">No wisdom quotes yet.</p>
+            <button class="btn btn-primary">
+              Add Inspiration
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Today's Summary -->
+      <div class="card">
+        <div class="card-header">
+          <div class="flex items-center">
+            <div class="bg-primary/20 p-2 rounded-md mr-3">
+              <svg class="w-6 h-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/>
+              </svg>
+            </div>
+            <h3 class="card-title">Today's Summary</h3>
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="grid grid-cols-2 gap-4" id="summary-stats">
+            <div class="stat-card">
+              <span class="stat-number" id="focus-count">0</span>
+              <span class="stat-label">Focus Goals</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number" id="habits-done">0</span>
+              <span class="stat-label">Habits Done</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number" id="active-goals">0</span>
+              <span class="stat-label">Active Goals</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number" id="day-of-month">0</span>
+              <span class="stat-label">Day of Month</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Initialize dashboard when page loads
+document.addEventListener('DOMContentLoaded', function() {
+  loadDashboardData();
+});
+</script>

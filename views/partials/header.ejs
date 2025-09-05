@@ -1,0 +1,52 @@
+<div class="header-container">
+    <!-- Left side - Toggle buttons and branding -->
+    <div class="header-left">
+        <button id="toggle-sidebar" class="header-btn toggle-btn" title="Toggle Sidebar">
+            <i class="icon fi fi-rr-menu-burger"></i>
+        </button>
+        
+        <div class="header-date" id="current-date">
+            <!-- Will be populated by JavaScript -->
+        </div>
+    </div>
+    
+    <!-- Center - Search -->
+    <div class="header-center">
+        <div class="search-container" id="search-container">
+            <input 
+                type="text" 
+                class="search-input" 
+                id="search-input" 
+                placeholder="Search goals, habits, notes..."
+                autocomplete="off"
+            >
+            <i class="search-icon fi fi-rr-search"></i>
+            
+            <!-- Search dropdown -->
+            <div class="search-dropdown" id="search-dropdown">
+                <div class="search-results" id="search-results">
+                    <!-- Search results will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right side - Theme toggle, notifications, AI chat toggle -->
+    <div class="header-right">
+        <!-- Theme toggle -->
+        <button id="theme-toggle" class="header-btn theme-btn" title="Toggle theme">
+            <i class="icon theme-light fi fi-rr-sun"></i>
+            <i class="icon theme-dark fi fi-rr-moon"></i>
+        </button>
+        
+        <!-- Notifications -->
+        <button id="notifications" class="header-btn notification-btn" title="Notifications">
+            <i class="icon fi fi-rr-bell"></i>
+        </button>
+        
+        <!-- AI Chat toggle -->
+        <button id="toggle-ai-chat" class="header-btn toggle-btn" title="Toggle AI Chat">
+            <i class="icon fi fi-rr-comment"></i>
+        </button>
+    </div>
+</div>

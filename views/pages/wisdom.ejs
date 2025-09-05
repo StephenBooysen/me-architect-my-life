@@ -1,0 +1,442 @@
+<!-- Wisdom Library Page -->
+<div class="bg-gray-50 min-h-screen">
+  <!-- Header Section -->
+  <div class="bg-white p-6 border-b border-gray-200">
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-3">
+        <h1 class="text-2xl font-bold text-gray-900">Wisdom Library 📚</h1>
+      </div>
+      <button id="add-wisdom-btn" class="bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors flex items-center gap-2">
+        + Add Wisdom
+      </button>
+    </div>
+    
+    <p class="text-gray-600 mb-6">Collect and organize inspirational quotes and wisdom</p>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-4 gap-4 mb-6">
+      <!-- Total Items -->
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+            <svg class="w-4 h-4 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14,2 14,8 20,8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10,9 9,9 8,9"/>
+            </svg>
+          </div>
+          <div>
+            <div class="text-sm text-gray-600">Total Items</div>
+            <div id="total-items" class="text-2xl font-bold text-gray-900">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Favorites -->
+      <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+            <svg class="w-4 h-4 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="text-sm text-gray-600">Favorites</div>
+            <div id="favorite-count" class="text-2xl font-bold text-gray-900">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Categories -->
+      <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+            <svg class="w-4 h-4 text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+            </svg>
+          </div>
+          <div>
+            <div class="text-sm text-gray-600">Categories</div>
+            <div id="category-count" class="text-2xl font-bold text-gray-900">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Authors -->
+      <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+            <svg class="w-4 h-4 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <div>
+            <div class="text-sm text-gray-600">Authors</div>
+            <div id="author-count" class="text-2xl font-bold text-gray-900">0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading state -->
+  <div id="loading-state" class="flex items-center justify-center py-8 hidden">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Main Content -->
+  <div id="wisdom-content" class="p-6">
+    <!-- Wisdom Cards Grid -->
+    <div id="wisdom-grid" class="grid grid-cols-2 gap-6">
+      <!-- Wisdom cards will be loaded here -->
+    </div>
+
+    <!-- No Wisdom Message -->
+    <div id="no-wisdom" class="text-center py-12 text-gray-500 hidden">
+      <div class="mb-4">
+        <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14,2 14,8 20,8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
+        <p class="text-lg font-medium text-gray-900 mb-2">No wisdom entries yet</p>
+        <p class="text-gray-500 mb-6">Start building your wisdom library by adding your first entry</p>
+      </div>
+      <button id="create-first-wisdom" class="bg-green-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-600 transition-colors">
+        Create your first wisdom entry
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Wisdom Creation/Edit Form (Full Page) -->
+<div id="wisdom-form-page" class="bg-gray-50 min-h-screen hidden">
+  <!-- Header -->
+  <div class="bg-white border-b border-gray-200 px-6 py-4">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 id="form-page-title" class="text-2xl font-bold text-gray-900">Add New Wisdom ✨</h1>
+        <p class="text-gray-600 mt-1">Capture insights, quotes, and wisdom</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="cancel-wisdom" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2">
+          ✕ Cancel
+        </button>
+        <button id="save-wisdom" class="px-4 py-2 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600 transition-colors flex items-center gap-2">
+          💾 Save
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Content -->
+  <div class="max-w-4xl mx-auto p-6">
+    <form id="wisdom-form" class="space-y-6">
+      <!-- Wisdom Content Editor -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <svg class="w-4 h-4 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14,2 14,8 20,8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+          <label class="text-sm font-semibold text-gray-700">Wisdom Content</label>
+          <span class="text-red-500">*</span>
+        </div>
+        
+        <!-- Rich Text Editor Container -->
+        <div class="bg-white border border-gray-300 rounded-lg overflow-hidden shadow-sm">
+          <!-- Toolbar -->
+          <div class="border-b border-gray-200 px-4 py-3 bg-gray-50">
+            <div class="flex items-center gap-1">
+              <!-- Text Formatting -->
+              <button type="button" class="toolbar-btn" data-action="bold" title="Bold">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/>
+                  <path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/>
+                </svg>
+              </button>
+              <button type="button" class="toolbar-btn" data-action="italic" title="Italic">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="19" y1="4" x2="10" y2="4"/>
+                  <line x1="14" y1="20" x2="5" y2="20"/>
+                  <line x1="15" y1="4" x2="9" y2="20"/>
+                </svg>
+              </button>
+              <button type="button" class="toolbar-btn" data-action="underline" title="Underline">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 4v7a6 6 0 0 0 12 0V4"/>
+                  <line x1="4" y1="20" x2="20" y2="20"/>
+                </svg>
+              </button>
+              
+              <div class="w-px h-6 bg-gray-300 mx-2"></div>
+              
+              <!-- Lists -->
+              <button type="button" class="toolbar-btn" data-action="unordered-list" title="Bullet List">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="8" y1="6" x2="21" y2="6"/>
+                  <line x1="8" y1="12" x2="21" y2="12"/>
+                  <line x1="8" y1="18" x2="21" y2="18"/>
+                  <line x1="3" y1="6" x2="3.01" y2="6"/>
+                  <line x1="3" y1="12" x2="3.01" y2="12"/>
+                  <line x1="3" y1="18" x2="3.01" y2="18"/>
+                </svg>
+              </button>
+              <button type="button" class="toolbar-btn" data-action="ordered-list" title="Numbered List">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="10" y1="6" x2="21" y2="6"/>
+                  <line x1="10" y1="12" x2="21" y2="12"/>
+                  <line x1="10" y1="18" x2="21" y2="18"/>
+                  <path d="M4 6h1v4"/>
+                  <path d="M4 10h2"/>
+                  <path d="M6 18H4c0-1 2-2 2-3s-1-1.5-1-1.5"/>
+                </svg>
+              </button>
+              
+              <div class="w-px h-6 bg-gray-300 mx-2"></div>
+              
+              <!-- Quote -->
+              <button type="button" class="toolbar-btn" data-action="quote" title="Quote">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/>
+                </svg>
+              </button>
+              
+              <!-- Code -->
+              <button type="button" class="toolbar-btn" data-action="code" title="Code">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="16,18 22,12 16,6"/>
+                  <polyline points="8,6 2,12 8,18"/>
+                </svg>
+              </button>
+              
+              <div class="w-px h-6 bg-gray-300 mx-2"></div>
+              
+              <!-- Link -->
+              <button type="button" class="toolbar-btn" data-action="link" title="Link">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                </svg>
+              </button>
+              
+              <!-- Image -->
+              <button type="button" class="toolbar-btn" data-action="image" title="Image">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <circle cx="9" cy="9" r="2"/>
+                  <path d="M21 15l-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                </svg>
+              </button>
+              
+              <div class="flex-1"></div>
+              
+              <!-- Preview Toggle -->
+              <button type="button" class="toolbar-btn" id="preview-toggle" title="Preview">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+              
+              <!-- Fullscreen -->
+              <button type="button" class="toolbar-btn" id="fullscreen-toggle" title="Fullscreen">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Editor Area -->
+          <div class="relative">
+            <textarea id="wisdom-content" class="w-full h-80 p-4 border-0 resize-none focus:outline-none text-gray-800 leading-relaxed" placeholder="Start writing your wisdom content here...
+
+You can use markdown formatting:
+- **Bold text**
+- *Italic text*
+- > Blockquotes
+- - Lists
+- Links and more..." required></textarea>
+            <div id="markdown-preview" class="w-full h-80 p-4 bg-white overflow-y-auto prose max-w-none hidden"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Fields Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Author -->
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <svg class="w-4 h-4 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <label for="wisdom-author" class="text-sm font-semibold text-gray-700">Author</label>
+          </div>
+          <input type="text" id="wisdom-author" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white" placeholder="Who said this?">
+        </div>
+
+        <!-- Source -->
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <svg class="w-4 h-4 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+            <label for="wisdom-source" class="text-sm font-semibold text-gray-700">Source</label>
+          </div>
+          <input type="text" id="wisdom-source" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white" placeholder="Book, article, speech, etc.">
+        </div>
+
+        <!-- Category -->
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <svg class="w-4 h-4 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+            </svg>
+            <label for="wisdom-category" class="text-sm font-semibold text-gray-700">Category</label>
+          </div>
+          <input type="text" id="wisdom-category" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white" placeholder="Life, Business, Philosophy, etc.">
+        </div>
+
+        <!-- Tags -->
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <svg class="w-4 h-4 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+              <line x1="7" y1="7" x2="7.01" y2="7"/>
+            </svg>
+            <label for="wisdom-tags" class="text-sm font-semibold text-gray-700">Tags</label>
+          </div>
+          <input type="text" id="wisdom-tags" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white" placeholder="motivation, success, growth (comma separated)">
+        </div>
+      </div>
+
+      <!-- Personal Notes -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <svg class="w-4 h-4 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+            <polyline points="14,2 14,8 20,8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+            <polyline points="10,9 9,9 8,9"/>
+          </svg>
+          <label for="wisdom-notes" class="text-sm font-semibold text-gray-700">Personal Notes</label>
+        </div>
+        <textarea id="wisdom-notes" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white" rows="4" placeholder="Why is this meaningful to you? How does it apply to your life?"></textarea>
+        <div class="flex items-center justify-end mt-2">
+          <span class="text-xs text-gray-400" id="notes-char-count">0 characters</span>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+/* Ensure buttons are properly styled and clickable */
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+.toolbar-btn {
+  padding: 8px;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.toolbar-btn:hover {
+  background-color: #f3f4f6;
+}
+
+.toolbar-btn.bg-blue-100 {
+  background-color: #dbeafe !important;
+}
+
+.toolbar-btn.text-blue-600 {
+  color: #2563eb !important;
+}
+
+/* Ensure action buttons on cards are clickable */
+[onclick] {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+
+/* Spinner styles */
+.spinner {
+  border: 2px solid #f3f4f6;
+  border-top: 2px solid #3b82f6;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Make sure form elements are properly styled */
+input, textarea {
+  font-family: inherit;
+}
+
+/* Hidden class */
+.hidden {
+  display: none !important;
+}
+</style>
+
+<script>
+// Initialize wisdom page when DOM loads
+document.addEventListener('DOMContentLoaded', function() {
+  if (window.APP_CONFIG.currentPage === 'wisdom') {
+    console.log('Wisdom page loading...');
+    
+    // Ensure WisdomComponent is available
+    if (window.WisdomComponent) {
+      console.log('WisdomComponent found, initializing...');
+      window.WisdomComponent.init();
+    } else {
+      console.log('WisdomComponent not found, waiting...');
+      // Wait for components to load
+      setTimeout(() => {
+        if (window.WisdomComponent) {
+          console.log('WisdomComponent found after timeout, initializing...');
+          window.WisdomComponent.init();
+        } else {
+          console.error('WisdomComponent still not found after timeout');
+        }
+      }, 500);
+    }
+  }
+});
+
+// Add click event debugging
+document.addEventListener('click', function(e) {
+  console.log('Clicked element:', e.target);
+  console.log('Has onclick:', e.target.hasAttribute('onclick'));
+  if (e.target.hasAttribute('onclick')) {
+    console.log('Onclick attribute:', e.target.getAttribute('onclick'));
+  }
+});
+</script>

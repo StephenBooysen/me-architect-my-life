@@ -1,0 +1,117 @@
+<div class="goals-container">
+  <!-- Loading state -->
+  <div id="loading-state" class="flex items-center justify-center" style="height: 200px;">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Goals content -->
+  <div id="goals-content" class="hidden">
+    <!-- Goals Header -->
+    <div class="goals-header">
+      <div>
+        <h1 class="text-3xl font-bold text-foreground mb-2">Goals</h1>
+        <p class="text-lg text-muted-foreground">Set and track your annual, monthly, and weekly goals</p>
+      </div>
+      <button class="btn btn-primary" id="add-goal-btn">
+        <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5v14"/>
+        </svg>
+        Add Goal
+      </button>
+    </div>
+
+    <!-- Goal Tabs -->
+    <div class="goals-tabs">
+      <button class="goal-tab active" data-type="annual">Annual Goals</button>
+      <button class="goal-tab" data-type="monthly">Monthly Goals</button>
+      <button class="goal-tab" data-type="weekly">Weekly Goals</button>
+    </div>
+
+    <!-- Goals List -->
+    <div id="goals-list" class="goal-list">
+      <!-- Goals will be loaded here -->
+    </div>
+
+    <!-- No Goals Message -->
+    <div id="no-goals" class="text-center py-12 hidden">
+      <svg class="w-16 h-16 text-muted-foreground/40 mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <circle cx="12" cy="12" r="6"/>
+        <circle cx="12" cy="12" r="2"/>
+      </svg>
+      <p class="text-muted-foreground mb-4">No goals found for this category.</p>
+      <button class="btn btn-primary" id="create-first-goal">
+        Create Your First Goal
+      </button>
+    </div>
+  </div>
+
+  <!-- Goal Modal -->
+  <div id="goal-modal" class="modal hidden">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-title">Add New Goal</h3>
+        <button class="modal-close" id="close-modal">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6 6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <form id="goal-form" class="modal-body">
+        <div class="form-group">
+          <label for="goal-type" class="form-label">Goal Type</label>
+          <select id="goal-type" class="form-select">
+            <option value="annual">Annual Goal</option>
+            <option value="monthly">Monthly Goal</option>
+            <option value="weekly">Weekly Goal</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="goal-title" class="form-label">Title</label>
+          <input type="text" id="goal-title" class="form-input" placeholder="Enter goal title" required>
+        </div>
+
+        <div class="form-group">
+          <label for="goal-description" class="form-label">Description</label>
+          <textarea id="goal-description" class="form-textarea" placeholder="Describe your goal in detail"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="goal-priority" class="form-label">Priority</label>
+          <select id="goal-priority" class="form-select">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="goal-success-criteria" class="form-label">Success Criteria</label>
+          <textarea id="goal-success-criteria" class="form-textarea" placeholder="How will you measure success?"></textarea>
+        </div>
+
+        <div class="form-group" id="target-date-group">
+          <label for="goal-target-date" class="form-label">Target Date</label>
+          <input type="date" id="goal-target-date" class="form-input">
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancel-goal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="save-goal">Save Goal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// Initialize goals page when DOM loads
+document.addEventListener('DOMContentLoaded', function() {
+  if (window.APP_CONFIG.currentPage === 'goals') {
+    loadGoalsData();
+    setupGoalsPage();
+  }
+});
+</script>

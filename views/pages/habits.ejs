@@ -1,0 +1,102 @@
+<div class="habits-container">
+  <!-- Loading state -->
+  <div id="loading-state" class="flex items-center justify-center" style="height: 200px;">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Habits content -->
+  <div id="habits-content" class="hidden">
+    <!-- Habits Header -->
+    <div class="habits-header">
+      <div>
+        <h1 class="text-3xl font-bold text-foreground mb-2">Habits</h1>
+        <p class="text-lg text-muted-foreground">Build consistency with daily habit tracking</p>
+      </div>
+      <button class="btn btn-primary" id="add-habit-btn">
+        <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5v14"/>
+        </svg>
+        Add Habit
+      </button>
+    </div>
+
+    <!-- Habits Grid -->
+    <div id="habits-grid" class="habit-grid">
+      <!-- Habits will be loaded here -->
+    </div>
+
+    <!-- No Habits Message -->
+    <div id="no-habits" class="text-center py-12 hidden">
+      <svg class="w-16 h-16 text-muted-foreground/40 mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2z"/>
+        <path d="M19 11h-4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2z"/>
+        <path d="M13 3h-2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/>
+      </svg>
+      <p class="text-muted-foreground mb-4">No habits found. Start building your routine!</p>
+      <button class="btn btn-primary" id="create-first-habit">
+        Create Your First Habit
+      </button>
+    </div>
+  </div>
+
+  <!-- Habit Modal -->
+  <div id="habit-modal" class="modal hidden">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-title">Add New Habit</h3>
+        <button class="modal-close" id="close-modal">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6 6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <form id="habit-form" class="modal-body">
+        <div class="form-group">
+          <label for="habit-name" class="form-label">Habit Name</label>
+          <input type="text" id="habit-name" class="form-input" placeholder="Enter habit name" required>
+        </div>
+
+        <div class="form-group">
+          <label for="habit-description" class="form-label">Description</label>
+          <textarea id="habit-description" class="form-textarea" placeholder="Describe your habit"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="habit-category" class="form-label">Category</label>
+          <input type="text" id="habit-category" class="form-input" placeholder="e.g., Health, Productivity">
+        </div>
+
+        <div class="form-group">
+          <label for="habit-frequency" class="form-label">Frequency</label>
+          <select id="habit-frequency" class="form-select">
+            <option value="daily">Daily</option>
+            <option value="weekdays">Weekdays Only</option>
+            <option value="weekends">Weekends Only</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="habit-target-streak" class="form-label">Target Streak (days)</label>
+          <input type="number" id="habit-target-streak" class="form-input" min="1" value="30">
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancel-habit">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="save-habit">Save Habit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// Initialize habits page when DOM loads
+document.addEventListener('DOMContentLoaded', function() {
+  if (window.APP_CONFIG.currentPage === 'habits') {
+    loadHabitsData();
+    setupHabitsPage();
+  }
+});
+</script>
