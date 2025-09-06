@@ -27,52 +27,98 @@
       </div>
     </div>
 
-    <!-- Summary Stats -->
-    <div class="focus-summary-cards">
-      <div class="summary-card">
-        <div class="summary-icon">
-          <i class="fi fi-rr-crosshairs"></i>
+    <!-- Focus Areas Tabs -->
+    <div class="goals-tabs">
+      <button class="goal-tab active" data-type="calendar">Calendar</button>
+      <button class="goal-tab" data-type="focus-areas">Focus Areas</button>
+    </div>
+
+    <!-- Calendar Tab Content -->
+    <div id="calendar-content" class="tab-content">
+      <!-- Summary Stats -->
+      <div class="focus-summary-cards">
+        <div class="summary-card">
+          <div class="summary-icon">
+            <i class="fi fi-rr-crosshairs"></i>
+          </div>
+          <div class="summary-content">
+            <div class="summary-title">Focus Areas</div>
+            <div class="summary-value" id="total-focus-areas">0</div>
+          </div>
         </div>
-        <div class="summary-content">
-          <div class="summary-title">Focus Areas</div>
-          <div class="summary-value" id="total-focus-areas">0</div>
+        
+        <div class="summary-card">
+          <div class="summary-icon">
+            <i class="fi fi-rr-star"></i>
+          </div>
+          <div class="summary-content">
+            <div class="summary-title">Assigned Months</div>
+            <div class="summary-value" id="assigned-months">0</div>
+          </div>
+        </div>
+        
+        <div class="summary-card">
+          <div class="summary-icon">
+            <i class="fi fi-rr-check-circle"></i>
+          </div>
+          <div class="summary-content">
+            <div class="summary-title">Goals Assigned</div>
+            <div class="summary-value" id="goals-assigned">0</div>
+          </div>
+        </div>
+        
+        <div class="summary-card">
+          <div class="summary-icon">
+            <i class="fi fi-rr-trending-up"></i>
+          </div>
+          <div class="summary-content">
+            <div class="summary-title">Avg Progress</div>
+            <div class="summary-value" id="avg-progress">0%</div>
+          </div>
         </div>
       </div>
-      
-      <div class="summary-card">
-        <div class="summary-icon">
-          <i class="fi fi-rr-star"></i>
-        </div>
-        <div class="summary-content">
-          <div class="summary-title">Assigned Months</div>
-          <div class="summary-value" id="assigned-months">0</div>
-        </div>
-      </div>
-      
-      <div class="summary-card">
-        <div class="summary-icon">
-          <i class="fi fi-rr-check-circle"></i>
-        </div>
-        <div class="summary-content">
-          <div class="summary-title">Goals Assigned</div>
-          <div class="summary-value" id="goals-assigned">0</div>
-        </div>
-      </div>
-      
-      <div class="summary-card">
-        <div class="summary-icon">
-          <i class="fi fi-rr-trending-up"></i>
-        </div>
-        <div class="summary-content">
-          <div class="summary-title">Avg Progress</div>
-          <div class="summary-value" id="avg-progress">0%</div>
-        </div>
+
+      <!-- Monthly Focus Areas Grid -->
+      <div class="monthly-grid" id="monthly-grid">
+        <!-- Monthly focus area cards will be populated here -->
       </div>
     </div>
 
-    <!-- Monthly Focus Areas Grid -->
-    <div class="monthly-grid" id="monthly-grid">
-      <!-- Monthly focus area cards will be populated here -->
+    <!-- Focus Areas Tab Content -->
+    <div id="focus-areas-content-tab" class="tab-content hidden">
+      <div class="focus-areas-header">
+        <div>
+          <h2 class="text-2xl font-bold text-foreground mb-2">Manage Focus Areas</h2>
+          <p class="text-lg text-muted-foreground">Add, edit, or remove your focus areas</p>
+        </div>
+        <button class="btn btn-primary" id="add-focus-area-btn">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
+            <path d="M5 12h14M12 5v14"/>
+          </svg>
+          Add Focus Area
+        </button>
+      </div>
+
+      <!-- Focus Areas List -->
+      <div id="focus-areas-list" class="focus-areas-list">
+        <!-- Focus areas will be loaded here -->
+      </div>
+
+      <!-- No Focus Areas Message -->
+      <div id="no-focus-areas" class="text-center py-12 hidden">
+        <svg class="w-16 h-16 text-muted-foreground/40 mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <circle cx="12" cy="12" r="6"/>
+          <circle cx="12" cy="12" r="2"/>
+        </svg>
+        <p class="text-muted-foreground mb-4">No focus areas found.</p>
+        <button class="btn btn-primary" id="create-first-focus-area">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
+            <path d="M5 12h14M12 5v14"/>
+          </svg>
+          Create Your First Focus Area
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -148,6 +194,9 @@ async function initializeFocusAreasPage() {
       yearSelect.addEventListener('change', handleYearChange);
     }
 
+    // Setup tab functionality
+    setupFocusAreasTabs();
+
     // Load data
     await loadFocusAreasData();
     console.log('Focus areas page initialized successfully');
@@ -156,6 +205,46 @@ async function initializeFocusAreasPage() {
     if (window.Utils && Utils.showNotification) {
       Utils.showNotification('Error loading focus areas page', 'error');
     }
+  }
+}
+
+// Tab management functions
+function setupFocusAreasTabs() {
+  const tabButtons = document.querySelectorAll('.goal-tab');
+  
+  tabButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const tabType = this.dataset.type;
+      switchFocusAreasTab(tabType);
+    });
+  });
+
+  // Setup focus areas management buttons
+  const addFocusAreaBtn = document.getElementById('add-focus-area-btn');
+  const createFirstFocusAreaBtn = document.getElementById('create-first-focus-area');
+  
+  if (addFocusAreaBtn) {
+    addFocusAreaBtn.addEventListener('click', () => showFocusAreaForm());
+  }
+  
+  if (createFirstFocusAreaBtn) {
+    createFirstFocusAreaBtn.addEventListener('click', () => showFocusAreaForm());
+  }
+}
+
+function switchFocusAreasTab(type) {
+  // Update tab buttons
+  document.querySelectorAll('.goal-tab').forEach(tab => {
+    tab.classList.toggle('active', tab.dataset.type === type);
+  });
+
+  // Update tab content
+  document.getElementById('calendar-content').classList.toggle('hidden', type !== 'calendar');
+  document.getElementById('focus-areas-content-tab').classList.toggle('hidden', type !== 'focus-areas');
+
+  // Load content for the active tab
+  if (type === 'focus-areas') {
+    renderFocusAreasList();
   }
 }
 
@@ -487,5 +576,265 @@ function updateSummaryStats() {
   
   // Focus areas count is static (from server)
   document.getElementById('total-focus-areas').textContent = focusAreasData.length;
+}
+
+// Focus Areas management functions
+function renderFocusAreasList() {
+  const list = document.getElementById('focus-areas-list');
+  const noFocusAreas = document.getElementById('no-focus-areas');
+
+  if (focusAreasData.length === 0) {
+    if (list) list.innerHTML = '';
+    if (noFocusAreas) noFocusAreas.classList.remove('hidden');
+  } else {
+    if (noFocusAreas) noFocusAreas.classList.add('hidden');
+    
+    if (list) {
+      list.innerHTML = focusAreasData.map(area => `
+        <div class="focus-area-item" id="focus-area-${area.id}">
+          <div class="focus-area-display" id="focus-area-display-${area.id}">
+            <div class="focus-area-content">
+              <h3 class="focus-area-name">${area.name}</h3>
+              <p class="focus-area-category">${area.category}</p>
+              <div class="focus-area-meta">
+                <span class="focus-area-status ${area.is_active ? 'active' : 'inactive'}">
+                  ${area.is_active ? 'Active' : 'Inactive'}
+                </span>
+                <span class="focus-area-date">Created: ${new Date(area.created_at).toLocaleDateString()}</span>
+              </div>
+            </div>
+            <div class="focus-area-actions">
+              <button class="btn btn-secondary btn-sm" onclick="editFocusArea(${area.id})">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+                Edit
+              </button>
+              <button class="btn btn-danger btn-sm" onclick="deleteFocusArea(${area.id}, '${area.name}')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3,6 5,6 21,6"/>
+                  <path d="m19,6v14a2 2 0 0 1-2,2H7a2 2 0 0 1-2-2V6m3,0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+                Delete
+              </button>
+            </div>
+          </div>
+
+          <div class="focus-area-edit-form hidden" id="focus-area-edit-${area.id}">
+            <form onsubmit="saveFocusArea(event, ${area.id})">
+              <div class="form-group mb-4">
+                <label class="form-label">Focus Area Name</label>
+                <input type="text" name="name" class="form-input" value="${area.name}" required>
+              </div>
+              
+              <div class="form-group mb-4">
+                <label class="form-label">Category</label>
+                <input type="text" name="category" class="form-input" value="${area.category}" required>
+              </div>
+              
+              <div class="form-group mb-4">
+                <label class="form-label">Status</label>
+                <select name="is_active" class="form-select">
+                  <option value="1" ${area.is_active ? 'selected' : ''}>Active</option>
+                  <option value="0" ${!area.is_active ? 'selected' : ''}>Inactive</option>
+                </select>
+              </div>
+
+              <div class="focus-area-edit-actions">
+                <button type="button" class="btn btn-secondary" onclick="cancelEditFocusArea(${area.id})">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6 6 18M6 6l12 12"/>
+                  </svg>
+                  Cancel
+                </button>
+                <button type="submit" class="btn btn-primary">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                    <polyline points="17,21 17,13 7,13 7,21"/>
+                    <polyline points="7,3 7,8 15,8"/>
+                  </svg>
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+}
+
+function showFocusAreaForm(focusAreaData = null) {
+  const isEdit = !!focusAreaData;
+  const title = isEdit ? 'Edit Focus Area' : 'Add New Focus Area';
+  const submitText = isEdit ? 'Update Focus Area' : 'Add Focus Area';
+  
+  // Create modal HTML
+  const modalHTML = `
+    <div id="focus-area-modal" class="modal">
+      <div class="modal-overlay"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">${title}</h3>
+          <button class="modal-close" onclick="closeFocusAreaModal()">
+            <svg class="icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 6 6 18M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        <form id="focus-area-form" class="modal-body" onsubmit="submitFocusAreaForm(event, ${isEdit ? focusAreaData.id : 'null'})">
+          <div class="form-group">
+            <label for="focus-area-name" class="form-label">Focus Area Name</label>
+            <input type="text" id="focus-area-name" name="name" class="form-input" 
+                   value="${isEdit ? focusAreaData.name : ''}" 
+                   placeholder="Enter focus area name" required>
+          </div>
+
+          <div class="form-group">
+            <label for="focus-area-category" class="form-label">Category</label>
+            <input type="text" id="focus-area-category" name="category" class="form-input" 
+                   value="${isEdit ? focusAreaData.category : ''}" 
+                   placeholder="Enter category" required>
+          </div>
+
+          <div class="form-group">
+            <label for="focus-area-status" class="form-label">Status</label>
+            <select id="focus-area-status" name="is_active" class="form-select">
+              <option value="1" ${!isEdit || focusAreaData.is_active ? 'selected' : ''}>Active</option>
+              <option value="0" ${isEdit && !focusAreaData.is_active ? 'selected' : ''}>Inactive</option>
+            </select>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeFocusAreaModal()">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 6 6 18M6 6l12 12"/>
+              </svg>
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                <polyline points="17,21 17,13 7,13 7,21"/>
+                <polyline points="7,3 7,8 15,8"/>
+              </svg>
+              ${submitText}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+
+  // Add modal to page
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+function closeFocusAreaModal() {
+  const modal = document.getElementById('focus-area-modal');
+  if (modal) {
+    modal.remove();
+  }
+}
+
+async function submitFocusAreaForm(e, focusAreaId) {
+  e.preventDefault();
+  
+  try {
+    const form = e.target;
+    const formData = new FormData(form);
+    
+    const focusAreaData = {
+      name: formData.get('name'),
+      category: formData.get('category'),
+      is_active: parseInt(formData.get('is_active'))
+    };
+
+    if (focusAreaId) {
+      // Update existing focus area
+      await API.put(`/focus-areas/${focusAreaId}`, focusAreaData);
+      Utils.showNotification('Focus area updated successfully!', 'success');
+    } else {
+      // Create new focus area
+      await API.post('/focus-areas', focusAreaData);
+      Utils.showNotification('Focus area created successfully!', 'success');
+    }
+    
+    closeFocusAreaModal();
+    
+    // Reload focus areas data and refresh both tabs
+    await loadFocusAreasData();
+    
+  } catch (error) {
+    console.error('Error saving focus area:', error);
+    Utils.showNotification('Error saving focus area', 'error');
+  }
+}
+
+function editFocusArea(focusAreaId) {
+  const displayDiv = document.getElementById(`focus-area-display-${focusAreaId}`);
+  const editDiv = document.getElementById(`focus-area-edit-${focusAreaId}`);
+  
+  if (displayDiv && editDiv) {
+    displayDiv.classList.add('hidden');
+    editDiv.classList.remove('hidden');
+  }
+}
+
+function cancelEditFocusArea(focusAreaId) {
+  const displayDiv = document.getElementById(`focus-area-display-${focusAreaId}`);
+  const editDiv = document.getElementById(`focus-area-edit-${focusAreaId}`);
+  
+  if (displayDiv && editDiv) {
+    displayDiv.classList.remove('hidden');
+    editDiv.classList.add('hidden');
+  }
+}
+
+async function saveFocusArea(e, focusAreaId) {
+  e.preventDefault();
+  
+  try {
+    const form = e.target;
+    const formData = new FormData(form);
+    
+    const focusAreaData = {
+      name: formData.get('name'),
+      category: formData.get('category'),
+      is_active: parseInt(formData.get('is_active'))
+    };
+
+    await API.put(`/focus-areas/${focusAreaId}`, focusAreaData);
+    
+    // Return to display view and refresh data
+    cancelEditFocusArea(focusAreaId);
+    await loadFocusAreasData();
+    
+    Utils.showNotification('Focus area updated successfully!', 'success');
+    
+  } catch (error) {
+    console.error('Error updating focus area:', error);
+    Utils.showNotification('Error updating focus area', 'error');
+  }
+}
+
+async function deleteFocusArea(focusAreaId, focusAreaName) {
+  if (!confirm(`Are you sure you want to delete the focus area "${focusAreaName}"? This action cannot be undone.`)) {
+    return;
+  }
+  
+  try {
+    await API.delete(`/focus-areas/${focusAreaId}`);
+    
+    // Reload focus areas data and refresh both tabs
+    await loadFocusAreasData();
+    
+    Utils.showNotification('Focus area deleted successfully!', 'success');
+    
+  } catch (error) {
+    console.error('Error deleting focus area:', error);
+    Utils.showNotification('Error deleting focus area', 'error');
+  }
 }
 </script>

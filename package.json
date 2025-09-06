@@ -16,7 +16,7 @@
   "main": "src/web/server.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "nodemon app.js",
+    "dev:web": "nodemon app.js",
     "test": "jest",
     "lint": "eslint src/",
     "format": "prettier --write src/",

@@ -468,12 +468,23 @@ document.addEventListener('DOMContentLoaded', function() {
 class GoalsComponent {
   static currentType = 'annual';
   static currentGoals = [];
+  static focusAreas = [];
 
   static async init() {
     if (window.APP_CONFIG.currentPage !== 'goals') return;
     
+    await this.loadFocusAreasData();
     await this.loadGoalsData();
     this.setupGoalsPage();
+  }
+
+  static async loadFocusAreasData() {
+    try {
+      this.focusAreas = await API.get('/focus-areas');
+    } catch (error) {
+      console.error('Error loading focus areas:', error);
+      this.focusAreas = [];
+    }
   }
 
   static async loadGoalsData(type = 'annual') {
@@ -563,56 +574,261 @@ class GoalsComponent {
 
     if (goalsList) {
       goalsList.innerHTML = goals.map(goal => `
-        <div class="goal-item">
-          <div class="goal-header">
-            <div class="flex-1">
-              <h3 class="goal-title">${goal.title}</h3>
-              ${goal.description ? `<p class="goal-description">${goal.description}</p>` : ''}
+        <div class="goal-item" id="goal-${goal.id}">
+          <!-- Display View -->
+          <div class="goal-display" id="goal-display-${goal.id}">
+            <div class="goal-header">
+              <div class="flex-1">
+                <h3 class="goal-title">${goal.title}</h3>
+                ${goal.description ? `<p class="goal-description">${goal.description}</p>` : ''}
+              </div>
+              <div class="goal-actions">
+                <button class="btn btn-sm btn-outline" onclick="GoalsComponent.editGoal(${goal.id})" title="Edit Goal">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="m18.5 2.5 3 3L12 15l-4 1 1-4z"/>
+                  </svg>
+                  <span class="sr-only">Edit Goal</span>
+                </button>
+                <button class="btn btn-sm btn-destructive" onclick="GoalsComponent.deleteGoal(${goal.id})" title="Delete Goal">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c0-1 1-2 2-2v2"/>
+                  </svg>
+                  <span class="sr-only">Delete Goal</span>
+                </button>
+              </div>
             </div>
-            <div class="goal-actions">
-              <button class="btn btn-sm btn-outline" onclick="editGoal(${goal.id})">
-                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                  <path d="m18.5 2.5 3 3L12 15l-4 1 1-4z"/>
+            
+            <div class="goal-progress">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <svg class="icon text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <path d="m9 11 3 3L22 4"/>
+                  </svg>
+                  <span class="text-sm text-muted-foreground">Progress</span>
+                </div>
+                <span class="text-sm font-medium">${goal.progress || 0}%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: ${goal.progress || 0}%"></div>
+              </div>
+              <div class="flex items-center gap-2 mt-2">
+                <input type="range" class="flex-1" min="0" max="100" value="${goal.progress || 0}" 
+                       onchange="GoalsComponent.updateGoalProgress(${goal.id}, this.value)" title="Update Progress">
+                <button class="btn btn-xs btn-outline" onclick="GoalsComponent.updateGoalProgress(${goal.id}, 100)" title="Mark Complete">
+                  <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 6 9 17l-5-5"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
+            ${goal.priority ? `
+              <div class="mt-4">
+                <span class="text-xs px-2 py-1 rounded flex items-center gap-1 inline-flex ${
+                  goal.priority === 'high' ? 'bg-error text-error-foreground' :
+                  goal.priority === 'medium' ? 'bg-warning text-warning-foreground' :
+                  'bg-muted text-muted-foreground'
+                }">
+                  <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    ${
+                      goal.priority === 'high' ? '<path d="M12 2L2 22h20L12 2z"/><path d="M12 8v4M12 16h.01"/>' :
+                      goal.priority === 'medium' ? '<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>' :
+                      '<path d="M12 2L2 22h20L12 2z"/><path d="M12 8v4M12 16h.01"/>'
+                    }
+                  </svg>
+                  ${goal.priority.charAt(0).toUpperCase() + goal.priority.slice(1)} Priority
+                </span>
+              </div>
+            ` : ''}
+            
+            ${goal.target_date ? `
+              <div class="mt-2 flex items-center gap-1">
+                <svg class="icon-sm text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+                  <line x1="16" x2="16" y1="2" y2="6"/>
+                  <line x1="8" x2="8" y1="2" y2="6"/>
+                  <line x1="3" x2="21" y1="10" y2="10"/>
                 </svg>
-              </button>
-              <button class="btn btn-sm btn-destructive" onclick="deleteGoal(${goal.id})">
-                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c0-1 1-2 2-2v2"/>
-                </svg>
-              </button>
-            </div>
+                <span class="text-xs text-muted-foreground">Target: ${new Date(goal.target_date).toLocaleDateString()}</span>
+              </div>
+            ` : ''}
           </div>
-          
-          <div class="goal-progress">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-sm text-muted-foreground">Progress</span>
-              <span class="text-sm font-medium">${goal.progress || 0}%</span>
-            </div>
-            <div class="progress-bar">
-              <div class="progress-fill" style="width: ${goal.progress || 0}%"></div>
-            </div>
-            <input type="range" class="mt-2 w-full" min="0" max="100" value="${goal.progress || 0}" 
-                   onchange="updateGoalProgress(${goal.id}, this.value)">
+
+          <!-- Inline Edit Form -->
+          <div class="goal-edit-form hidden" id="goal-edit-${goal.id}">
+            <form onsubmit="GoalsComponent.saveGoal(event, ${goal.id})">
+              <div class="form-group mb-4">
+                <label class="form-label">Title</label>
+                <input type="text" class="form-input" name="title" value="${goal.title.replace(/"/g, '&quot;')}" required>
+              </div>
+              
+              <div class="form-group mb-4">
+                <label class="form-label">Description</label>
+                <textarea class="form-textarea" name="description">${goal.description || ''}</textarea>
+              </div>
+              
+              <!-- Time-based dropdowns based on goal type -->
+              ${goal.type === 'annual' ? `
+                <div class="form-group mb-4">
+                  <label class="form-label">Target Year</label>
+                  <select class="form-select" name="target_year">
+                    ${(() => {
+                      const currentYear = new Date().getFullYear();
+                      let options = '';
+                      for (let year = currentYear - 1; year <= currentYear + 5; year++) {
+                        const selected = (goal.target_year || currentYear) === year ? 'selected' : '';
+                        options += `<option value="${year}" ${selected}>${year}</option>`;
+                      }
+                      return options;
+                    })()}
+                  </select>
+                </div>
+              ` : ''}
+              
+              ${goal.type === 'monthly' ? `
+                <div class="flex gap-4 mb-4">
+                  <div class="form-group flex-1">
+                    <label class="form-label">Target Year</label>
+                    <select class="form-select" name="target_year">
+                      ${(() => {
+                        const currentYear = new Date().getFullYear();
+                        let options = '';
+                        for (let year = currentYear - 1; year <= currentYear + 2; year++) {
+                          const selected = (goal.target_year || currentYear) === year ? 'selected' : '';
+                          options += `<option value="${year}" ${selected}>${year}</option>`;
+                        }
+                        return options;
+                      })()}
+                    </select>
+                  </div>
+                  
+                  <div class="form-group flex-1">
+                    <label class="form-label">Target Month</label>
+                    <select class="form-select" name="target_month">
+                      ${(() => {
+                        const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                                       'July', 'August', 'September', 'October', 'November', 'December'];
+                        const currentMonth = goal.target_month || new Date().getMonth() + 1;
+                        let options = '';
+                        months.forEach((month, index) => {
+                          const value = index + 1;
+                          const selected = currentMonth === value ? 'selected' : '';
+                          options += `<option value="${value}" ${selected}>${month}</option>`;
+                        });
+                        return options;
+                      })()}
+                    </select>
+                  </div>
+                </div>
+                
+                <div class="form-group mb-4">
+                  <label class="form-label">Focus Area</label>
+                  <select class="form-select" name="focus_area_id">
+                    <option value="">Select a focus area (optional)</option>
+                    ${(() => {
+                      let options = '';
+                      GoalsComponent.focusAreas.forEach(area => {
+                        const selected = (goal.focus_area_id || '') == area.id ? 'selected' : '';
+                        options += `<option value="${area.id}" ${selected}>${area.name}</option>`;
+                      });
+                      return options;
+                    })()}
+                  </select>
+                </div>
+              ` : ''}
+              
+              ${goal.type === 'weekly' ? `
+                <div class="flex gap-4 mb-4">
+                  <div class="form-group flex-1">
+                    <label class="form-label">Target Year</label>
+                    <select class="form-select" name="target_year">
+                      ${(() => {
+                        const currentYear = new Date().getFullYear();
+                        let options = '';
+                        for (let year = currentYear - 1; year <= currentYear + 1; year++) {
+                          const selected = (goal.target_year || currentYear) === year ? 'selected' : '';
+                          options += `<option value="${year}" ${selected}>${year}</option>`;
+                        }
+                        return options;
+                      })()}
+                    </select>
+                  </div>
+                  
+                  <div class="form-group flex-1">
+                    <label class="form-label">Target Month</label>
+                    <select class="form-select" name="target_month">
+                      ${(() => {
+                        const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                                       'July', 'August', 'September', 'October', 'November', 'December'];
+                        const currentMonth = goal.target_month || new Date().getMonth() + 1;
+                        let options = '';
+                        months.forEach((month, index) => {
+                          const value = index + 1;
+                          const selected = currentMonth === value ? 'selected' : '';
+                          options += `<option value="${value}" ${selected}>${month}</option>`;
+                        });
+                        return options;
+                      })()}
+                    </select>
+                  </div>
+                  
+                  <div class="form-group flex-1">
+                    <label class="form-label">Target Week</label>
+                    <select class="form-select" name="target_week">
+                      ${(() => {
+                        let options = '';
+                        for (let week = 1; week <= 53; week++) {
+                          const selected = (goal.target_week || Math.ceil(new Date().getDate() / 7)) === week ? 'selected' : '';
+                          options += `<option value="${week}" ${selected}>Week ${week}</option>`;
+                        }
+                        return options;
+                      })()}
+                    </select>
+                  </div>
+                </div>
+              ` : ''}
+              
+              <div class="flex gap-4 mb-4">
+                <div class="form-group flex-1">
+                  <label class="form-label">Priority</label>
+                  <select class="form-select" name="priority">
+                    <option value="low" ${goal.priority === 'low' ? 'selected' : ''}>Low</option>
+                    <option value="medium" ${goal.priority === 'medium' ? 'selected' : ''}>Medium</option>
+                    <option value="high" ${goal.priority === 'high' ? 'selected' : ''}>High</option>
+                  </select>
+                </div>
+                
+                <div class="form-group flex-1">
+                  <label class="form-label">Target Date</label>
+                  <input type="date" class="form-input" name="target_date" value="${goal.target_date || ''}">
+                </div>
+              </div>
+              
+              <div class="form-group mb-4">
+                <label class="form-label">Success Criteria</label>
+                <textarea class="form-textarea" name="success_criteria">${goal.success_criteria || ''}</textarea>
+              </div>
+              
+              <div class="flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                    <polyline points="17,21 17,13 7,13 7,21"/>
+                    <polyline points="7,3 7,8 15,8"/>
+                  </svg>
+                  Save Changes
+                </button>
+                <button type="button" onclick="GoalsComponent.cancelEdit(${goal.id})" class="btn btn-secondary">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
+                    <path d="M18 6 6 18M6 6l12 12"/>
+                  </svg>
+                  Cancel
+                </button>
+              </div>
+            </form>
           </div>
-          
-          ${goal.priority ? `
-            <div class="mt-4">
-              <span class="text-xs px-2 py-1 rounded ${
-                goal.priority === 'high' ? 'bg-error text-error-foreground' :
-                goal.priority === 'medium' ? 'bg-warning text-warning-foreground' :
-                'bg-muted text-muted-foreground'
-              }">
-                ${goal.priority.charAt(0).toUpperCase() + goal.priority.slice(1)} Priority
-              </span>
-            </div>
-          ` : ''}
-          
-          ${goal.target_date ? `
-            <div class="mt-2">
-              <span class="text-xs text-muted-foreground">Target: ${new Date(goal.target_date).toLocaleDateString()}</span>
-            </div>
-          ` : ''}
         </div>
       `).join('');
     }
@@ -707,34 +923,120 @@ class GoalsComponent {
       console.error('Error loading goal for editing:', error);
     }
   }
-}
 
-// Global functions for onclick handlers
-window.editGoal = function(goalId) {
-  GoalsComponent.showGoalModal(goalId);
-};
-
-window.deleteGoal = async function(goalId) {
-  if (confirm('Are you sure you want to delete this goal?')) {
-    try {
-      await API.delete(`/goals/${goalId}`);
-      GoalsComponent.loadGoalsData(GoalsComponent.currentType);
-      Utils.showNotification('Goal deleted successfully', 'success');
-    } catch (error) {
-      console.error('Error deleting goal:', error);
-      Utils.showNotification('Error deleting goal', 'error');
+  // Inline editing methods
+  static editGoal(goalId) {
+    const displayDiv = document.getElementById(`goal-display-${goalId}`);
+    const editDiv = document.getElementById(`goal-edit-${goalId}`);
+    
+    if (displayDiv && editDiv) {
+      displayDiv.classList.add('hidden');
+      editDiv.classList.remove('hidden');
     }
   }
+
+  static cancelEdit(goalId) {
+    const displayDiv = document.getElementById(`goal-display-${goalId}`);
+    const editDiv = document.getElementById(`goal-edit-${goalId}`);
+    
+    if (displayDiv && editDiv) {
+      displayDiv.classList.remove('hidden');
+      editDiv.classList.add('hidden');
+    }
+  }
+
+  static async saveGoal(e, goalId) {
+    e.preventDefault();
+    
+    try {
+      const form = e.target;
+      const formData = new FormData(form);
+      
+      // Extract form data using names
+      const goalData = {
+        title: formData.get('title'),
+        description: formData.get('description'),
+        priority: formData.get('priority'),
+        target_date: formData.get('target_date'),
+        success_criteria: formData.get('success_criteria'),
+      };
+
+      // Add time-based fields if they exist
+      if (formData.get('target_year')) {
+        goalData.target_year = parseInt(formData.get('target_year'));
+      }
+      
+      if (formData.get('target_month')) {
+        goalData.target_month = parseInt(formData.get('target_month'));
+      }
+      
+      if (formData.get('target_week')) {
+        goalData.target_week = parseInt(formData.get('target_week'));
+      }
+
+      // Add focus area if selected
+      if (formData.get('focus_area_id')) {
+        goalData.focus_area_id = parseInt(formData.get('focus_area_id'));
+      }
+
+      await API.put(`/goals/${goalId}`, goalData);
+      
+      // Return to display view and refresh the current tab
+      this.cancelEdit(goalId);
+      await this.loadGoalsData(this.currentType);
+      
+      Utils.showNotification('Goal updated successfully!', 'success');
+      
+    } catch (error) {
+      console.error('Error updating goal:', error);
+      Utils.showNotification('Error updating goal', 'error');
+    }
+  }
+
+  static async updateGoalProgress(goalId, progress) {
+    try {
+      await API.put(`/goals/${goalId}/progress`, { progress: parseInt(progress) });
+      
+      // Refresh the current goals view
+      await this.loadGoalsData(this.currentType);
+      
+      Utils.showNotification(`Goal progress updated to ${progress}%`, 'success');
+      
+    } catch (error) {
+      console.error('Error updating goal progress:', error);
+      Utils.showNotification('Error updating progress', 'error');
+    }
+  }
+
+  static async deleteGoal(goalId) {
+    if (confirm('Are you sure you want to delete this goal?')) {
+      try {
+        await API.delete(`/goals/${goalId}`);
+        
+        // Refresh the current goals view
+        await this.loadGoalsData(this.currentType);
+        
+        Utils.showNotification('Goal deleted successfully', 'success');
+        
+      } catch (error) {
+        console.error('Error deleting goal:', error);
+        Utils.showNotification('Error deleting goal', 'error');
+      }
+    }
+  }
+}
+
+// Global functions for onclick handlers (now using inline editing)
+window.editGoal = function(goalId) {
+  GoalsComponent.editGoal(goalId);
 };
 
-window.updateGoalProgress = async function(goalId, progress) {
-  try {
-    await API.put(`/goals/${goalId}/progress`, { progress: parseInt(progress) });
-    Utils.showNotification('Progress updated', 'success');
-  } catch (error) {
-    console.error('Error updating progress:', error);
-    Utils.showNotification('Error updating progress', 'error');
-  }
+window.deleteGoal = function(goalId) {
+  GoalsComponent.deleteGoal(goalId);
+};
+
+window.updateGoalProgress = function(goalId, progress) {
+  GoalsComponent.updateGoalProgress(goalId, progress);
 };
 
 // Global functions called from templates

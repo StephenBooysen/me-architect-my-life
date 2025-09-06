@@ -13,7 +13,7 @@
         <p class="text-lg text-muted-foreground">Set and track your annual, monthly, and weekly goals</p>
       </div>
       <button class="btn btn-primary" id="add-goal-btn">
-        <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
           <path d="M5 12h14M12 5v14"/>
         </svg>
         Add Goal
@@ -41,6 +41,9 @@
       </svg>
       <p class="text-muted-foreground mb-4">No goals found for this category.</p>
       <button class="btn btn-primary" id="create-first-goal">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
+          <path d="M5 12h14M12 5v14"/>
+        </svg>
         Create Your First Goal
       </button>
     </div>
@@ -53,7 +56,7 @@
       <div class="modal-header">
         <h3 class="modal-title" id="modal-title">Add New Goal</h3>
         <button class="modal-close" id="close-modal">
-          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg class="icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 6 6 18M6 6l12 12"/>
           </svg>
         </button>
@@ -98,8 +101,20 @@
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" id="cancel-goal">Cancel</button>
-          <button type="submit" class="btn btn-primary" id="save-goal">Save Goal</button>
+          <button type="button" class="btn btn-secondary" id="cancel-goal">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
+              <path d="M18 6 6 18M6 6l12 12"/>
+            </svg>
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" id="save-goal">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+              <polyline points="17,21 17,13 7,13 7,21"/>
+              <polyline points="7,3 7,8 15,8"/>
+            </svg>
+            Save Goal
+          </button>
         </div>
       </form>
     </div>

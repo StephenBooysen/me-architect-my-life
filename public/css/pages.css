@@ -58,7 +58,7 @@
 
 /* Goals Page */
 .goals-container {
-  max-width: 1000px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -121,7 +121,6 @@
 }
 
 .goal-title {
-  font-size: var(--text-lg);
   font-weight: 600;
   margin-bottom: var(--space-2);
 }
@@ -164,7 +163,7 @@
 
 /* Habits Page */
 .habits-container {
-  max-width: 1000px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -568,7 +567,7 @@
 
 /* Reflection Page */
 .reflection-container {
-  max-width: 800px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -660,7 +659,7 @@
 
 /* Wisdom Page */
 .wisdom-container {
-  max-width: 1000px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
