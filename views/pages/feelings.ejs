@@ -1,0 +1,82 @@
+<div class="feelings-container">
+  <!-- Loading state -->
+  <div id="loading-state" class="flex items-center justify-center" style="height: 200px;">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Feelings content -->
+  <div id="feelings-content" class="hidden">
+    <!-- Month Navigation -->
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-4">
+        <button id="prev-month" class="btn btn-sm btn-outline">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m15 18-6-6 6-6"/>
+          </svg>
+        </button>
+        <h2 id="month-year" class="text-2xl font-semibold">September 2025</h2>
+        <button id="next-month" class="btn btn-sm btn-outline">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m9 18 6-6-6-6"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Calendar Grid -->
+    <div class="feelings-calendar">
+      <!-- Calendar Header -->
+      <div class="calendar-header">
+        <div class="calendar-day-name">Sun</div>
+        <div class="calendar-day-name">Mon</div>
+        <div class="calendar-day-name">Tue</div>
+        <div class="calendar-day-name">Wed</div>
+        <div class="calendar-day-name">Thu</div>
+        <div class="calendar-day-name">Fri</div>
+        <div class="calendar-day-name">Sat</div>
+      </div>
+      
+      <!-- Calendar Body -->
+      <div id="calendar-body" class="calendar-body">
+        <!-- Calendar days will be generated here -->
+      </div>
+    </div>
+
+    <!-- Mood Legend -->
+    <div class="mood-legend mt-8">
+      <h3 class="text-lg font-semibold mb-4">How are you feeling?</h3>
+      <div class="flex items-center justify-center gap-6">
+        <div class="mood-legend-item">
+          <div class="mood-icon mood-1">😡</div>
+          <span class="mood-label">Crap</span>
+        </div>
+        <div class="mood-legend-item">
+          <div class="mood-icon mood-2">😞</div>
+          <span class="mood-label">Bad</span>
+        </div>
+        <div class="mood-legend-item">
+          <div class="mood-icon mood-3">😐</div>
+          <span class="mood-label">Neutral</span>
+        </div>
+        <div class="mood-legend-item">
+          <div class="mood-icon mood-4">🙂</div>
+          <span class="mood-label">Good</span>
+        </div>
+        <div class="mood-legend-item">
+          <div class="mood-icon mood-5">😍</div>
+          <span class="mood-label">Awesome</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Initialize feelings page when DOM loads
+document.addEventListener('DOMContentLoaded', function() {
+  if (window.APP_CONFIG.currentPage === 'feelings') {
+    loadFeelingsData();
+    setupFeelingsPage();
+  }
+});
+</script>

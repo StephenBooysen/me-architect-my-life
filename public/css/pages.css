@@ -174,6 +174,146 @@
   margin-bottom: var(--space-8);
 }
 
+/* Habit Tabs */
+.habit-tab {
+  padding: var(--space-3) var(--space-4);
+  background-color: transparent;
+  border: none;
+  border-radius: calc(var(--radius) - 2px);
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.habit-tab.active {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  box-shadow: var(--shadow-sm);
+}
+
+/* Habit Views */
+.habit-view.hidden {
+  display: none;
+}
+
+/* Weekly Grid Styles */
+.habits-weekly-grid table {
+  border-collapse: collapse;
+}
+
+.habits-weekly-grid th,
+.habits-weekly-grid td {
+  border: 1px solid hsl(var(--border));
+}
+
+.habits-weekly-grid th {
+  background-color: hsl(var(--muted) / 0.3);
+  font-weight: 600;
+}
+
+.habits-weekly-grid tr:nth-child(even) {
+  background-color: hsl(var(--muted) / 0.1);
+}
+
+/* Habit checkbox styling */
+.habit-checkbox-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.habit-checkbox-container.today-highlight {
+  background-color: hsl(var(--primary) / 0.1);
+  border-radius: 4px;
+  padding: 2px;
+}
+
+.habit-checkbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid hsl(var(--border));
+  border-radius: 4px;
+  background-color: hsl(var(--background));
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  position: relative;
+}
+
+/* Today's checkboxes - interactive */
+.habit-checkbox.today-checkbox {
+  border-color: hsl(var(--primary));
+  cursor: pointer;
+}
+
+.habit-checkbox.today-checkbox:hover {
+  background-color: hsl(var(--primary) / 0.1);
+  transform: scale(1.1);
+}
+
+.habit-checkbox.today-checkbox:checked {
+  background-color: hsl(var(--primary));
+  border-color: hsl(var(--primary));
+}
+
+.habit-checkbox.today-checkbox:checked::after {
+  content: "✓";
+  color: hsl(var(--primary-foreground));
+  font-weight: bold;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  line-height: 1;
+}
+
+/* Past days' checkboxes - visible but disabled */
+.habit-checkbox.past-checkbox {
+  border-color: hsl(var(--muted-foreground) / 0.4);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.habit-checkbox.past-checkbox:checked {
+  background-color: hsl(var(--muted-foreground) / 0.6);
+  border-color: hsl(var(--muted-foreground) / 0.6);
+}
+
+.habit-checkbox.past-checkbox:checked::after {
+  content: "✓";
+  color: hsl(var(--background));
+  font-weight: bold;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  line-height: 1;
+}
+
+/* Future days' checkboxes - hidden/disabled */
+.habit-checkbox.future-checkbox {
+  border-color: hsl(var(--muted-foreground) / 0.2);
+  cursor: not-allowed;
+  opacity: 0.3;
+}
+
+/* Remove default checkbox styling completely */
+.habit-checkbox::-webkit-outer-spin-button,
+.habit-checkbox::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.habit-checkbox::-moz-appearance {
+  -moz-appearance: none;
+}
+
 .habit-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -677,9 +817,9 @@
 }
 
 .wisdom-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
 }
 
 .wisdom-card {
@@ -694,6 +834,81 @@
   font-size: var(--text-base);
   line-height: 1.6;
   margin-bottom: var(--space-4);
+}
+
+/* Markdown content styling */
+.markdown-content {
+  font-style: normal;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3 {
+  font-weight: 600;
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-2);
+}
+
+.markdown-content h1 { font-size: var(--text-xl); }
+.markdown-content h2 { font-size: var(--text-lg); }
+.markdown-content h3 { font-size: var(--text-base); }
+
+.markdown-content p {
+  margin-bottom: var(--space-3);
+}
+
+.markdown-content blockquote {
+  border-left: 4px solid hsl(var(--primary));
+  padding-left: var(--space-3);
+  margin: var(--space-3) 0;
+  font-style: italic;
+  color: hsl(var(--muted-foreground));
+}
+
+.markdown-content code {
+  background-color: hsl(var(--muted));
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+.markdown-content pre {
+  background-color: hsl(var(--muted));
+  padding: var(--space-3);
+  border-radius: var(--radius);
+  overflow-x: auto;
+  margin: var(--space-3) 0;
+}
+
+.markdown-content pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  margin: var(--space-3) 0;
+  padding-left: var(--space-6);
+}
+
+.markdown-content li {
+  margin-bottom: var(--space-1);
+}
+
+.markdown-content a {
+  color: hsl(var(--primary));
+  text-decoration: underline;
+}
+
+.markdown-content a:hover {
+  text-decoration: none;
+}
+
+.markdown-content strong {
+  font-weight: 600;
+}
+
+.markdown-content em {
   font-style: italic;
 }
 
@@ -728,6 +943,166 @@
 .favorite-btn:hover,
 .favorite-btn.active {
   color: hsl(var(--warning));
+}
+
+/* Feelings Page */
+.feelings-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.feelings-calendar {
+  background-color: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.calendar-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background-color: hsl(var(--muted));
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.calendar-day-name {
+  padding: var(--space-4);
+  text-align: center;
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
+  font-size: var(--text-sm);
+}
+
+.calendar-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.calendar-week:last-child {
+  border-bottom: none;
+}
+
+.calendar-day {
+  min-height: 160px;
+  padding: var(--space-2);
+  border-right: 1px solid hsl(var(--border));
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: background-color var(--transition-fast);
+}
+
+.calendar-day:last-child {
+  border-right: none;
+}
+
+.calendar-day.current-month {
+  background-color: hsl(var(--background));
+}
+
+.calendar-day.other-month {
+  background-color: hsl(var(--muted) / 0.3);
+  opacity: 0.5;
+}
+
+.calendar-day.today {
+  background-color: hsl(var(--primary) / 0.1);
+  border: 2px solid hsl(var(--primary));
+}
+
+.day-number {
+  font-weight: 600;
+  font-size: var(--text-sm);
+  color: hsl(var(--foreground));
+  margin-bottom: var(--space-2);
+}
+
+.calendar-day.other-month .day-number {
+  color: hsl(var(--muted-foreground));
+}
+
+.mood-indicators {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 3px;
+  flex: 1;
+  align-items: center;
+  justify-items: center;
+  max-width: 100%;
+  padding: var(--space-1);
+  padding-left: var(--space-3);
+  margin-left: var(--space-1);
+}
+
+.mood-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all var(--transition-fast);
+  position: relative;
+  border: 2px solid transparent;
+  flex-shrink: 0;
+}
+
+.mood-icon.clickable {
+  cursor: pointer;
+  opacity: 0.4;
+}
+
+.mood-icon.clickable:hover {
+  opacity: 0.8;
+  transform: scale(1.1);
+  background-color: hsl(var(--muted) / 0.5);
+}
+
+.mood-icon.selected {
+  opacity: 1 !important;
+  transform: scale(1.2);
+  border: 2px solid hsl(var(--primary));
+  background-color: hsl(var(--primary) / 0.1);
+  box-shadow: 0 2px 8px hsl(var(--primary) / 0.3);
+}
+
+.mood-icon.disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+}
+
+/* Mood Legend */
+.mood-legend {
+  text-align: center;
+}
+
+.mood-legend-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.mood-legend .mood-icon {
+  width: 48px;
+  height: 48px;
+  font-size: 24px;
+  border: 2px solid hsl(var(--border));
+  background-color: hsl(var(--background));
+}
+
+.mood-label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: hsl(var(--muted-foreground));
 }
 
 /* Settings Page */

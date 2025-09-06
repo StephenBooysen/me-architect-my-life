@@ -12,30 +12,96 @@
         <h1 class="text-3xl font-bold text-foreground mb-2">Habits</h1>
         <p class="text-lg text-muted-foreground">Build consistency with daily habit tracking</p>
       </div>
-      <button class="btn btn-primary" id="add-habit-btn">
-        <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M5 12h14M12 5v14"/>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="flex mb-6 bg-muted rounded-lg p-1">
+      <button class="habit-tab active flex-1 px-4 py-2 rounded-md text-center font-medium transition-colors" data-tab="week" id="week-tab">
+        Week
+      </button>
+      <button class="habit-tab flex-1 px-4 py-2 rounded-md text-center font-medium transition-colors" data-tab="habits" id="habits-tab">
+        Habits
+      </button>
+    </div>
+
+    <!-- Week View -->
+    <div id="week-view" class="habit-view">
+      <!-- Week Navigation -->
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-4">
+          <button id="prev-week" class="btn btn-sm btn-outline">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m15 18-6-6 6-6"/>
+            </svg>
+          </button>
+          <h2 id="week-title" class="text-lg font-semibold">This Week</h2>
+          <button id="next-week" class="btn btn-sm btn-outline">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m9 18 6-6-6-6"/>
+            </svg>
+          </button>
+        </div>
+        <div id="week-stats" class="text-sm text-muted-foreground">
+          <!-- Week stats will be shown here -->
+        </div>
+      </div>
+
+      <!-- Habits Weekly Grid -->
+      <div id="habits-weekly-grid" class="bg-white rounded-lg border overflow-hidden">
+        <!-- Weekly grid will be loaded here -->
+      </div>
+
+      <!-- Last Week's Summary -->
+      <div id="last-week-summary" class="mt-8">
+        <h3 class="text-lg font-semibold mb-4">Last Week's Summary</h3>
+        <div id="last-week-habits" class="space-y-2">
+          <!-- Last week summary will be loaded here -->
+        </div>
+      </div>
+
+      <!-- No Habits Message for Week View -->
+      <div id="no-habits-week" class="text-center py-12 hidden">
+        <svg class="w-16 h-16 text-muted-foreground/40 mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2z"/>
+          <path d="M19 11h-4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2z"/>
+          <path d="M13 3h-2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/>
         </svg>
-        Add Habit
-      </button>
+        <p class="text-muted-foreground mb-4">No habits found. Create some habits first!</p>
+        <button class="btn btn-primary" id="switch-to-habits">
+          Go to Habits Tab
+        </button>
+      </div>
     </div>
 
-    <!-- Habits Grid -->
-    <div id="habits-grid" class="habit-grid">
-      <!-- Habits will be loaded here -->
-    </div>
+    <!-- Habits Management View -->
+    <div id="habits-view" class="habit-view hidden">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-lg font-semibold">Manage Habits</h2>
+        <button class="btn btn-primary" id="add-habit-btn">
+          <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5v14"/>
+          </svg>
+          Add Habit
+        </button>
+      </div>
 
-    <!-- No Habits Message -->
-    <div id="no-habits" class="text-center py-12 hidden">
-      <svg class="w-16 h-16 text-muted-foreground/40 mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2z"/>
-        <path d="M19 11h-4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2z"/>
-        <path d="M13 3h-2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/>
-      </svg>
-      <p class="text-muted-foreground mb-4">No habits found. Start building your routine!</p>
-      <button class="btn btn-primary" id="create-first-habit">
-        Create Your First Habit
-      </button>
+      <!-- Habits Grid -->
+      <div id="habits-grid" class="habit-grid">
+        <!-- Habits will be loaded here -->
+      </div>
+
+      <!-- No Habits Message -->
+      <div id="no-habits" class="text-center py-12 hidden">
+        <svg class="w-16 h-16 text-muted-foreground/40 mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2z"/>
+          <path d="M19 11h-4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2z"/>
+          <path d="M13 3h-2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/>
+        </svg>
+        <p class="text-muted-foreground mb-4">No habits found. Start building your routine!</p>
+        <button class="btn btn-primary" id="create-first-habit">
+          Create Your First Habit
+        </button>
+      </div>
     </div>
   </div>
 

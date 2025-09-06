@@ -53,6 +53,15 @@ module.exports = (app) => {
         }
     });
 
+    app.get('/how-you-feel', async (req, res) => {
+        try {
+            res.render('pages/feelings', { title: 'How You Feel - Architect My Life', currentPage: 'feelings' });
+        } catch (error) {
+            console.error('Feelings route error:', error);
+            res.status(500).send('Error loading feelings');
+        }
+    });
+
     app.get('/focus-areas', async (req, res) => {
         try {
             res.render('pages/focus-areas', { title: 'Focus Areas - Architect My Life', currentPage: 'focus-areas' });

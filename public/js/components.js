@@ -352,7 +352,13 @@ window.loadDashboardData = function() {
 
 // AI Chat Component
 class AIChatComponent {
+  static initialized = false;
+
   static init() {
+    // Prevent duplicate initialization
+    if (this.initialized) return;
+    this.initialized = true;
+
     const aiChatForm = document.getElementById('ai-chat-form');
     const aiChatInput = document.getElementById('ai-chat-input');
     const clearChatBtn = document.getElementById('clear-chat');
@@ -458,11 +464,7 @@ class AIChatComponent {
   }
 }
 
-// Initialize components when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-  DashboardComponent.init();
-  AIChatComponent.init();
-});
+// This initialization block was moved to the main initialization section at the end of the file
 
 // Goals Page Component
 class GoalsComponent {
@@ -1111,13 +1113,16 @@ class FocusAreasComponent {
   }
 }
 
-// Habits Page Component (placeholder for when needed)
+// Habits Page Component
 class HabitsComponent {
+  static currentView = 'week';
+  static currentWeekOffset = 0;
+
   static async init() {
     if (window.APP_CONFIG.currentPage !== 'habits') return;
     
-    await this.loadHabitsData();
     this.setupHabitsPage();
+    await this.loadHabitsData();
   }
 
   static async loadHabitsData() {
@@ -1131,23 +1136,154 @@ class HabitsComponent {
       // Fetch habits data
       const habits = await API.get('/habits');
       
-      // Render habits
-      this.renderHabits(habits);
+      // Render based on current view
+      if (this.currentView === 'week') {
+        await this.renderWeeklyView(habits);
+      } else {
+        this.renderHabitsManagement(habits);
+      }
 
       if (loadingState) loadingState.classList.add('hidden');
       if (habitsContent) habitsContent.classList.remove('hidden');
       
     } catch (error) {
       console.error('Error loading habits:', error);
-      showNotification('Error loading habits', 'error');
+      Utils.showNotification('Error loading habits', 'error');
     }
   }
 
-  static renderHabits(habits) {
+  static async renderWeeklyView(habits) {
+    const weekView = document.getElementById('week-view');
+    const habitsView = document.getElementById('habits-view');
+    const weeklyGrid = document.getElementById('habits-weekly-grid');
+    const noHabitsWeek = document.getElementById('no-habits-week');
+    
+    if (!weekView || !habitsView || !weeklyGrid) return;
+
+    // Show week view, hide habits view
+    weekView.classList.remove('hidden');
+    habitsView.classList.add('hidden');
+
+    if (habits.length === 0) {
+      weeklyGrid.classList.add('hidden');
+      if (noHabitsWeek) noHabitsWeek.classList.remove('hidden');
+      return;
+    }
+
+    if (noHabitsWeek) noHabitsWeek.classList.add('hidden');
+    weeklyGrid.classList.remove('hidden');
+
+    // Generate week dates
+    const weekDates = this.getWeekDates(this.currentWeekOffset);
+    
+    // Update week title
+    const weekTitle = document.getElementById('week-title');
+    if (weekTitle) {
+      if (this.currentWeekOffset === 0) {
+        weekTitle.textContent = 'This Week';
+      } else if (this.currentWeekOffset === -1) {
+        weekTitle.textContent = 'Last Week';
+      } else {
+        const startDate = weekDates[0];
+        weekTitle.textContent = `Week of ${startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+      }
+    }
+
+    // Get habit logs for the week
+    const startDate = weekDates[0].toISOString().split('T')[0];
+    const endDate = weekDates[6].toISOString().split('T')[0];
+    
+    let habitLogsData = {};
+    try {
+      for (const habit of habits) {
+        const logs = await API.get(`/habit-logs?habit_id=${habit.id}&start_date=${startDate}&end_date=${endDate}`);
+        habitLogsData[habit.id] = logs;
+      }
+    } catch (error) {
+      console.error('Error loading habit logs:', error);
+      habitLogsData = {};
+    }
+
+    // Render weekly grid
+    weeklyGrid.innerHTML = `
+      <table class="w-full">
+        <thead>
+          <tr class="border-b border-border">
+            <th class="text-left py-3 px-4 font-medium text-muted-foreground">Habit</th>
+            ${weekDates.map(date => `
+              <th class="text-center py-3 px-2 font-medium text-muted-foreground min-w-[60px]">
+                <div class="text-xs">${date.toLocaleDateString('en-US', { weekday: 'short' })}</div>
+                <div class="text-sm">${date.getDate()}</div>
+              </th>
+            `).join('')}
+          </tr>
+        </thead>
+        <tbody>
+          ${habits.map(habit => {
+            const habitLogs = habitLogsData[habit.id] || [];
+            return `
+              <tr class="border-b border-border hover:bg-muted/50">
+                <td class="py-3 px-4">
+                  <div class="font-medium text-foreground">${habit.name}</div>
+                  ${habit.description ? `<div class="text-xs text-muted-foreground">${habit.description}</div>` : ''}
+                </td>
+                ${weekDates.map((date, dayIndex) => {
+                  const dateStr = date.toISOString().split('T')[0];
+                  const log = habitLogs.find(log => log.date === dateStr);
+                  const isCompleted = log?.completed || false;
+                  const isToday = dateStr === new Date().toISOString().split('T')[0];
+                  const isFuture = date > new Date();
+                  const isPast = date < new Date() && !isToday;
+                  
+                  return `
+                    <td class="py-3 px-2 text-center">
+                      <div class="habit-checkbox-container ${isToday ? 'today-highlight' : ''}">
+                        <input 
+                          type="checkbox" 
+                          id="habit-${habit.id}-${dateStr}"
+                          class="habit-checkbox ${isToday ? 'today-checkbox' : isPast ? 'past-checkbox' : 'future-checkbox'}"
+                          ${isCompleted ? 'checked' : ''}
+                          ${!isToday ? 'disabled' : ''}
+                          data-habit-id="${habit.id}"
+                          data-date="${dateStr}"
+                          onchange="HabitsComponent.handleCheckboxChange(this)"
+                          title="${habit.name} - ${date.toLocaleDateString()}"
+                        />
+                      </div>
+                    </td>
+                  `;
+                }).join('')}
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+      </table>
+    `;
+
+    // Update week stats
+    this.updateWeekStats(habits, habitLogsData, weekDates);
+
+    // Load last week's summary if viewing current week
+    if (this.currentWeekOffset === 0) {
+      await this.loadLastWeekSummary(habits);
+    } else {
+      // Hide last week summary for other weeks
+      const lastWeekSummary = document.getElementById('last-week-summary');
+      if (lastWeekSummary) lastWeekSummary.classList.add('hidden');
+    }
+  }
+
+  static renderHabitsManagement(habits) {
+    const weekView = document.getElementById('week-view');
+    const habitsView = document.getElementById('habits-view');
     const habitsGrid = document.getElementById('habits-grid');
     const noHabits = document.getElementById('no-habits');
     
-    if (!habitsGrid || !noHabits) return;
+    if (!weekView || !habitsView || !habitsGrid || !noHabits) return;
+
+    // Show habits view, hide week view
+    weekView.classList.add('hidden');
+    habitsView.classList.remove('hidden');
 
     if (habits.length === 0) {
       habitsGrid.classList.add('hidden');
@@ -1214,8 +1350,237 @@ class HabitsComponent {
   }
 
   static setupHabitsPage() {
+    // Set up tab switching
+    const weekTab = document.getElementById('week-tab');
+    const habitsTab = document.getElementById('habits-tab');
+    
+    if (weekTab) {
+      weekTab.addEventListener('click', () => this.switchToView('week'));
+    }
+    
+    if (habitsTab) {
+      habitsTab.addEventListener('click', () => this.switchToView('habits'));
+    }
+
+    // Set up week navigation
+    const prevWeekBtn = document.getElementById('prev-week');
+    const nextWeekBtn = document.getElementById('next-week');
+    
+    if (prevWeekBtn) {
+      prevWeekBtn.addEventListener('click', () => this.navigateWeek(-1));
+    }
+    
+    if (nextWeekBtn) {
+      nextWeekBtn.addEventListener('click', () => this.navigateWeek(1));
+    }
+
+    // Switch to habits tab button
+    const switchToHabitsBtn = document.getElementById('switch-to-habits');
+    if (switchToHabitsBtn) {
+      switchToHabitsBtn.addEventListener('click', () => this.switchToView('habits'));
+    }
+
     // Add event listeners for habit management
     this.setupEventListeners();
+  }
+
+  static switchToView(view) {
+    this.currentView = view;
+    
+    // Update tab active states
+    const weekTab = document.getElementById('week-tab');
+    const habitsTab = document.getElementById('habits-tab');
+    
+    if (weekTab && habitsTab) {
+      weekTab.classList.toggle('active', view === 'week');
+      habitsTab.classList.toggle('active', view === 'habits');
+    }
+    
+    // Reload data for new view
+    this.loadHabitsData();
+  }
+
+  static navigateWeek(direction) {
+    this.currentWeekOffset += direction;
+    this.loadHabitsData();
+  }
+
+  static getWeekDates(weekOffset = 0) {
+    const now = new Date();
+    const currentDay = now.getDay();
+    const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay; // Make Monday the start of week
+    
+    const monday = new Date(now);
+    monday.setDate(now.getDate() + mondayOffset + (weekOffset * 7));
+    
+    const weekDates = [];
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(monday);
+      date.setDate(monday.getDate() + i);
+      weekDates.push(date);
+    }
+    
+    return weekDates;
+  }
+
+  static updateWeekStats(habits, habitLogsData, weekDates) {
+    const weekStats = document.getElementById('week-stats');
+    if (!weekStats) return;
+
+    let totalPossible = 0;
+    let totalCompleted = 0;
+
+    habits.forEach(habit => {
+      const logs = habitLogsData[habit.id] || [];
+      weekDates.forEach(date => {
+        const dateStr = date.toISOString().split('T')[0];
+        if (date <= new Date()) { // Only count past and current dates
+          totalPossible++;
+          const log = logs.find(l => l.date === dateStr);
+          if (log?.completed) {
+            totalCompleted++;
+          }
+        }
+      });
+    });
+
+    const percentage = totalPossible > 0 ? Math.round((totalCompleted / totalPossible) * 100) : 0;
+    weekStats.textContent = `${totalCompleted}/${totalPossible} completed (${percentage}%)`;
+  }
+
+  static async loadLastWeekSummary(habits) {
+    const lastWeekHabits = document.getElementById('last-week-habits');
+    const lastWeekSummary = document.getElementById('last-week-summary');
+    
+    if (!lastWeekHabits || !lastWeekSummary) return;
+
+    try {
+      // Get last week's dates
+      const lastWeekDates = this.getWeekDates(-1);
+      const startDate = lastWeekDates[0].toISOString().split('T')[0];
+      const endDate = lastWeekDates[6].toISOString().split('T')[0];
+
+      // Get last week's habit logs
+      let lastWeekLogsData = {};
+      for (const habit of habits) {
+        const logs = await API.get(`/habit-logs?habit_id=${habit.id}&start_date=${startDate}&end_date=${endDate}`);
+        lastWeekLogsData[habit.id] = logs;
+      }
+
+      // Calculate completion rates for last week
+      const habitSummaries = habits.map(habit => {
+        const logs = lastWeekLogsData[habit.id] || [];
+        const completedDays = logs.filter(log => log.completed).length;
+        const totalDays = 7;
+        const percentage = Math.round((completedDays / totalDays) * 100);
+        
+        return {
+          ...habit,
+          completedDays,
+          totalDays,
+          percentage
+        };
+      });
+
+      lastWeekHabits.innerHTML = habitSummaries.map(habit => `
+        <div class="flex items-center justify-between py-2 px-3 bg-muted/30 rounded">
+          <div>
+            <div class="font-medium text-sm">${habit.name}</div>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-muted-foreground">${habit.completedDays}/${habit.totalDays}</span>
+            <div class="w-16 bg-muted rounded-full h-2">
+              <div class="bg-primary h-2 rounded-full transition-all" style="width: ${habit.percentage}%"></div>
+            </div>
+            <span class="text-xs font-medium ${habit.percentage >= 80 ? 'text-green-600' : habit.percentage >= 50 ? 'text-yellow-600' : 'text-red-600'}">
+              ${habit.percentage}%
+            </span>
+          </div>
+        </div>
+      `).join('');
+
+      lastWeekSummary.classList.remove('hidden');
+      
+    } catch (error) {
+      console.error('Error loading last week summary:', error);
+      lastWeekSummary.classList.add('hidden');
+    }
+  }
+
+  static async handleCheckboxChange(checkboxElement) {
+    // Only process changes for today's checkboxes
+    if (!checkboxElement.classList.contains('today-checkbox')) {
+      return;
+    }
+
+    const habitId = parseInt(checkboxElement.dataset.habitId);
+    const date = checkboxElement.dataset.date;
+    const isCompleted = checkboxElement.checked;
+
+    try {
+      // Update habit log
+      await API.post('/habit-logs', {
+        habit_id: habitId,
+        date: date,
+        completed: isCompleted
+      });
+
+      // Reload data to update stats
+      await this.loadHabitsData();
+
+      Utils.showNotification(
+        isCompleted ? 'Habit completed!' : 'Habit unmarked',
+        isCompleted ? 'success' : 'info'
+      );
+    } catch (error) {
+      console.error('Error updating habit log:', error);
+      Utils.showNotification('Error updating habit', 'error');
+      
+      // Revert checkbox state on error
+      checkboxElement.checked = !isCompleted;
+    }
+  }
+
+  static async toggleHabitLog(habitId, date, buttonElement) {
+    try {
+      // Get current habit log for this date
+      const logs = await API.get(`/habit-logs?habit_id=${habitId}&start_date=${date}&end_date=${date}`);
+      const currentLog = logs.find(log => log.date === date);
+      const newCompleted = !currentLog?.completed;
+
+      // Update habit log
+      await API.post('/habit-logs', {
+        habit_id: habitId,
+        date: date,
+        completed: newCompleted
+      });
+
+      // Update button appearance
+      if (newCompleted) {
+        buttonElement.classList.remove('border-muted-foreground/30', 'hover:border-primary/50');
+        buttonElement.classList.add('bg-primary', 'border-primary');
+        buttonElement.innerHTML = `
+          <svg class="w-4 h-4 text-white mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 6 9 17l-5-5"/>
+          </svg>
+        `;
+      } else {
+        buttonElement.classList.remove('bg-primary', 'border-primary');
+        buttonElement.classList.add('border-muted-foreground/30', 'hover:border-primary/50');
+        buttonElement.innerHTML = '';
+      }
+
+      // Reload data to update stats
+      await this.loadHabitsData();
+
+      Utils.showNotification(
+        newCompleted ? 'Habit completed!' : 'Habit unmarked',
+        newCompleted ? 'success' : 'info'
+      );
+    } catch (error) {
+      console.error('Error toggling habit log:', error);
+      Utils.showNotification('Error updating habit', 'error');
+    }
   }
 
   static setupEventListeners() {
@@ -1323,17 +1688,17 @@ class HabitsComponent {
     try {
       if (habitId) {
         await API.put(`/habits/${habitId}`, habitData);
-        showNotification('Habit updated successfully');
+        Utils.showNotification('Habit updated successfully');
       } else {
         await API.post('/habits', habitData);
-        showNotification('Habit created successfully');
+        Utils.showNotification('Habit created successfully');
       }
       
       this.closeHabitModal();
       await this.loadHabitsData();
     } catch (error) {
       console.error('Error saving habit:', error);
-      showNotification('Error saving habit', 'error');
+      Utils.showNotification('Error saving habit', 'error');
     }
   }
 
@@ -1343,7 +1708,7 @@ class HabitsComponent {
       this.openHabitModal(habit);
     } catch (error) {
       console.error('Error loading habit:', error);
-      showNotification('Error loading habit', 'error');
+      Utils.showNotification('Error loading habit', 'error');
     }
   }
 
@@ -1354,11 +1719,11 @@ class HabitsComponent {
 
     try {
       await API.delete(`/habits/${habitId}`);
-      showNotification('Habit deleted successfully');
+      Utils.showNotification('Habit deleted successfully');
       await this.loadHabitsData();
     } catch (error) {
       console.error('Error deleting habit:', error);
-      showNotification('Error deleting habit', 'error');
+      Utils.showNotification('Error deleting habit', 'error');
     }
   }
 
@@ -1370,11 +1735,188 @@ class HabitsComponent {
         date: today,
         completed: true
       });
-      showNotification('Habit marked as complete for today!');
+      Utils.showNotification('Habit marked as complete for today!');
       await this.loadHabitsData();
     } catch (error) {
       console.error('Error completing habit:', error);
-      showNotification('Error completing habit', 'error');
+      Utils.showNotification('Error completing habit', 'error');
+    }
+  }
+}
+
+// Feelings Page Component
+class FeelingsComponent {
+  static currentYear = new Date().getFullYear();
+  static currentMonth = new Date().getMonth();
+
+  static async init() {
+    if (window.APP_CONFIG.currentPage !== 'feelings') return;
+    
+    this.setupFeelingsPage();
+    await this.loadFeelingsData();
+  }
+
+  static setupFeelingsPage() {
+    const prevMonthBtn = document.getElementById('prev-month');
+    const nextMonthBtn = document.getElementById('next-month');
+
+    if (prevMonthBtn) {
+      prevMonthBtn.addEventListener('click', () => this.navigateMonth(-1));
+    }
+    
+    if (nextMonthBtn) {
+      nextMonthBtn.addEventListener('click', () => this.navigateMonth(1));
+    }
+  }
+
+  static navigateMonth(direction) {
+    this.currentMonth += direction;
+    
+    if (this.currentMonth < 0) {
+      this.currentMonth = 11;
+      this.currentYear -= 1;
+    } else if (this.currentMonth > 11) {
+      this.currentMonth = 0;
+      this.currentYear += 1;
+    }
+    
+    this.loadFeelingsData();
+  }
+
+  static async loadFeelingsData() {
+    try {
+      const loadingState = document.getElementById('loading-state');
+      const feelingsContent = document.getElementById('feelings-content');
+      
+      if (loadingState) loadingState.classList.remove('hidden');
+      if (feelingsContent) feelingsContent.classList.add('hidden');
+
+      // Format month for API call (YYYY-MM)
+      const monthStr = `${this.currentYear}-${String(this.currentMonth + 1).padStart(2, '0')}`;
+      
+      // Fetch moods data for current month
+      const moods = await API.get(`/moods?month=${monthStr}`);
+      
+      // Create moods map for quick lookup
+      const moodsMap = {};
+      moods.forEach(mood => {
+        moodsMap[mood.date] = mood.rating;
+      });
+
+      // Update month/year title
+      this.updateMonthTitle();
+      
+      // Generate calendar
+      this.generateCalendar(moodsMap);
+
+      if (loadingState) loadingState.classList.add('hidden');
+      if (feelingsContent) feelingsContent.classList.remove('hidden');
+      
+    } catch (error) {
+      console.error('Error loading feelings data:', error);
+      Utils.showNotification('Error loading feelings data', 'error');
+    }
+  }
+
+  static updateMonthTitle() {
+    const monthYearElement = document.getElementById('month-year');
+    if (monthYearElement) {
+      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'];
+      monthYearElement.textContent = `${monthNames[this.currentMonth]} ${this.currentYear}`;
+    }
+  }
+
+  static generateCalendar(moodsMap) {
+    const calendarBody = document.getElementById('calendar-body');
+    if (!calendarBody) return;
+
+    // Get first day of month and number of days
+    const firstDay = new Date(this.currentYear, this.currentMonth, 1);
+    const lastDay = new Date(this.currentYear, this.currentMonth + 1, 0);
+    const startDate = new Date(firstDay);
+    startDate.setDate(startDate.getDate() - firstDay.getDay());
+
+    const today = new Date();
+    const isCurrentMonth = this.currentYear === today.getFullYear() && this.currentMonth === today.getMonth();
+    const todayDate = today.getDate();
+
+    let html = '';
+    let currentDate = new Date(startDate);
+
+    // Generate 6 weeks of calendar
+    for (let week = 0; week < 6; week++) {
+      html += '<div class="calendar-week">';
+      
+      for (let day = 0; day < 7; day++) {
+        const dateStr = currentDate.toISOString().split('T')[0];
+        const dayOfMonth = currentDate.getDate();
+        const isCurrentMonthDay = currentDate.getMonth() === this.currentMonth;
+        const isToday = isCurrentMonth && isCurrentMonthDay && dayOfMonth === todayDate;
+        const isPast = currentDate < today && !isToday;
+        const isFuture = currentDate > today;
+        
+        const mood = moodsMap[dateStr] || null;
+
+        html += `
+          <div class="calendar-day ${isCurrentMonthDay ? 'current-month' : 'other-month'} ${isToday ? 'today' : ''}">
+            <div class="day-number">${dayOfMonth}</div>
+            <div class="mood-indicators">
+              ${this.generateMoodIcons(dateStr, mood, isToday, isPast, isFuture, isCurrentMonthDay)}
+            </div>
+          </div>
+        `;
+        
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+      
+      html += '</div>';
+    }
+
+    calendarBody.innerHTML = html;
+  }
+
+  static generateMoodIcons(dateStr, selectedMood, isToday, isPast, isFuture, isCurrentMonth) {
+    const moods = [
+      { value: 1, emoji: '😡', label: 'Crap' },
+      { value: 2, emoji: '😞', label: 'Bad' },
+      { value: 3, emoji: '😐', label: 'Neutral' },
+      { value: 4, emoji: '🙂', label: 'Good' },
+      { value: 5, emoji: '😍', label: 'Awesome' }
+    ];
+
+    return moods.map(mood => {
+      const isSelected = selectedMood === mood.value;
+      const isClickable = isCurrentMonth && (isToday || isPast);
+      
+      return `
+        <div class="mood-icon ${isSelected ? 'selected' : ''} ${isClickable ? 'clickable' : 'disabled'}" 
+             data-mood="${mood.value}" 
+             data-date="${dateStr}"
+             ${isClickable ? `onclick="FeelingsComponent.selectMood('${dateStr}', ${mood.value})"` : ''}
+             title="${mood.label}">
+          ${mood.emoji}
+        </div>
+      `;
+    }).join('');
+  }
+
+  static async selectMood(date, rating) {
+    try {
+      await API.post('/moods', {
+        date: date,
+        rating: rating
+      });
+
+      // Reload the calendar to show updated mood
+      await this.loadFeelingsData();
+
+      const moodLabels = {1: 'Crap', 2: 'Bad', 3: 'Neutral', 4: 'Good', 5: 'Awesome'};
+      Utils.showNotification(`Mood set to ${moodLabels[rating]}!`, 'success');
+
+    } catch (error) {
+      console.error('Error saving mood:', error);
+      Utils.showNotification('Error saving mood', 'error');
     }
   }
 }
@@ -1430,57 +1972,161 @@ class WisdomComponent {
     
     if (wisdomGrid) {
       wisdomGrid.innerHTML = wisdom.map(item => `
-        <div class="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
-          <!-- Header -->
-          <div class="flex items-start justify-between mb-4">
-            <div class="flex items-center gap-2">
-              <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-lg">
-                📖
+        <div class="wisdom-item bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow" id="wisdom-${item.id}">
+          <!-- Display View -->
+          <div class="wisdom-display" id="wisdom-display-${item.id}">
+            <!-- Header -->
+            <div class="flex items-start justify-end mb-4">
+              <div class="flex items-center gap-1">
+                <button class="btn btn-sm ${item.is_favorite ? 'btn-warning' : 'btn-outline'}" onclick="WisdomComponent.toggleFavorite(${item.id})" title="${item.is_favorite ? 'Remove from favorites' : 'Add to favorites'}">
+                  <svg class="icon" viewBox="0 0 24 24" fill="${item.is_favorite ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
+                  <span class="sr-only">${item.is_favorite ? 'Remove from favorites' : 'Add to favorites'}</span>
+                </button>
+                <button class="btn btn-sm btn-outline" onclick="WisdomComponent.editWisdomInPlace(${item.id})" title="Edit Wisdom">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                  <span class="sr-only">Edit Wisdom</span>
+                </button>
+                <button class="btn btn-sm btn-destructive" onclick="WisdomComponent.deleteWisdom(${item.id})" title="Delete Wisdom">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3,6 5,6 21,6"/>
+                    <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"/>
+                  </svg>
+                  <span class="sr-only">Delete Wisdom</span>
+                </button>
               </div>
-              <h3 class="font-semibold text-gray-900">${item.title || (item.content.length > 30 ? item.content.substring(0, 30) + '...' : item.content)}</h3>
             </div>
-            <div class="flex items-center gap-1">
-              <button onclick="WisdomComponent.toggleFavorite(${item.id})" class="p-1 rounded hover:bg-gray-100 ${item.is_favorite ? 'text-red-500' : 'text-gray-400'}">
-                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="${item.is_favorite ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                </svg>
-              </button>
-              <button onclick="WisdomComponent.editWisdom(${item.id})" class="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600">
-                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                </svg>
-              </button>
-              <button onclick="WisdomComponent.deleteWisdom(${item.id})" class="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-red-600">
-                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="3,6 5,6 21,6"/>
-                  <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"/>
-                </svg>
-              </button>
+
+            <!-- Content -->
+            <div class="wisdom-content text-gray-700 mb-4 leading-relaxed markdown-content">
+              ${MarkdownParser.parse(item.content)}
             </div>
+
+            <!-- Footer -->
+            <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+              <div class="flex items-center gap-2">
+                ${item.author ? `<span class="text-sm text-gray-600">— ${item.author}</span>` : ''}
+              </div>
+              <div class="flex items-center gap-2">
+                ${item.category ? `<span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">${item.category}</span>` : ''}
+                ${item.tags ? item.tags.split(',').map(tag => `<span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-full">${tag.trim()}</span>`).join('') : ''}
+              </div>
+            </div>
+
+            <!-- Additional info -->
+            ${item.source ? `<div class="text-xs text-gray-500 mt-2">${item.source}</div>` : ''}
+            ${item.created_at ? `<div class="text-xs text-gray-400 mt-2">Added ${this.formatDate(item.created_at)}</div>` : ''}
           </div>
 
-          <!-- Content -->
-          <div class="wisdom-content text-gray-700 mb-4 leading-relaxed">
-            ${MarkdownParser.parse(item.content)}
-          </div>
+          <!-- Edit View -->
+          <div class="wisdom-edit hidden" id="wisdom-edit-${item.id}">
+            <form onsubmit="WisdomComponent.saveWisdomInPlace(event, ${item.id})">
+              <!-- Markdown Editor -->
+              <div class="mb-4">
+                <label class="form-label mb-2 block">Content</label>
+                <div class="bg-white border border-gray-300 rounded-lg overflow-hidden shadow-sm">
+                  <!-- Toolbar -->
+                  <div class="border-b border-gray-200 bg-gray-50 px-3 py-2 flex items-center gap-1">
+                    <button type="button" class="toolbar-btn" data-action="bold" title="Bold">
+                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/>
+                        <path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/>
+                      </svg>
+                    </button>
+                    <button type="button" class="toolbar-btn" data-action="italic" title="Italic">
+                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="19" y1="4" x2="10" y2="4"/>
+                        <line x1="14" y1="20" x2="5" y2="20"/>
+                        <line x1="15" y1="4" x2="9" y2="20"/>
+                      </svg>
+                    </button>
+                    <div class="w-px h-6 bg-gray-300 mx-1"></div>
+                    <button type="button" class="toolbar-btn" data-action="quote" title="Quote">
+                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/>
+                        <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>
+                      </svg>
+                    </button>
+                    <button type="button" class="toolbar-btn" data-action="link" title="Link">
+                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                      </svg>
+                    </button>
+                    <div class="w-px h-6 bg-gray-300 mx-1"></div>
+                    <button type="button" class="toolbar-btn" id="preview-toggle-${item.id}" title="Preview">
+                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                      </svg>
+                    </button>
+                  </div>
+                  
+                  <!-- Editor/Preview Area -->
+                  <textarea 
+                    class="w-full p-4 border-none resize-none focus:outline-none" 
+                    rows="8" 
+                    name="content" 
+                    id="wisdom-content-${item.id}"
+                    placeholder="Enter your wisdom..."
+                  >${item.content || ''}</textarea>
+                  <div class="hidden p-4 prose max-w-none" id="wisdom-preview-${item.id}"></div>
+                </div>
+              </div>
 
-          <!-- Footer -->
-          <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-            <div class="flex items-center gap-2">
-              ${item.author ? `<span class="text-sm text-gray-600">— ${item.author}</span>` : ''}
-            </div>
-            <div class="flex items-center gap-2">
-              ${item.category ? `<span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">${item.category}</span>` : ''}
-              ${item.tags ? item.tags.split(',').map(tag => `<span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-full">${tag.trim()}</span>`).join('') : ''}
-            </div>
-          </div>
+              <!-- Other Fields -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label class="form-label">Author</label>
+                  <input type="text" name="author" class="form-input" value="${item.author || ''}" placeholder="Author name">
+                </div>
+                <div>
+                  <label class="form-label">Category</label>
+                  <input type="text" name="category" class="form-input" value="${item.category || ''}" placeholder="Category">
+                </div>
+              </div>
 
-          <!-- Additional info -->
-          ${item.source ? `<div class="text-xs text-gray-500 mt-2">${item.source}</div>` : ''}
-          ${item.created_at ? `<div class="text-xs text-gray-400 mt-2">Added ${this.formatDate(item.created_at)}</div>` : ''}
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label class="form-label">Tags</label>
+                  <input type="text" name="tags" class="form-input" value="${item.tags || ''}" placeholder="Comma-separated tags">
+                </div>
+                <div>
+                  <label class="form-label">Source</label>
+                  <input type="text" name="source" class="form-input" value="${item.source || ''}" placeholder="Source">
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                    <polyline points="17,21 17,13 7,13 7,21"/>
+                    <polyline points="7,3 7,8 15,8"/>
+                  </svg>
+                  Save Changes
+                </button>
+                <button type="button" onclick="WisdomComponent.cancelEditInPlace(${item.id})" class="btn btn-secondary">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6 6 18M6 6l12 12"/>
+                  </svg>
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       `).join('');
+      
+      // Set up markdown editor functionality for each item
+      wisdom.forEach(item => {
+        this.setupMarkdownEditorForItem(item.id);
+      });
     }
   }
 
@@ -1868,6 +2514,157 @@ class WisdomComponent {
     }
   }
 
+  static editWisdomInPlace(wisdomId) {
+    const displayDiv = document.getElementById(`wisdom-display-${wisdomId}`);
+    const editDiv = document.getElementById(`wisdom-edit-${wisdomId}`);
+    
+    if (displayDiv && editDiv) {
+      displayDiv.classList.add('hidden');
+      editDiv.classList.remove('hidden');
+      
+      // Focus on the content textarea
+      const textarea = document.getElementById(`wisdom-content-${wisdomId}`);
+      if (textarea) {
+        textarea.focus();
+      }
+    }
+  }
+
+  static cancelEditInPlace(wisdomId) {
+    const displayDiv = document.getElementById(`wisdom-display-${wisdomId}`);
+    const editDiv = document.getElementById(`wisdom-edit-${wisdomId}`);
+    
+    if (displayDiv && editDiv) {
+      displayDiv.classList.remove('hidden');
+      editDiv.classList.add('hidden');
+    }
+  }
+
+  static async saveWisdomInPlace(event, wisdomId) {
+    event.preventDefault();
+    
+    try {
+      const form = event.target;
+      const formData = new FormData(form);
+      
+      const wisdomData = {
+        content: formData.get('content').trim(),
+        author: formData.get('author').trim(),
+        category: formData.get('category').trim(),
+        tags: formData.get('tags').trim(),
+        source: formData.get('source').trim()
+      };
+
+      if (!wisdomData.content) {
+        Utils.showNotification('Please enter some wisdom content', 'error');
+        return;
+      }
+
+      await API.put(`/wisdom/${wisdomId}`, wisdomData);
+      
+      // Return to display view and refresh the data
+      this.cancelEditInPlace(wisdomId);
+      await this.loadWisdomData();
+      
+      Utils.showNotification('Wisdom updated successfully! 🎉', 'success');
+      
+    } catch (error) {
+      console.error('Error updating wisdom:', error);
+      Utils.showNotification('Error updating wisdom', 'error');
+    }
+  }
+
+  static setupMarkdownEditorForItem(wisdomId) {
+    const textarea = document.getElementById(`wisdom-content-${wisdomId}`);
+    const previewDiv = document.getElementById(`wisdom-preview-${wisdomId}`);
+    const previewToggle = document.getElementById(`preview-toggle-${wisdomId}`);
+    
+    if (!textarea || !previewDiv || !previewToggle) return;
+
+    let isPreviewMode = false;
+
+    // Preview toggle functionality
+    previewToggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      isPreviewMode = !isPreviewMode;
+      
+      if (isPreviewMode) {
+        // Switch to preview
+        textarea.classList.add('hidden');
+        previewDiv.classList.remove('hidden');
+        previewDiv.innerHTML = MarkdownParser.parse(textarea.value);
+        previewToggle.classList.add('bg-blue-100', 'text-blue-600');
+      } else {
+        // Switch to edit
+        textarea.classList.remove('hidden');
+        previewDiv.classList.add('hidden');
+        previewToggle.classList.remove('bg-blue-100', 'text-blue-600');
+        textarea.focus();
+      }
+    });
+
+    // Toolbar functionality
+    const editDiv = document.getElementById(`wisdom-edit-${wisdomId}`);
+    if (editDiv) {
+      const toolbarButtons = editDiv.querySelectorAll('.toolbar-btn[data-action]');
+      toolbarButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const action = btn.dataset.action;
+          if (action) {
+            this.handleToolbarActionForItem(action, textarea);
+          }
+        });
+      });
+    }
+  }
+
+  static handleToolbarActionForItem(action, textarea) {
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = textarea.value.substring(start, end);
+    const beforeText = textarea.value.substring(0, start);
+    const afterText = textarea.value.substring(end);
+
+    let newText = '';
+    let newCursorPos = start;
+
+    switch (action) {
+      case 'bold':
+        newText = `**${selectedText || 'bold text'}**`;
+        newCursorPos = start + 2;
+        break;
+      case 'italic':
+        newText = `*${selectedText || 'italic text'}*`;
+        newCursorPos = start + 1;
+        break;
+      case 'quote':
+        newText = `> ${selectedText || 'quote text'}`;
+        newCursorPos = start + 2;
+        break;
+      case 'link':
+        const url = selectedText.startsWith('http') ? selectedText : 'https://example.com';
+        const linkText = selectedText.startsWith('http') ? 'link text' : selectedText || 'link text';
+        newText = `[${linkText}](${url})`;
+        newCursorPos = start + 1;
+        break;
+    }
+
+    textarea.value = beforeText + newText + afterText;
+    textarea.focus();
+    
+    if (selectedText) {
+      textarea.setSelectionRange(newCursorPos, newCursorPos + selectedText.length);
+    } else {
+      const placeholder = newText.match(/\*\*(.*?)\*\*|\*(.*?)\*|\[(.*?)\]/);
+      if (placeholder) {
+        const placeholderText = placeholder[1] || placeholder[2] || placeholder[3];
+        const placeholderStart = beforeText.length + newText.indexOf(placeholderText);
+        textarea.setSelectionRange(placeholderStart, placeholderStart + placeholderText.length);
+      }
+    }
+  }
+
   static async editWisdom(wisdomId) {
     this.openWisdomForm(wisdomId);
   }
@@ -1921,6 +2718,16 @@ window.setupHabitsPage = function() {
   HabitsComponent.setupHabitsPage();
 };
 
+// Global function for handling checkbox changes from weekly view
+window.handleCheckboxChange = function(checkboxElement) {
+  HabitsComponent.handleCheckboxChange(checkboxElement);
+};
+
+// Global function for toggling habit logs from weekly view (legacy support)
+window.toggleHabitLog = function(habitId, date, buttonElement) {
+  HabitsComponent.toggleHabitLog(habitId, date, buttonElement);
+};
+
 // Global wisdom functions
 window.toggleWisdomFavorite = async function(wisdomId) {
   try {
@@ -1946,6 +2753,7 @@ document.addEventListener('DOMContentLoaded', function() {
   GoalsComponent.init();
   FocusAreasComponent.init();
   HabitsComponent.init();
+  FeelingsComponent.init();
   WisdomComponent.init();
   AIChatComponent.init();
 });
@@ -1955,5 +2763,15 @@ window.DashboardComponent = DashboardComponent;
 window.GoalsComponent = GoalsComponent;
 window.FocusAreasComponent = FocusAreasComponent;
 window.HabitsComponent = HabitsComponent;
+window.FeelingsComponent = FeelingsComponent;
 window.WisdomComponent = WisdomComponent;
 window.AIChatComponent = AIChatComponent;
+
+// Global functions for feelings page
+window.loadFeelingsData = function() {
+  FeelingsComponent.loadFeelingsData();
+};
+
+window.setupFeelingsPage = function() {
+  FeelingsComponent.setupFeelingsPage();
+};
