@@ -27,6 +27,67 @@
       <button class="goal-tab" data-type="weekly">Weekly Goals</button>
     </div>
 
+    <!-- Inline Add Goal Form -->
+    <div id="add-goal-form" class="add-goal-form hidden">
+      <div class="bg-card border border-border rounded-lg p-6 mb-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-foreground" id="form-title">Add New Goal</h3>
+          <button class="btn btn-sm btn-outline" id="cancel-add-goal">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 6 6 18M6 6l12 12"/>
+            </svg>
+            Cancel
+          </button>
+        </div>
+        
+        <form id="inline-goal-form" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="inline-goal-title" class="form-label">Title</label>
+              <input type="text" id="inline-goal-title" class="form-input" placeholder="Enter goal title" required>
+            </div>
+            <div>
+              <label for="inline-goal-priority" class="form-label">Priority</label>
+              <select id="inline-goal-priority" class="form-select">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label for="inline-goal-description" class="form-label">Description</label>
+            <textarea id="inline-goal-description" class="form-textarea" placeholder="Describe your goal in detail" rows="3"></textarea>
+          </div>
+
+          <div>
+            <label for="inline-goal-success-criteria" class="form-label">Success Criteria</label>
+            <textarea id="inline-goal-success-criteria" class="form-textarea" placeholder="How will you measure success?" rows="2"></textarea>
+          </div>
+
+          <div id="inline-target-date-group">
+            <label for="inline-goal-target-date" class="form-label">Target Date</label>
+            <input type="date" id="inline-goal-target-date" class="form-input">
+          </div>
+
+          <div class="flex gap-3">
+            <button type="submit" class="btn btn-primary">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                <polyline points="17,21 17,13 7,13 7,21"/>
+                <polyline points="7,3 7,8 15,8"/>
+              </svg>
+              Save Goal
+            </button>
+            <button type="button" class="btn btn-secondary" id="cancel-inline-goal">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- Goals List -->
     <div id="goals-list" class="goal-list">
       <!-- Goals will be loaded here -->

@@ -522,6 +522,8 @@ class GoalsComponent {
         tab.classList.add('active');
         const type = tab.dataset.type;
         this.loadGoalsData(type);
+        // Hide inline form when switching tabs
+        this.hideInlineForm();
       });
     });
 
@@ -530,34 +532,28 @@ class GoalsComponent {
     const createFirstGoal = document.getElementById('create-first-goal');
     
     if (addGoalBtn) {
-      addGoalBtn.addEventListener('click', () => this.showGoalModal());
+      addGoalBtn.addEventListener('click', () => this.showInlineForm());
     }
     
     if (createFirstGoal) {
-      createFirstGoal.addEventListener('click', () => this.showGoalModal());
+      createFirstGoal.addEventListener('click', () => this.showInlineForm());
     }
 
-    // Modal controls
-    const closeModal = document.getElementById('close-modal');
-    const cancelGoal = document.getElementById('cancel-goal');
-    const goalForm = document.getElementById('goal-form');
+    // Inline form controls
+    const cancelAddGoal = document.getElementById('cancel-add-goal');
+    const cancelInlineGoal = document.getElementById('cancel-inline-goal');
+    const inlineGoalForm = document.getElementById('inline-goal-form');
     
-    if (closeModal) {
-      closeModal.addEventListener('click', () => this.hideGoalModal());
+    if (cancelAddGoal) {
+      cancelAddGoal.addEventListener('click', () => this.hideInlineForm());
     }
     
-    if (cancelGoal) {
-      cancelGoal.addEventListener('click', () => this.hideGoalModal());
+    if (cancelInlineGoal) {
+      cancelInlineGoal.addEventListener('click', () => this.hideInlineForm());
     }
     
-    if (goalForm) {
-      goalForm.addEventListener('submit', (e) => this.saveGoal(e));
-    }
-
-    // Modal overlay click to close
-    const modalOverlay = document.querySelector('.modal-overlay');
-    if (modalOverlay) {
-      modalOverlay.addEventListener('click', () => this.hideGoalModal());
+    if (inlineGoalForm) {
+      inlineGoalForm.addEventListener('submit', (e) => this.saveInlineGoal(e));
     }
   }
 
@@ -870,6 +866,94 @@ class GoalsComponent {
     const modal = document.getElementById('goal-modal');
     if (modal) {
       modal.classList.add('hidden');
+    }
+  }
+
+  static showInlineForm() {
+    const inlineForm = document.getElementById('add-goal-form');
+    const formTitle = document.getElementById('form-title');
+    
+    if (inlineForm) {
+      inlineForm.classList.remove('hidden');
+    }
+    
+    if (formTitle) {
+      const goalType = this.getCurrentGoalType();
+      formTitle.textContent = `Add New ${goalType} Goal`;
+    }
+
+    // Clear form
+    this.clearInlineForm();
+    
+    // Focus on title input
+    const titleInput = document.getElementById('inline-goal-title');
+    if (titleInput) {
+      titleInput.focus();
+    }
+  }
+
+  static hideInlineForm() {
+    const inlineForm = document.getElementById('add-goal-form');
+    if (inlineForm) {
+      inlineForm.classList.add('hidden');
+    }
+    this.clearInlineForm();
+  }
+
+  static clearInlineForm() {
+    const form = document.getElementById('inline-goal-form');
+    if (form) {
+      form.reset();
+      // Set priority to medium as default
+      const prioritySelect = document.getElementById('inline-goal-priority');
+      if (prioritySelect) {
+        prioritySelect.value = 'medium';
+      }
+    }
+  }
+
+  static getCurrentGoalType() {
+    const activeTab = document.querySelector('.goal-tab.active');
+    if (activeTab) {
+      const type = activeTab.dataset.type;
+      return type.charAt(0).toUpperCase() + type.slice(1);
+    }
+    return 'Annual';
+  }
+
+  static async saveInlineGoal(e) {
+    e.preventDefault();
+    
+    try {
+      const activeTab = document.querySelector('.goal-tab.active');
+      const goalType = activeTab ? activeTab.dataset.type : 'annual';
+      
+      const formData = {
+        type: goalType,
+        title: document.getElementById('inline-goal-title').value,
+        description: document.getElementById('inline-goal-description').value,
+        priority: document.getElementById('inline-goal-priority').value,
+        success_criteria: document.getElementById('inline-goal-success-criteria').value,
+        target_date: document.getElementById('inline-goal-target-date').value,
+        target_year: new Date().getFullYear(),
+        target_month: null,
+        parent_id: null
+      };
+
+      // Set appropriate time targets based on goal type
+      if (goalType === 'monthly') {
+        formData.target_month = new Date().getMonth() + 1;
+      }
+
+      await API.post('/goals', formData);
+      
+      this.hideInlineForm();
+      this.loadGoalsData(goalType);
+      Utils.showNotification('Goal added successfully!', 'success');
+      
+    } catch (error) {
+      console.error('Error saving goal:', error);
+      Utils.showNotification('Error saving goal', 'error');
     }
   }
 
