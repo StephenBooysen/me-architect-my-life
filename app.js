@@ -2,10 +2,10 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const EventEmitter = require('events');
 const expressLayouts = require("express-ejs-layouts");
 
 const WebDatabase = require("./src/components/webdatabase.js");
-
 
 const app = express();
 const port = process.env.PORT || 3100;
@@ -50,6 +50,37 @@ app.use((req, res, next) => {
   
   next();
 });
+
+// launch our event emitter
+const eventEmitter = new EventEmitter()
+
+// Initiate the service Registry
+const serviceRegistry = require('noobly-core');
+serviceRegistry.initialize(app,eventEmitter);
+
+const log = serviceRegistry.logger('console');
+const cache = serviceRegistry.cache('memory');
+const dataserve = serviceRegistry.dataServe('memory');
+const filing = serviceRegistry.filing('local');
+const queue = serviceRegistry.queue('memory');
+const scheduling = serviceRegistry.scheduling('memory');
+const searching = serviceRegistry.searching('memory');
+const measuring = serviceRegistry.measuring('memory');
+const notifying = serviceRegistry.notifying('memory');
+const worker = serviceRegistry.working('memory');
+const workflow = serviceRegistry.workflow('memory');
+
+// Initiate the Application Registry
+const applicationRegistry = require('noobly-applications');
+applicationRegistry.initialize(app,eventEmitter,serviceRegistry);
+
+const customerservice = applicationRegistry.getApplication("customerservice");
+const delivery = applicationRegistry.getApplication("delivery");
+const infrastructure = applicationRegistry.getApplication("infrastructure");
+const marketing = applicationRegistry.getApplication("marketing");
+const warehouse = applicationRegistry.getApplication("warehouse");
+const wiki = applicationRegistry.getApplication("wiki");
+
 
 // Database instance
 const database = new WebDatabase();
