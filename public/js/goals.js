@@ -88,6 +88,23 @@ class GoalsComponent {
     if (inlineGoalForm) {
       inlineGoalForm.addEventListener('submit', (e) => this.saveInlineGoal(e));
     }
+
+    // Modal form controls
+    const modalForm = document.getElementById('goal-form');
+    const closeModal = document.getElementById('close-modal');
+    const cancelGoal = document.getElementById('cancel-goal');
+    
+    if (modalForm) {
+      modalForm.addEventListener('submit', (e) => this.saveModalGoal(e));
+    }
+    
+    if (closeModal) {
+      closeModal.addEventListener('click', () => this.hideGoalModal());
+    }
+    
+    if (cancelGoal) {
+      cancelGoal.addEventListener('click', () => this.hideGoalModal());
+    }
   }
 
   static async renderGoals(goals) {
@@ -162,9 +179,6 @@ class GoalsComponent {
                   <span class="text-sm text-muted-foreground">Progress</span>
                 </div>
                 <span class="text-sm font-medium">${goal.progress || 0}%</span>
-              </div>
-              <div class="progress-bar">
-                <div class="progress-fill" style="width: ${goal.progress || 0}%"></div>
               </div>
               <div class="flex items-center gap-2 mt-2">
                 <input type="range" class="flex-1" min="0" max="100" value="${goal.progress || 0}" 
@@ -245,12 +259,6 @@ class GoalsComponent {
                   <label class="form-label">Annual Goal</label>
                   <select class="form-select" name="parent_id">
                     <option value="">Select Annual Goal (Optional)</option>
-                    ${(() => {
-                      let options = '';
-                      // We'll need to populate this dynamically when the edit form is shown
-                      // This will be populated by the editGoal function
-                      return options;
-                    })()}
                   </select>
                 </div>
                 
@@ -310,12 +318,6 @@ class GoalsComponent {
                   <label class="form-label">Monthly Goal</label>
                   <select class="form-select" name="parent_id">
                     <option value="">Select Monthly Goal (Optional)</option>
-                    ${(() => {
-                      let options = '';
-                      // We'll need to populate this dynamically when the edit form is shown
-                      // This will be populated by the editGoal function
-                      return options;
-                    })()}
                   </select>
                 </div>
                 
@@ -626,7 +628,7 @@ class GoalsComponent {
     }
   }
 
-  static async saveGoal(e) {
+  static async saveModalGoal(e) {
     e.preventDefault();
     
     try {

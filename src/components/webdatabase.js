@@ -1,4 +1,5 @@
 const path = require("path");
+const fs = require("fs");
 const sqlite3 = require("sqlite3").verbose();
 
 /**
@@ -12,15 +13,29 @@ class WebDatabase {
 
   async init() {
     // Use a web-specific database path in the data directory
-    const dbPath = path.join(__dirname, "../../.data/web-database.db");
+    const dataDir = path.join(__dirname, "../../data");
+    const dbPath = path.join(dataDir, "web-database.db");
 
+    // Ensure the data directory exists
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+      console.log("Created data directory:", dataDir);
+    }
+
+    // Check if database file exists
+    const dbExists = fs.existsSync(dbPath);
+    
     return new Promise((resolve, reject) => {
       this.db = new sqlite3.Database(dbPath, (err) => {
         if (err) {
           console.error("Error opening database:", err);
           reject(err);
         } else {
-          console.log("Connected to SQLite database (web mode)");
+          if (!dbExists) {
+            console.log("Database file not found - creating new database:", dbPath);
+          } else {
+            console.log("Connected to existing SQLite database:", dbPath);
+          }
           this.createTables().then(resolve).catch(reject);
         }
       });

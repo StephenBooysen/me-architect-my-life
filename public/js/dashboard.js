@@ -4,7 +4,11 @@ class DashboardComponent {
   static async init() {
     if (window.APP_CONFIG.currentPage !== 'dashboard') return;
     
-    await this.loadDashboardData();
+            await this.loadDashboardData();
+    GoalsWidget.init();
+
+    GoalsWidget.init();
+
   }
 
   static async loadDashboardData() {
