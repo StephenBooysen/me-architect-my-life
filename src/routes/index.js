@@ -222,6 +222,7 @@ module.exports = (app, database) => {
                 target_month,
                 target_week,
                 focus_area_id,
+                parent_id,
             } = req.body;
 
             // Build dynamic update query
@@ -238,6 +239,7 @@ module.exports = (app, database) => {
             if (target_month !== undefined) { fields.push('target_month = ?'); values.push(target_month); }
             if (target_week !== undefined) { fields.push('target_week = ?'); values.push(target_week); }
             if (focus_area_id !== undefined) { fields.push('focus_area_id = ?'); values.push(focus_area_id); }
+            if (parent_id !== undefined) { fields.push('parent_id = ?'); values.push(parent_id); }
 
             fields.push('updated_at = CURRENT_TIMESTAMP');
             values.push(id);

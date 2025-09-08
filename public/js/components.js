@@ -557,7 +557,7 @@ class GoalsComponent {
     }
   }
 
-  static renderGoals(goals) {
+  static async renderGoals(goals) {
     const goalsList = document.getElementById('goals-list');
     const noGoalsMessage = document.getElementById('no-goals');
     
@@ -579,6 +579,17 @@ class GoalsComponent {
               <div class="flex-1">
                 <h3 class="goal-title">${goal.title}</h3>
                 ${goal.description ? `<p class="goal-description">${goal.description}</p>` : ''}
+                ${goal.type === 'monthly' && goal.parent_id ? `
+                  <div class="annual-goal-link mt-2">
+                    <span class="text-xs text-muted-foreground bg-secondary px-2 py-1 rounded flex items-center gap-1 inline-flex">
+                      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                      </svg>
+                      <span id="parent-goal-${goal.parent_id}">Loading annual goal...</span>
+                    </span>
+                  </div>
+                ` : ''}
               </div>
               <div class="goal-actions">
                 <button class="btn btn-sm btn-outline" onclick="GoalsComponent.editGoal(${goal.id})" title="Edit Goal">
@@ -686,6 +697,19 @@ class GoalsComponent {
               ` : ''}
               
               ${goal.type === 'monthly' ? `
+                <div class="form-group mb-4">
+                  <label class="form-label">Annual Goal</label>
+                  <select class="form-select" name="parent_id">
+                    <option value="">Select Annual Goal (Optional)</option>
+                    ${(() => {
+                      let options = '';
+                      // We'll need to populate this dynamically when the edit form is shown
+                      // This will be populated by the editGoal function
+                      return options;
+                    })()}
+                  </select>
+                </div>
+                
                 <div class="flex gap-4 mb-4">
                   <div class="form-group flex-1">
                     <label class="form-label">Target Year</label>
@@ -829,6 +853,9 @@ class GoalsComponent {
           </div>
         </div>
       `).join('');
+      
+      // Populate parent goal names for monthly goals
+      await this.populateParentGoalNames(goals);
     }
   }
 
@@ -869,7 +896,7 @@ class GoalsComponent {
     }
   }
 
-  static showInlineForm() {
+  static async showInlineForm() {
     const inlineForm = document.getElementById('add-goal-form');
     const formTitle = document.getElementById('form-title');
     
@@ -877,13 +904,16 @@ class GoalsComponent {
       inlineForm.classList.remove('hidden');
     }
     
+    const goalType = this.getCurrentGoalType();
     if (formTitle) {
-      const goalType = this.getCurrentGoalType();
       formTitle.textContent = `Add New ${goalType} Goal`;
     }
 
     // Clear form
     this.clearInlineForm();
+    
+    // Add dynamic fields based on goal type
+    await this.populateInlineDynamicFields();
     
     // Focus on title input
     const titleInput = document.getElementById('inline-goal-title');
@@ -909,6 +939,49 @@ class GoalsComponent {
       if (prioritySelect) {
         prioritySelect.value = 'medium';
       }
+    }
+    
+    // Clear dynamic fields
+    const dynamicFields = document.getElementById('inline-goal-dynamic-fields');
+    if (dynamicFields) {
+      dynamicFields.innerHTML = '';
+    }
+  }
+  
+  static async populateInlineDynamicFields() {
+    const activeTab = document.querySelector('.goal-tab.active');
+    const goalType = activeTab ? activeTab.dataset.type : 'annual';
+    const dynamicFields = document.getElementById('inline-goal-dynamic-fields');
+    
+    if (!dynamicFields) return;
+    
+    // Clear previous dynamic fields
+    dynamicFields.innerHTML = '';
+    
+    if (goalType === 'monthly') {
+      // Get annual goals for the dropdown
+      let annualGoals = [];
+      try {
+        annualGoals = await API.get('/goals?type=annual');
+      } catch (error) {
+        console.error('Error fetching annual goals:', error);
+        annualGoals = [];
+      }
+      
+      // Create annual goal dropdown
+      const annualGoalField = document.createElement('div');
+      annualGoalField.className = 'form-group mb-4';
+      annualGoalField.innerHTML = `
+        <label class="form-label">Annual Goal</label>
+        <select id="inline-goal-parent-id" class="form-select" name="parent_id">
+          <option value="">Select Annual Goal (Optional)</option>
+          ${annualGoals.map(goal => 
+            `<option value="${goal.id}">${goal.title}</option>`
+          ).join('')}
+        </select>
+      `;
+      
+      dynamicFields.appendChild(annualGoalField);
     }
   }
 
@@ -940,9 +1013,14 @@ class GoalsComponent {
         parent_id: null
       };
 
-      // Set appropriate time targets based on goal type
+      // Set appropriate time targets and parent_id based on goal type
       if (goalType === 'monthly') {
         formData.target_month = new Date().getMonth() + 1;
+        // Get parent_id from the dynamic field
+        const parentIdSelect = document.getElementById('inline-goal-parent-id');
+        if (parentIdSelect && parentIdSelect.value) {
+          formData.parent_id = parseInt(parentIdSelect.value);
+        }
       }
 
       await API.post('/goals', formData);
@@ -1011,13 +1089,83 @@ class GoalsComponent {
   }
 
   // Inline editing methods
-  static editGoal(goalId) {
+  static async editGoal(goalId) {
     const displayDiv = document.getElementById(`goal-display-${goalId}`);
     const editDiv = document.getElementById(`goal-edit-${goalId}`);
     
     if (displayDiv && editDiv) {
       displayDiv.classList.add('hidden');
       editDiv.classList.remove('hidden');
+      
+      // Populate annual goal dropdown if this is a monthly goal
+      const goal = this.currentGoals.find(g => g.id === goalId);
+      if (goal && goal.type === 'monthly') {
+        await this.populateAnnualGoalDropdown(goalId, goal.parent_id);
+      }
+    }
+  }
+
+  static async populateAnnualGoalDropdown(goalId, currentParentId = null) {
+    try {
+      // Get annual goals
+      const annualGoals = await API.get('/goals?type=annual');
+      
+      // Find the dropdown in the edit form
+      const editDiv = document.getElementById(`goal-edit-${goalId}`);
+      const dropdown = editDiv ? editDiv.querySelector('select[name="parent_id"]') : null;
+      
+      if (dropdown) {
+        // Clear existing options except the first one
+        dropdown.innerHTML = '<option value="">Select Annual Goal (Optional)</option>';
+        
+        // Add annual goal options
+        annualGoals.forEach(annualGoal => {
+          const option = document.createElement('option');
+          option.value = annualGoal.id;
+          option.textContent = annualGoal.title;
+          option.selected = (currentParentId && currentParentId == annualGoal.id);
+          dropdown.appendChild(option);
+        });
+      }
+    } catch (error) {
+      console.error('Error populating annual goal dropdown:', error);
+    }
+  }
+
+  static async populateParentGoalNames(goals) {
+    try {
+      // Get all unique parent IDs from monthly goals
+      const parentIds = [...new Set(goals
+        .filter(goal => goal.type === 'monthly' && goal.parent_id)
+        .map(goal => goal.parent_id))];
+      
+      if (parentIds.length === 0) return;
+      
+      // Fetch annual goals
+      const annualGoals = await API.get('/goals?type=annual');
+      
+      // Create a lookup map
+      const annualGoalsMap = {};
+      annualGoals.forEach(goal => {
+        annualGoalsMap[goal.id] = goal.title;
+      });
+      
+      // Update the DOM elements
+      parentIds.forEach(parentId => {
+        const element = document.getElementById(`parent-goal-${parentId}`);
+        if (element && annualGoalsMap[parentId]) {
+          element.textContent = annualGoalsMap[parentId];
+        }
+      });
+    } catch (error) {
+      console.error('Error populating parent goal names:', error);
+      // Update any loading elements to show error
+      const loadingElements = document.querySelectorAll('[id^="parent-goal-"]');
+      loadingElements.forEach(element => {
+        if (element.textContent === 'Loading annual goal...') {
+          element.textContent = 'Unable to load';
+        }
+      });
     }
   }
 
@@ -1063,6 +1211,11 @@ class GoalsComponent {
       // Add focus area if selected
       if (formData.get('focus_area_id')) {
         goalData.focus_area_id = parseInt(formData.get('focus_area_id'));
+      }
+      
+      // Add parent_id if selected (for monthly goals linking to annual goals)
+      if (formData.get('parent_id')) {
+        goalData.parent_id = parseInt(formData.get('parent_id'));
       }
 
       await API.put(`/goals/${goalId}`, goalData);

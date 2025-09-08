@@ -421,6 +421,29 @@ document.addEventListener('DOMContentLoaded', function() {
   LayoutManager.init();
   SearchManager.init();
 
+  // Initialize page-specific components based on current page
+  if (window.DashboardComponent) {
+    DashboardComponent.init();
+  }
+  if (window.GoalsComponent) {
+    GoalsComponent.init();
+  }
+  if (window.HabitsComponent) {
+    HabitsComponent.init();
+  }
+  if (window.FeelingsComponent) {
+    FeelingsComponent.init();
+  }
+  if (window.WisdomComponent) {
+    WisdomComponent.init();
+  }
+  if (window.FocusAreasComponent) {
+    FocusAreasComponent.init();
+  }
+  if (window.AIChatComponent) {
+    AIChatComponent.init();
+  }
+
   // Handle window resize for responsive behavior
   window.addEventListener('resize', () => {
     LayoutManager.updateLayout();
