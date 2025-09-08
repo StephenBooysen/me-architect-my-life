@@ -268,17 +268,17 @@ class SearchManager {
     if (!searchResults) return;
 
     if (results.length === 0) {
-      searchResults.innerHTML = '<div class="p-4 text-muted-foreground text-center">No results found</div>';
+      searchResults.innerHTML = '<div class="search-no-results">No results found</div>';
     } else {
       searchResults.innerHTML = results.map(result => `
-        <a href="${result.url}" class="block p-4 hover:bg-secondary transition-colors">
-          <div class="flex items-center">
-            <div class="w-8 h-8 rounded bg-primary/20 flex items-center justify-center mr-3">
-              <span class="text-xs text-primary">${result.type[0].toUpperCase()}</span>
+        <a href="${result.url}" class="search-result-item">
+          <div class="search-result-content">
+            <div class="search-result-icon">
+              <span>${result.type[0].toUpperCase()}</span>
             </div>
-            <div class="flex-1">
-              <div class="font-medium text-sm">${result.title}</div>
-              <div class="text-xs text-muted-foreground">${result.description}</div>
+            <div class="search-result-details">
+              <div class="search-result-title">${result.title}</div>
+              <div class="search-result-description">${result.description}</div>
             </div>
           </div>
         </a>

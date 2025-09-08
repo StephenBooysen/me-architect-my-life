@@ -139,6 +139,12 @@ class GoalsComponent {
               <div class="flex-1">
                 <h3 class="goal-title">${goal.title}</h3>
                 ${goal.description ? `<p class="goal-description">${goal.description}</p>` : ''}
+                ${goal.success_criteria ? `
+                  <div class="success-criteria mt-3">
+                    <h4 class="text-sm font-medium text-gray-700 mb-1">Success Criteria:</h4>
+                    <p class="goal-description bg-gray-50 p-3 rounded-md border-l-4 border-blue-500">${goal.success_criteria.replace(/\n/g, '<br>')}</p>
+                  </div>
+                ` : ''}
                 ${goal.type === 'monthly' && goal.parent_id ? `
                   <div class="annual-goal-link mt-2">
                     <span class="text-xs text-muted-foreground bg-secondary px-2 py-1 rounded inline-flex">

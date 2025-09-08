@@ -415,10 +415,6 @@
   gap: var(--space-6);
 }
 
-.header-left {
-  flex: 1;
-}
-
 .page-title-group {
   display: flex;
   flex-direction: column;
@@ -821,6 +817,12 @@
 .wisdom-container {
   max-width: 1400px;
   margin: 0 auto;
+}
+
+.form-container {
+  max-width: none;
+  margin: 0;
+  width: 100%;
 }
 
 .wisdom-filters {

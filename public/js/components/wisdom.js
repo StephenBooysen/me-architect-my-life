@@ -20,7 +20,14 @@ class WisdomComponent {
       if (loadingState) loadingState.classList.remove('hidden');
       if (content) content.classList.add('hidden');
 
-      const wisdom = await API.get('/wisdom');
+      // Check if API is available
+      if (!window.API) {
+        console.error('API not available in loadWisdomData');
+        Utils.showNotification('System not ready, please refresh the page', 'error');
+        return;
+      }
+
+      const wisdom = await window.API.get('/wisdom');
       
       this.renderWisdom(wisdom);
       
@@ -379,6 +386,7 @@ class WisdomComponent {
     const wisdomListView = document.querySelector('.bg-gray-50:not(#wisdom-form-page)');
     const formPage = document.getElementById('wisdom-form-page');
     const formTitle = document.getElementById('form-page-title');
+    const noWisdom = document.getElementById('no-wisdom');
     
     this.currentWisdomId = wisdomId;
     this.isEditMode = !!wisdomId;
@@ -387,8 +395,9 @@ class WisdomComponent {
       formTitle.textContent = this.isEditMode ? 'Edit Wisdom ✨' : 'Add New Wisdom ✨';
     }
 
-    // Hide wisdom list and show form
+    // Hide wisdom list, no wisdom panel, and show form
     if (wisdomListView) wisdomListView.classList.add('hidden');
+    if (noWisdom) noWisdom.classList.add('hidden');
     if (formPage) formPage.classList.remove('hidden');
 
     if (this.isEditMode && wisdomId) {
@@ -407,10 +416,20 @@ class WisdomComponent {
   static closeWisdomForm() {
     const wisdomListView = document.querySelector('.bg-gray-50:not(#wisdom-form-page)');
     const formPage = document.getElementById('wisdom-form-page');
+    const noWisdom = document.getElementById('no-wisdom');
+    const wisdomGrid = document.getElementById('wisdom-grid');
     
     // Show wisdom list and hide form
     if (formPage) formPage.classList.add('hidden');
     if (wisdomListView) wisdomListView.classList.remove('hidden');
+    
+    // Show the no wisdom panel if there are no wisdom entries
+    if (noWisdom && wisdomGrid) {
+      const hasWisdomItems = wisdomGrid.children.length > 0 && !wisdomGrid.classList.contains('hidden');
+      if (!hasWisdomItems) {
+        noWisdom.classList.remove('hidden');
+      }
+    }
     
     this.clearForm();
     this.currentWisdomId = null;
@@ -474,25 +493,59 @@ class WisdomComponent {
 
   static async saveWisdom() {
     try {
+      console.log('saveWisdom called');
+      
+      // Check if API is available
+      if (!window.API) {
+        console.error('API not available');
+        Utils.showNotification('System not ready, please refresh the page', 'error');
+        return;
+      }
+      
+      const contentElement = document.getElementById('wisdom-content');
+      const authorElement = document.getElementById('wisdom-author');
+      const categoryElement = document.getElementById('wisdom-category');
+      const tagsElement = document.getElementById('wisdom-tags');
+      const sourceElement = document.getElementById('wisdom-source');
+      const notesElement = document.getElementById('wisdom-notes');
+
+      console.log('Form elements:', { 
+        contentElement, authorElement, categoryElement, 
+        tagsElement, sourceElement, notesElement 
+      });
+
+      // Check if required elements exist
+      if (!contentElement) {
+        console.error('Content element not found');
+        Utils.showNotification('Form not ready, please try again', 'error');
+        return;
+      }
+
       const formData = {
-        content: document.getElementById('wisdom-content').value.trim(),
-        author: document.getElementById('wisdom-author').value.trim(),
-        category: document.getElementById('wisdom-category').value.trim(),
-        tags: document.getElementById('wisdom-tags').value.trim(),
-        source: document.getElementById('wisdom-source').value.trim(),
-        notes: document.getElementById('wisdom-notes').value.trim()
+        content: contentElement.value?.trim() || '',
+        author: authorElement?.value?.trim() || '',
+        category: categoryElement?.value?.trim() || '',
+        tags: tagsElement?.value?.trim() || '',
+        source: sourceElement?.value?.trim() || '',
+        notes: notesElement?.value?.trim() || ''
       };
+
+      console.log('Form data collected:', formData);
 
       if (!formData.content) {
         Utils.showNotification('Please enter some wisdom content', 'error');
         return;
       }
 
+      console.log('About to make API call, isEditMode:', this.isEditMode, 'currentWisdomId:', this.currentWisdomId);
+
       if (this.isEditMode && this.currentWisdomId) {
-        await API.put(`/wisdom/${this.currentWisdomId}`, formData);
+        console.log('Making PUT request to update wisdom');
+        await window.API.put(`/wisdom/${this.currentWisdomId}`, formData);
         Utils.showNotification('Wisdom updated successfully! 🎉', 'success');
       } else {
-        await API.post('/wisdom', formData);
+        console.log('Making POST request to create wisdom');
+        await window.API.post('/wisdom', formData);
         Utils.showNotification('Wisdom created successfully! ✨', 'success');
       }
 

@@ -5,7 +5,7 @@
   </div>
 
   <!-- Wisdom content -->
-  <div id="wisdom-content" class="hidden">
+  <div id="wisdom-content" class="hidden" style="padding-top:20px" >
     <!-- Wisdom Header -->
     <div class="goals-header">
       <div>
@@ -80,14 +80,14 @@
 </div>
 
 <!-- Wisdom Creation/Edit Form (Full Page) -->
-<div id="wisdom-form-page" class="wisdom-container hidden">
+<div id="wisdom-form-page" class="form-container hidden">
   <!-- Header -->
   <div class="goals-header">
     <div>
       <h1 id="form-page-title" class="text-3xl font-bold text-foreground mb-2">Add New Wisdom</h1>
       <p class="text-lg text-muted-foreground">Capture insights, quotes, and wisdom</p>
     </div>
-    <div class="flex items-center gap-3">
+    <div class="form-actions">
       <button class="btn btn-secondary" id="cancel-wisdom">
         Cancel
       </button>
@@ -98,17 +98,10 @@
   </div>
 
   <!-- Form Content -->
-  <div class="card">
-    <div class="card-content p-6">
-    <form id="wisdom-form" class="space-y-6">
-      <!-- Wisdom Content Editor -->
-      <div>
-        <div class="mb-3">
-          <label class="text-sm font-semibold text-gray-700">Wisdom Content</label>
-          <span class="text-red-500">*</span>
-        </div>
-        
-        <!-- Rich Text Editor Container -->
+  <div class="reflection-form">
+    <form id="wisdom-form">
+      <div class="form-section">
+        <h3 class="section-title">Wisdom Content <span class="text-red-500">*</span></h3>
         <div class="bg-white border border-gray-300 rounded-lg overflow-hidden shadow-sm">
           <!-- Toolbar -->
           <div class="border-b border-gray-200 px-4 py-3 bg-gray-50">
@@ -174,7 +167,7 @@
           
           <!-- Editor Area -->
           <div class="relative">
-            <textarea id="wisdom-content" class="w-full h-80 p-4 border-0 resize-none focus:outline-none text-gray-800 leading-relaxed" placeholder="Start writing your wisdom content here...
+            <textarea id="wisdom-content" class="form-textarea" placeholder="Start writing your wisdom content here...
 
 You can use markdown formatting:
 - **Bold text**
@@ -187,119 +180,43 @@ You can use markdown formatting:
         </div>
       </div>
 
-      <!-- Form Fields Grid -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Author -->
-        <div>
-          <div class="mb-3">
-            <label for="wisdom-author" class="text-sm font-semibold text-gray-700">Author</label>
+      <div class="form-section">
+        <h3 class="section-title">Details</h3>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="form-group">
+            <label for="wisdom-author" class="form-label">Author</label>
+            <input type="text" id="wisdom-author" class="form-input" placeholder="Who said this?">
           </div>
-          <input type="text" id="wisdom-author" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white" placeholder="Who said this?">
-        </div>
 
-        <!-- Source -->
-        <div>
-          <div class="mb-3">
-            <label for="wisdom-source" class="text-sm font-semibold text-gray-700">Source</label>
+          <div class="form-group">
+            <label for="wisdom-source" class="form-label">Source</label>
+            <input type="text" id="wisdom-source" class="form-input" placeholder="Book, article, speech, etc.">
           </div>
-          <input type="text" id="wisdom-source" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white" placeholder="Book, article, speech, etc.">
-        </div>
 
-        <!-- Category -->
-        <div>
-          <div class="mb-3">
-            <label for="wisdom-category" class="text-sm font-semibold text-gray-700">Category</label>
+          <div class="form-group">
+            <label for="wisdom-category" class="form-label">Category</label>
+            <input type="text" id="wisdom-category" class="form-input" placeholder="Life, Business, Philosophy, etc.">
           </div>
-          <input type="text" id="wisdom-category" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white" placeholder="Life, Business, Philosophy, etc.">
-        </div>
 
-        <!-- Tags -->
-        <div>
-          <div class="mb-3">
-            <label for="wisdom-tags" class="text-sm font-semibold text-gray-700">Tags</label>
+          <div class="form-group">
+            <label for="wisdom-tags" class="form-label">Tags</label>
+            <input type="text" id="wisdom-tags" class="form-input" placeholder="motivation, success, growth (comma separated)">
           </div>
-          <input type="text" id="wisdom-tags" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white" placeholder="motivation, success, growth (comma separated)">
         </div>
       </div>
 
-      <!-- Personal Notes -->
-      <div>
-        <div class="mb-3">
-          <label for="wisdom-notes" class="text-sm font-semibold text-gray-700">Personal Notes</label>
-        </div>
-        <textarea id="wisdom-notes" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white" rows="4" placeholder="Why is this meaningful to you? How does it apply to your life?"></textarea>
+      <div class="form-section">
+        <h3 class="section-title">Personal Notes</h3>
+        <textarea id="wisdom-notes" class="form-textarea" rows="4" placeholder="Why is this meaningful to you? How does it apply to your life?"></textarea>
         <div class="flex items-center justify-end mt-2">
           <span class="text-xs text-gray-400" id="notes-char-count">0 characters</span>
         </div>
       </div>
     </form>
-    </div>
   </div>
 </div>
 
-<style>
-/* Ensure buttons are properly styled and clickable */
-button {
-  cursor: pointer;
-  border: none;
-  outline: none;
-}
 
-.toolbar-btn {
-  padding: 8px;
-  border: none;
-  background: none;
-  border-radius: 6px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
-
-.toolbar-btn:hover {
-  background-color: #f3f4f6;
-}
-
-.toolbar-btn.bg-blue-100 {
-  background-color: #dbeafe !important;
-}
-
-.toolbar-btn.text-blue-600 {
-  color: #2563eb !important;
-}
-
-/* Ensure action buttons on cards are clickable */
-[onclick] {
-  cursor: pointer !important;
-  pointer-events: auto !important;
-}
-
-/* Spinner styles */
-.spinner {
-  border: 2px solid #f3f4f6;
-  border-top: 2px solid #3b82f6;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Make sure form elements are properly styled */
-input, textarea {
-  font-family: inherit;
-}
-
-/* Hidden class */
-.hidden {
-  display: none !important;
-}
-</style>
 
 <script>
 // Initialize wisdom page when DOM loads
