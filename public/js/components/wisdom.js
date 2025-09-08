@@ -57,24 +57,13 @@ class WisdomComponent {
             <div class="flex items-start justify-end mb-4">
               <div class="flex items-center gap-1">
                 <button class="btn btn-sm ${item.is_favorite ? 'btn-warning' : 'btn-outline'}" onclick="WisdomComponent.toggleFavorite(${item.id})" title="${item.is_favorite ? 'Remove from favorites' : 'Add to favorites'}">
-                  <svg class="icon" viewBox="0 0 24 24" fill="${item.is_favorite ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                  </svg>
-                  <span class="sr-only">${item.is_favorite ? 'Remove from favorites' : 'Add to favorites'}</span>
+                  ${item.is_favorite ? 'Unfav' : 'Fav'}
                 </button>
                 <button class="btn btn-sm btn-outline" onclick="WisdomComponent.editWisdomInPlace(${item.id})" title="Edit Wisdom">
-                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                  </svg>
-                  <span class="sr-only">Edit Wisdom</span>
+                  Edit
                 </button>
                 <button class="btn btn-sm btn-destructive" onclick="WisdomComponent.deleteWisdom(${item.id})" title="Delete Wisdom">
-                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="3,6 5,6 21,6"/>
-                    <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"/>
-                  </svg>
-                  <span class="sr-only">Delete Wisdom</span>
+                  Delete
                 </button>
               </div>
             </div>
@@ -110,37 +99,21 @@ class WisdomComponent {
                   <!-- Toolbar -->
                   <div class="border-b border-gray-200 bg-gray-50 px-3 py-2 flex items-center gap-1">
                     <button type="button" class="toolbar-btn" data-action="bold" title="Bold">
-                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/>
-                        <path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/>
-                      </svg>
+                      <span class="text-xs font-bold">B</span>
                     </button>
                     <button type="button" class="toolbar-btn" data-action="italic" title="Italic">
-                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="19" y1="4" x2="10" y2="4"/>
-                        <line x1="14" y1="20" x2="5" y2="20"/>
-                        <line x1="15" y1="4" x2="9" y2="20"/>
-                      </svg>
+                      <span class="text-xs italic">I</span>
                     </button>
                     <div class="w-px h-6 bg-gray-300 mx-1"></div>
                     <button type="button" class="toolbar-btn" data-action="quote" title="Quote">
-                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/>
-                        <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>
-                      </svg>
+                      <span class="text-xs">"</span>
                     </button>
                     <button type="button" class="toolbar-btn" data-action="link" title="Link">
-                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-                      </svg>
+                      <span class="text-xs">Link</span>
                     </button>
                     <div class="w-px h-6 bg-gray-300 mx-1"></div>
                     <button type="button" class="toolbar-btn" id="preview-toggle-${item.id}" title="Preview">
-                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                        <circle cx="12" cy="12" r="3"/>
-                      </svg>
+                      <span class="text-xs">Preview</span>
                     </button>
                   </div>
                   
@@ -182,17 +155,9 @@ class WisdomComponent {
               <!-- Actions -->
               <div class="flex gap-2">
                 <button type="submit" class="btn btn-primary">
-                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-                    <polyline points="17,21 17,13 7,13 7,21"/>
-                    <polyline points="7,3 7,8 15,8"/>
-                  </svg>
                   Save Changes
                 </button>
                 <button type="button" onclick="WisdomComponent.cancelEditInPlace(${item.id})" class="btn btn-secondary">
-                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M18 6 6 18M6 6l12 12"/>
-                  </svg>
                   Cancel
                 </button>
               </div>
@@ -247,6 +212,14 @@ class WisdomComponent {
     const createFirstWisdom = document.getElementById('create-first-wisdom');
     if (createFirstWisdom) {
       createFirstWisdom.addEventListener('click', () => {
+        this.openWisdomForm();
+      });
+    }
+    
+    // Create first wisdom card
+    const createFirstWisdomCard = document.getElementById('create-first-wisdom-card');
+    if (createFirstWisdomCard) {
+      createFirstWisdomCard.addEventListener('click', () => {
         this.openWisdomForm();
       });
     }

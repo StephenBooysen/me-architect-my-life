@@ -63,6 +63,7 @@ class GoalsComponent {
     // Add goal button
     const addGoalBtn = document.getElementById('add-goal-btn');
     const createFirstGoal = document.getElementById('create-first-goal');
+    const createFirstGoalCard = document.getElementById('create-first-goal-card');
     
     if (addGoalBtn) {
       addGoalBtn.addEventListener('click', () => this.showInlineForm());
@@ -70,6 +71,10 @@ class GoalsComponent {
     
     if (createFirstGoal) {
       createFirstGoal.addEventListener('click', () => this.showInlineForm());
+    }
+    
+    if (createFirstGoalCard) {
+      createFirstGoalCard.addEventListener('click', () => this.showInlineForm());
     }
 
     // Inline form controls
@@ -111,6 +116,11 @@ class GoalsComponent {
     const goalsList = document.getElementById('goals-list');
     const noGoalsMessage = document.getElementById('no-goals');
     
+    // Always clear the goals list first to prevent showing stale data
+    if (goalsList) {
+      goalsList.innerHTML = '';
+    }
+    
     if (goals.length === 0) {
       if (goalsList) goalsList.classList.add('hidden');
       if (noGoalsMessage) noGoalsMessage.classList.remove('hidden');
@@ -131,40 +141,25 @@ class GoalsComponent {
                 ${goal.description ? `<p class="goal-description">${goal.description}</p>` : ''}
                 ${goal.type === 'monthly' && goal.parent_id ? `
                   <div class="annual-goal-link mt-2">
-                    <span class="text-xs text-muted-foreground bg-secondary px-2 py-1 rounded flex items-center gap-1 inline-flex">
-                      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-                      </svg>
-                      <span id="parent-goal-${goal.parent_id}">Loading annual goal...</span>
+                    <span class="text-xs text-muted-foreground bg-secondary px-2 py-1 rounded inline-flex">
+                      <span id="parent-goal-${goal.id}-${goal.parent_id}">Loading annual goal...</span>
                     </span>
                   </div>
                 ` : ''}
                 ${goal.type === 'weekly' && goal.parent_id ? `
                   <div class="monthly-goal-link mt-2">
-                    <span class="text-xs text-muted-foreground bg-secondary px-2 py-1 rounded flex items-center gap-1 inline-flex">
-                      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-                      </svg>
-                      <span id="parent-goal-${goal.parent_id}">Loading monthly goal...</span>
+                    <span class="text-xs text-muted-foreground bg-secondary px-2 py-1 rounded inline-flex">
+                      <span id="parent-goal-${goal.id}-${goal.parent_id}">Loading monthly goal...</span>
                     </span>
                   </div>
                 ` : ''}
               </div>
               <div class="goal-actions">
                 <button class="btn btn-sm btn-outline" onclick="GoalsComponent.editGoal(${goal.id})" title="Edit Goal">
-                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                    <path d="m18.5 2.5 3 3L12 15l-4 1 1-4z"/>
-                  </svg>
-                  <span class="sr-only">Edit Goal</span>
+                  Edit
                 </button>
                 <button class="btn btn-sm btn-destructive" onclick="GoalsComponent.deleteGoal(${goal.id})" title="Delete Goal">
-                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c0-1 1-2 2-2v2"/>
-                  </svg>
-                  <span class="sr-only">Delete Goal</span>
+                  Delete
                 </button>
               </div>
             </div>
@@ -172,10 +167,6 @@ class GoalsComponent {
             <div class="goal-progress">
               <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-2">
-                  <svg class="icon text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                    <path d="m9 11 3 3L22 4"/>
-                  </svg>
                   <span class="text-sm text-muted-foreground">Progress</span>
                 </div>
                 <span class="text-sm font-medium">${goal.progress || 0}%</span>
@@ -184,27 +175,18 @@ class GoalsComponent {
                 <input type="range" class="flex-1" min="0" max="100" value="${goal.progress || 0}" 
                        onchange="GoalsComponent.updateGoalProgress(${goal.id}, this.value)" title="Update Progress">
                 <button class="btn btn-xs btn-outline" onclick="GoalsComponent.updateGoalProgress(${goal.id}, 100)" title="Mark Complete">
-                  <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M20 6 9 17l-5-5"/>
-                  </svg>
+                  ✓
                 </button>
               </div>
             </div>
             
             ${goal.priority ? `
               <div class="mt-4">
-                <span class="text-xs px-2 py-1 rounded flex items-center gap-1 inline-flex ${
+                <span class="text-xs px-2 py-1 rounded inline-flex ${
                   goal.priority === 'high' ? 'bg-error text-error-foreground' :
                   goal.priority === 'medium' ? 'bg-warning text-warning-foreground' :
                   'bg-muted text-muted-foreground'
                 }">
-                  <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    ${
-                      goal.priority === 'high' ? '<path d="M12 2L2 22h20L12 2z"/><path d="M12 8v4M12 16h.01"/>' :
-                      goal.priority === 'medium' ? '<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>' :
-                      '<path d="M12 2L2 22h20L12 2z"/><path d="M12 8v4M12 16h.01"/>'
-                    }
-                  </svg>
                   ${goal.priority.charAt(0).toUpperCase() + goal.priority.slice(1)} Priority
                 </span>
               </div>
@@ -212,12 +194,6 @@ class GoalsComponent {
             
             ${goal.target_date ? `
               <div class="mt-2 flex items-center gap-1">
-                <svg class="icon-sm text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
-                  <line x1="16" x2="16" y1="2" y2="6"/>
-                  <line x1="8" x2="8" y1="2" y2="6"/>
-                  <line x1="3" x2="21" y1="10" y2="10"/>
-                </svg>
                 <span class="text-xs text-muted-foreground">Target: ${new Date(goal.target_date).toLocaleDateString()}</span>
               </div>
             ` : ''}
@@ -392,19 +368,11 @@ class GoalsComponent {
                 <textarea class="form-textarea" name="success_criteria">${goal.success_criteria || ''}</textarea>
               </div>
               
-              <div class="flex gap-2">
+              <div class="flex gap-2 mt-6">
                 <button type="submit" class="btn btn-primary">
-                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
-                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-                    <polyline points="17,21 17,13 7,13 7,21"/>
-                    <polyline points="7,3 7,8 15,8"/>
-                  </svg>
                   Save Changes
                 </button>
                 <button type="button" onclick="GoalsComponent.cancelEdit(${goal.id})" class="btn btn-secondary">
-                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
-                    <path d="M18 6 6 18M6 6l12 12"/>
-                  </svg>
                   Cancel
                 </button>
               </div>
@@ -458,9 +426,15 @@ class GoalsComponent {
   static async showInlineForm() {
     const inlineForm = document.getElementById('add-goal-form');
     const formTitle = document.getElementById('form-title');
+    const noGoalsMessage = document.getElementById('no-goals');
     
     if (inlineForm) {
       inlineForm.classList.remove('hidden');
+    }
+    
+    // Hide the no goals message when showing the form
+    if (noGoalsMessage) {
+      noGoalsMessage.classList.add('hidden');
     }
     
     const goalType = this.getCurrentGoalType();
@@ -483,9 +457,17 @@ class GoalsComponent {
 
   static hideInlineForm() {
     const inlineForm = document.getElementById('add-goal-form');
+    const noGoalsMessage = document.getElementById('no-goals');
+    
     if (inlineForm) {
       inlineForm.classList.add('hidden');
     }
+    
+    // Show the no goals message again if there are no goals
+    if (noGoalsMessage && this.currentGoals && this.currentGoals.length === 0) {
+      noGoalsMessage.classList.remove('hidden');
+    }
+    
     this.clearInlineForm();
   }
 
@@ -774,10 +756,10 @@ class GoalsComponent {
         });
         
         // Update the DOM elements for monthly goals
-        monthlyParentIds.forEach(parentId => {
-          const element = document.getElementById(`parent-goal-${parentId}`);
-          if (element && annualGoalsMap[parentId]) {
-            element.textContent = annualGoalsMap[parentId];
+        goals.filter(goal => goal.type === 'monthly' && goal.parent_id).forEach(goal => {
+          const element = document.getElementById(`parent-goal-${goal.id}-${goal.parent_id}`);
+          if (element && annualGoalsMap[goal.parent_id]) {
+            element.textContent = annualGoalsMap[goal.parent_id];
           }
         });
       }
@@ -791,10 +773,10 @@ class GoalsComponent {
         });
         
         // Update the DOM elements for weekly goals
-        weeklyParentIds.forEach(parentId => {
-          const element = document.getElementById(`parent-goal-${parentId}`);
-          if (element && monthlyGoalsMap[parentId]) {
-            element.textContent = monthlyGoalsMap[parentId];
+        goals.filter(goal => goal.type === 'weekly' && goal.parent_id).forEach(goal => {
+          const element = document.getElementById(`parent-goal-${goal.id}-${goal.parent_id}`);
+          if (element && monthlyGoalsMap[goal.parent_id]) {
+            element.textContent = monthlyGoalsMap[goal.parent_id];
           }
         });
       }

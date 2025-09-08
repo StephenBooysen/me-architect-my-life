@@ -1,3 +1,7 @@
+.goals-dashboard{
+  padding: 1rem;  
+}
+
 .goals-widget .card-header {
   border-bottom: 1px solid var(--border-color);
 }
@@ -106,4 +110,23 @@
   background: var(--primary-color);
   cursor: pointer;
   border-radius: 50%;
+}
+
+/* Fallback goal styling */
+.goals-widget .goal-fallback {
+  opacity: 0.8;
+  background-color: var(--muted-color);
+  border-radius: 6px;
+  margin: 0.25rem 0;
+  padding: 0.5rem 0.75rem;
+}
+
+.goals-widget .goal-fallback .goal-title {
+  padding-left: 0;
+  font-size: 0.875rem;
+}
+
+.goals-widget .goal-fallback .progress-bar {
+  width: 100px;
+  height: 4px;
 }

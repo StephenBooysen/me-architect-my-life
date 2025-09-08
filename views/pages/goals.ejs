@@ -13,9 +13,6 @@
         <p class="text-lg text-muted-foreground">Set and track your annual, monthly, and weekly goals</p>
       </div>
       <button class="btn btn-primary" id="add-goal-btn">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
-          <path d="M5 12h14M12 5v14"/>
-        </svg>
         Add Goal
       </button>
     </div>
@@ -33,9 +30,6 @@
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-lg font-semibold text-foreground" id="form-title">Add New Goal</h3>
           <button class="btn btn-sm btn-outline" id="cancel-add-goal">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M18 6 6 18M6 6l12 12"/>
-            </svg>
             Cancel
           </button>
         </div>
@@ -74,13 +68,8 @@
             <input type="date" id="inline-goal-target-date" class="form-input">
           </div>
 
-          <div class="flex gap-3">
+          <div class="flex gap-3 mt-6" style="padding-top:20px">
             <button type="submit" class="btn btn-primary">
-              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-                <polyline points="17,21 17,13 7,13 7,21"/>
-                <polyline points="7,3 7,8 15,8"/>
-              </svg>
               Save Goal
             </button>
             <button type="button" class="btn btn-secondary" id="cancel-inline-goal">
@@ -97,19 +86,25 @@
     </div>
 
     <!-- No Goals Message -->
-    <div id="no-goals" class="text-center py-12 hidden">
-      <svg class="w-16 h-16 text-muted-foreground/40 mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10"/>
-        <circle cx="12" cy="12" r="6"/>
-        <circle cx="12" cy="12" r="2"/>
-      </svg>
-      <p class="text-muted-foreground mb-4">No goals found for this category.</p>
-      <button class="btn btn-primary" id="create-first-goal">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
-          <path d="M5 12h14M12 5v14"/>
-        </svg>
-        Create Your First Goal
-      </button>
+    <div id="no-goals" class="flex justify-center py-12 hidden">
+      <div class="bg-blue-50 border border-blue-200 rounded-xl p-8 max-w-md w-full text-center cursor-pointer hover:bg-blue-100 transition-colors duration-200" id="create-first-goal-card">
+        <div class="mb-6">
+          <svg width="48" height="48" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-3">
+            <circle cx="32" cy="32" r="30" fill="#3B82F6" stroke="#1E40AF" stroke-width="2"/>
+            <circle cx="32" cy="32" r="22" fill="#EFF6FF" stroke="#3B82F6" stroke-width="2"/>
+            <circle cx="32" cy="32" r="14" fill="#3B82F6" stroke="#1E40AF" stroke-width="1.5"/>
+            <circle cx="32" cy="32" r="6" fill="#EFF6FF"/>
+            <circle cx="32" cy="32" r="2" fill="#1E40AF"/>
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-blue-900 mb-3">Ready to Set Your Goals?</h3>
+        <p class="text-blue-700 mb-6 leading-relaxed">
+          Transform your dreams into achievable milestones. Start by creating your first goal and take the first step towards your ideal life.
+        </p>
+        <div class="bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200">
+          Create Your First Goal
+        </div>
+      </div>
     </div>
   </div>
 
@@ -120,9 +115,7 @@
       <div class="modal-header">
         <h3 class="modal-title" id="modal-title">Add New Goal</h3>
         <button class="modal-close" id="close-modal">
-          <svg class="icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 6 6 18M6 6l12 12"/>
-          </svg>
+          ×
         </button>
       </div>
       <form id="goal-form" class="modal-body">
@@ -166,17 +159,9 @@
 
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" id="cancel-goal">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
-              <path d="M18 6 6 18M6 6l12 12"/>
-            </svg>
             Cancel
           </button>
           <button type="submit" class="btn btn-primary" id="save-goal">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
-              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-              <polyline points="17,21 17,13 7,13 7,21"/>
-              <polyline points="7,3 7,8 15,8"/>
-            </svg>
             Save Goal
           </button>
         </div>
