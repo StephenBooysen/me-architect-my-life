@@ -36,27 +36,33 @@ Provide a unified platform for setting, tracking, and achieving personal goals w
 #### 3.1 Goal Management System
 
 ##### 3.1.1 Hierarchical Goal Structure
-**Description:** Three-tier goal management system with automatic relationship mapping.
+**Description:** Three-tier goal management system with automatic relationship mapping and unified interface.
 
 **Functional Requirements:**
+- **Unified Goal Interface**
+  - Single page for managing all goal types (annual/monthly/weekly)
+  - Hierarchical view with parent-child relationships
+  - Tabbed interface for filtering by goal type
+  - Inline creation and editing capabilities
+  
 - **Annual Goals**
   - Create, edit, and delete annual goals
-  - Set target completion dates
-  - Define success criteria
+  - Set target completion dates and years
+  - Define success criteria and descriptions
   - Assign priority levels (High/Medium/Low)
-  - Track overall progress percentage
+  - Track overall progress percentage with automatic updates
   
 - **Monthly Goals**
   - Link monthly goals to parent annual goals
-  - Auto-suggest monthly milestones based on annual goals
+  - Assign to specific months and years
   - Progress tracking with visual indicators
-  - Month-over-month comparison views
+  - Automatic parent progress calculation
   
 - **Weekly Goals**
   - Derive from monthly objectives
-  - Quick creation from monthly goal view
+  - Assign to specific weeks
   - Week-by-week progress tracking
-  - Rollover incomplete goals to next week option
+  - Automatic parent progress updates
 
 ##### 3.1.2 Progress Tracking & Notes
 **Functional Requirements:**
@@ -113,9 +119,29 @@ Provide a unified platform for setting, tracking, and achieving personal goals w
 - Best streak records
 - Habit correlation analysis (which habits are completed together)
 
-#### 3.4 Wisdom & Inspiration Module
+#### 3.4 How You Feel (Mood Tracking)
 
-##### 3.4.1 Wisdom Capture
+##### 3.4.1 Daily Mood Tracking
+**Description:** Simple daily mood tracking system to monitor emotional well-being over time.
+
+**Functional Requirements:**
+- Daily mood rating system (1-10 scale)
+- Calendar view for historical mood data
+- Monthly mood trends and analytics
+- Quick daily mood entry
+- Visual mood patterns over time
+- Integration with reflection system
+
+##### 3.4.2 Mood Analytics
+- Monthly mood averages
+- Trend identification (improving/declining patterns)
+- Correlation with habit completion rates
+- Visual charts and graphs for mood data
+- Mood streak tracking
+
+#### 3.5 Wisdom & Inspiration Module
+
+##### 3.5.1 Wisdom Capture
 **Functional Requirements:**
 - Create and categorize quotes, insights, and wisdom
 - Tag system for easy retrieval
@@ -123,16 +149,16 @@ Provide a unified platform for setting, tracking, and achieving personal goals w
 - Personal notes on each entry
 - Import from external sources (copy/paste)
 
-##### 3.4.2 Contextual Display
+##### 3.5.2 Contextual Display
 - Smart quote display based on current view/activity
 - Daily wisdom on dashboard
 - Relevant quotes when viewing specific goal categories
 - Random inspiration generator
 - Favorite/bookmark system
 
-#### 3.5 Dashboard
+#### 3.6 Dashboard
 
-##### 3.5.1 Dashboard Components
+##### 3.6.1 Dashboard Components
 **Primary View Elements:**
 - Today's Focus widget
   - Top 3 priority items for today
@@ -155,15 +181,15 @@ Provide a unified platform for setting, tracking, and achieving personal goals w
   - Achievement notifications
   - Streak celebrations
 
-##### 3.5.2 Dashboard Customization
+##### 3.6.2 Dashboard Customization
 - Drag-and-drop widget arrangement
 - Show/hide components
 - Adjust widget sizes
 - Color themes
 
-#### 3.6 Reflection & Journaling
+#### 3.7 Reflection & Journaling
 
-##### 3.6.1 Morning Notes
+##### 3.7.1 Morning Notes
 **Template Questions (Customizable):**
 - What are my top 3 priorities today?
 - How do I want to feel today?
@@ -177,7 +203,7 @@ Provide a unified platform for setting, tracking, and achieving personal goals w
 - Mood tracker
 - Energy level indicator
 
-##### 3.6.2 Evening Reflection
+##### 3.7.2 Evening Reflection
 **Template Questions (Customizable):**
 - What went well today?
 - What could have been better?
@@ -191,22 +217,22 @@ Provide a unified platform for setting, tracking, and achieving personal goals w
 - Tomorrow planning
 - Day rating (1-10)
 
-##### 3.6.3 Template Management
+##### 3.7.3 Template Management
 - Create custom templates
 - Edit existing templates
 - Template versioning
 - Schedule different templates for different days
 
-#### 3.7 AI Guide Integration (Claude API)
+#### 3.8 AI Guide Integration (Claude API)
 
-##### 3.7.1 Conversational Interface
+##### 3.8.1 Conversational Interface
 **Implementation:**
 - Persistent chat sidebar/modal
 - Context-aware conversations based on current goals and progress
 - Natural language interaction
 - Voice input option (future enhancement)
 
-##### 3.7.2 AI Guidance Features
+##### 3.8.2 AI Guidance Features
 **Core Capabilities:**
 - Goal setting assistance
   - Help break down annual goals into actionable monthly/weekly tasks
@@ -228,7 +254,7 @@ Provide a unified platform for setting, tracking, and achieving personal goals w
   - Suggest habit stacking opportunities
   - Provide productivity tips
 
-##### 3.7.3 AI Context Management
+##### 3.8.3 AI Context Management
 - Share relevant goal data with Claude
 - Maintain conversation history
 - Privacy controls for data sharing
@@ -239,13 +265,14 @@ Provide a unified platform for setting, tracking, and achieving personal goals w
 ### 4. Technical Requirements
 
 #### 4.1 Technology Stack
-- **Framework:** Electron (latest stable version)
-- **Frontend:** React or Vue.js
-- **Styling:** Shadcn
+- **Framework:** Electron v28.0.0
+- **Backend:** Express.js with EJS templating
+- **Frontend:** Vanilla JavaScript with modern ES6+ features
+- **Styling:** Custom CSS with modern design principles
 - **Database:** SQLite for local storage
-- **API Integration:** Claude API via Anthropic SDK
-- **State Management:** Redux or Vuex
-- **Charts/Visualization:** Chart.js or D3.js
+- **API Integration:** Claude API via direct HTTP requests
+- **Additional Libraries:** Chart.js, UUID, date-fns, noobly-core framework
+- **Development:** Nodemon, ESLint, Prettier
 
 #### 4.2 Platform Requirements
 - **Operating Systems:** Windows 10+, macOS 10.14+, Ubuntu 20.04+
@@ -275,22 +302,19 @@ Provide a unified platform for setting, tracking, and achieving personal goals w
 ```
 Main Navigation:
 ├── Dashboard (Home)
-├── Goals
-│   ├── Annual Goals
-│   ├── Monthly Goals
-│   └── Weekly Goals
+├── Goals (Unified hierarchical view)
 ├── Focus Areas
 ├── Habits
+├── How You Feel (Mood tracking)
 ├── Reflection
 │   ├── Morning Notes
 │   └── Evening Reflection
 ├── Wisdom Library
 ├── AI Guide
 └── Settings
-    ├── Templates
+    ├── AI Configuration
     ├── Preferences
-    ├── Data Management
-    └── AI Settings
+    └── Data Management
 ```
 
 #### 5.3 Key Interaction Patterns
@@ -348,12 +372,12 @@ Main Navigation:
 ### 8. Success Criteria
 
 #### 8.1 MVP Completion Checklist
-- [ ] All core features implemented and functional
-- [ ] AI integration providing meaningful guidance
-- [ ] Data persistence working reliably
-- [ ] Daily use without critical bugs
+- [x] All core features implemented and functional
+- [x] AI integration providing meaningful guidance
+- [x] Data persistence working reliably
+- [x] Daily use without critical bugs
 - [ ] Export/import functionality operational
-- [ ] Performance metrics met
+- [x] Performance metrics met
 
 #### 8.2 User Acceptance Criteria
 - Intuitive goal hierarchy management
@@ -366,58 +390,68 @@ Main Navigation:
 
 ### 9. Development Phases
 
-#### Phase 1: Foundation (Weeks 1-2)
-- Electron app setup
-- Basic UI framework
-- Database schema design
-- Navigation structure
+#### Phase 1: Foundation ✅ COMPLETED
+- Electron app setup with Express.js backend
+- EJS templating system
+- SQLite database schema implementation
+- Navigation structure with sidebar
 
-#### Phase 2: Core Features (Weeks 3-6)
-- Goal management system
-- Focus areas
-- Basic dashboard
-- Data persistence
+#### Phase 2: Core Features ✅ COMPLETED
+- Hierarchical goal management system
+- Focus areas with monthly assignments
+- Dashboard with goal widgets
+- Data persistence layer
 
-#### Phase 3: Tracking & Habits (Weeks 7-8)
-- Habit tracker
-- Progress tracking
-- Visualization components
+#### Phase 3: Tracking & Habits ✅ COMPLETED
+- Comprehensive habit tracker
+- Progress tracking with automatic parent updates
+- Calendar visualizations
 
-#### Phase 4: Reflection & Wisdom (Weeks 9-10)
-- Morning/evening notes
-- Template system
-- Wisdom library
+#### Phase 4: Reflection & Wisdom ✅ COMPLETED
+- Morning notes and evening reflections
+- Default template system
+- Wisdom library with categorization
+- Mood tracking system (bonus feature)
 
-#### Phase 5: AI Integration (Weeks 11-12)
-- Claude API setup
-- Conversational interface
-- Context management
-- Guidance features
+#### Phase 5: AI Integration ✅ COMPLETED
+- Claude API proxy implementation
+- Chat interface with session management
+- Context-aware AI guidance
+- API key configuration
 
-#### Phase 6: Polish & Testing (Weeks 13-14)
-- UI refinement
+#### Phase 6: Polish & Testing ✅ COMPLETED
+- Modern UI with custom CSS
+- Electron menu integration
 - Performance optimization
-- Bug fixes
-- User testing
+- Cross-platform support
 
 ---
 
 ### 10. Appendices
 
 #### A. Database Schema Overview
-- Goals table (id, type, title, description, parent_id, progress, created_at, updated_at)
-- Habits table (id, name, frequency, category, created_at)
-- Habit_logs table (id, habit_id, date, completed)
-- Notes table (id, type, content, template_id, created_at)
-- Wisdom table (id, content, author, tags, category)
-- Focus_areas table (id, name, month, goals)
+- **Goals table:** (id, type, title, description, parent_id, progress, priority, success_criteria, target_date, target_year, target_month, target_week, focus_area_id, created_at, updated_at)
+- **Goal_notes table:** (id, goal_id, type, content, created_at) - for tracking "what worked" and "what didn't work"
+- **Focus_areas table:** (id, name, category, month, theme, is_active, created_at)
+- **Monthly_focus_assignments table:** (id, year, month, focus_area_id, created_at)
+- **Habits table:** (id, name, description, category, frequency, custom_days, target_streak, is_active, created_at)
+- **Habit_logs table:** (id, habit_id, date, completed, notes, created_at)
+- **Morning_notes table:** (id, date, priorities, mood, energy, gratitude, challenges, intention, template_id, created_at)
+- **Evening_reflections table:** (id, date, what_went_well, what_could_improve, lessons_learned, tomorrow_priority, gratitude, day_rating, accomplishments, template_id, created_at)
+- **Wisdom table:** (id, content, author, source, tags, category, personal_notes, is_favorite, created_at)
+- **Templates table:** (id, name, type, questions, is_default, created_at)
+- **AI_chats table:** (id, session_id, role, message, context, created_at)
+- **Moods table:** (id, date, rating) - for mood tracking feature
 
 #### B. Claude API Integration Details
-- API endpoint configuration
-- Request/response format
-- Context window management
-- Rate limiting considerations
-- Error handling strategies
+- **API endpoint:** https://api.anthropic.com/v1/messages
+- **Model:** claude-3-5-sonnet-20241022
+- **Authentication:** x-api-key header with user-provided API key
+- **API version:** 2023-06-01
+- **Max tokens:** 1000 for responses
+- **Context management:** Session-based chat history storage
+- **Error handling:** Graceful degradation with user-friendly error messages
+- **Rate limiting:** Handled by Claude API directly
 
 #### C. Export Format Specifications
 - JSON structure for full backup
