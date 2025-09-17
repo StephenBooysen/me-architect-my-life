@@ -1,16 +1,26 @@
-// Base requires
+/**
+ * @fileoverview This is a Goal setting application
+ * This file is the entry point into the Goal setting application
+ *
+ * @author Stephen Booysen
+ * @version 1.0.0
+ */
+
+'use strict';
+
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
-const EventEmitter = require('events');
 const expressLayouts = require("express-ejs-layouts");
-
-const WebDatabase = require("./src/components/webdatabase.js");
 
 const app = express();
 const port = process.env.PORT || 3100;
 
-// Middleware
+
+const WebDatabase = require("./src/components/webdatabase.js");
+
+
+// Define the Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -52,10 +62,11 @@ app.use((req, res, next) => {
 });
 
 // launch our event emitter
+const EventEmitter = require('events');
 const eventEmitter = new EventEmitter()
 
 // Initiate the service Registry
-const serviceRegistry = require('noobly-core');
+const serviceRegistry = require('nooblyjs-core');
 serviceRegistry.initialize(app,eventEmitter);
 
 const log = serviceRegistry.logger('console');
@@ -69,18 +80,6 @@ const measuring = serviceRegistry.measuring('memory');
 const notifying = serviceRegistry.notifying('memory');
 const worker = serviceRegistry.working('memory');
 const workflow = serviceRegistry.workflow('memory');
-
-// Initiate the Application Registry
-const applicationRegistry = require('noobly-applications');
-applicationRegistry.initialize(app,eventEmitter,serviceRegistry);
-
-const customerservice = applicationRegistry.getApplication("customerservice");
-const delivery = applicationRegistry.getApplication("delivery");
-const infrastructure = applicationRegistry.getApplication("infrastructure");
-const marketing = applicationRegistry.getApplication("marketing");
-const warehouse = applicationRegistry.getApplication("warehouse");
-const wiki = applicationRegistry.getApplication("wiki");
-
 
 // Database instance
 const database = new WebDatabase();
